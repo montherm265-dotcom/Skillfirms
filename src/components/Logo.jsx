@@ -1,0 +1,11 @@
+export default function Logo({ className = "h-7 w-7" }) {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden="true">
+      <rect width="32" height="32" rx="7" className="fill-primary" />
+      <path
+        d="M9 11.5C9 9.567 10.567 8 12.5 8H21.5L19.8 11.2H12.8C12.2 11.2 11.7 11.7 11.7 12.3C11.7 12.9 12.2 13.4 12.8 13.4H17.2C19.4 13.4 21.2 15.2 21.2 17.4C21.2 19.6 19.4 21.4 17.2 21.4H9.5L11.2 18.2H17.1C17.7 18.2 18.2 17.7 18.2 17.1C18.2 16.5 17.7 16 17.1 16H13.3C10.9 16 9 14.1 9 11.5Z"
+        className="fill-primary-foreground"
+      />
+    </svg>
+  );
+}
