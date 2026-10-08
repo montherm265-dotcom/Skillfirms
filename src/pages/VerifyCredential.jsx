@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { ShieldCheck, ShieldOff, ShieldAlert } from "lucide-react";
 import { verifyCredential, verifyUrlFor } from "@/lib/certificates";
 import Certificate from "@/components/certificate/Certificate";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Seo from "@/components/seo/Seo";
+import { Button } from "@/components/ui/button";
 
 const STATUS_META = {
   active_verified: { icon: ShieldCheck, text: "This credential is active and verified directly by Skillfirms." },
@@ -24,6 +26,7 @@ export default function VerifyCredential() {
   if (result === null) {
     return (
       <div className="section-pad">
+        <Seo title="Credential not found" noindex />
         <div className="mx-auto max-w-lg text-center">
           <h1 className="font-display text-2xl font-bold">Credential not found</h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -39,6 +42,12 @@ export default function VerifyCredential() {
 
   return (
     <div className="section-pad">
+      <Seo
+        title={`${result.credentialName} — ${result.holderName}'s verified credential`}
+        description={`${result.holderName} holds a Skillfirms-verified credential in ${result.credentialName}. ${meta.text}`}
+        canonical={`/verify/${result.credentialCode}`}
+        type="article"
+      />
       <div className="mx-auto max-w-3xl">
         <div className="mx-auto flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground">
           <Icon className="h-4 w-4" />{meta.text}
@@ -61,6 +70,17 @@ export default function VerifyCredential() {
             A newer version of this credential is available: <span className="font-mono">{result.supersededByCode}</span>
           </p>
         )}
+
+        <div className="mx-auto mt-8 max-w-md rounded-xl border border-border bg-muted/30 p-5 text-center">
+          <p className="font-display font-semibold">Want a credential like this one?</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Skillfirms verifies real skills through graded assessments and expert-reviewed work — not a certificate of attendance.
+          </p>
+          <Button asChild className="mt-4">
+            <Link to="/">Start your own skill verification</Link>
+          </Button>
+        </div>
+
         <p className="mt-6 text-center text-xs text-muted-foreground">
           This page reflects the live record held by Skillfirms — the only authoritative source for this credential's status. Skillfirms is not accredited by any government, university, or professional standards body.
         </p>
