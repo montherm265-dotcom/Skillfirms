@@ -71,16 +71,14 @@ export async function runDiagnosis(goalText, userId) {
   if (goalError) throw goalError;
 
   if (estimates.length > 0) {
-    await supabase.from("skillfirms_user_skill_state").upsert(
-      estimates.map((e) => ({
-        user_id: userId,
-        skill_id: skillBySlug.get(e.skillSlug).id,
-        proficiency: e.proficiency,
-        proficiency_source: "ai_estimated",
-        last_evaluated_at: new Date().toISOString(),
-      })),
-      { onConflict: "user_id,skill_id" },
-    );
+    // Goes through the guarded RPC, not a direct table write: a lower-trust
+    // AI re-estimate must never be able to clobber a skill the person has
+    // since passed a real assessment or had expert-reviewed.
+    const { error: estimateError } = await supabase.rpc("skillfirms_record_skill_estimates", {
+      p_source: "ai_estimated",
+      p_estimates: estimates.map((e) => ({ skill_id: skillBySlug.get(e.skillSlug).id, proficiency: e.proficiency })),
+    });
+    if (estimateError) throw estimateError;
   }
 
   await supabase.from("skillfirms_career_diagnoses").insert({
