@@ -34,6 +34,24 @@ Skillfirms points at the **exact same Supabase project** as Talfirms (same `VITE
 This keeps both apps genuinely independently deployable (different domains, different repos,
 different release cycles) while sharing the one thing that actually needs to be shared: who the user is.
 
+### The Talfirms connection (verified credentials -> Talfirms profile)
+
+A Skillfirms Verified credential is always individually checkable by anyone who has its code
+(`/verify/:code`, no login needed) — that's the point of a credential. Showing someone's *whole*
+credential list on their Talfirms profile without them asking is a bigger disclosure, so it's a
+separate, explicit, off-by-default opt-in: `/settings` → "Share verified credentials with Talfirms"
+(`skillfirms_user_settings.share_credentials_with_talfirms`). Only currently `active_verified`
+credentials from an opted-in user are publicly readable — a superseded or revoked one, or anything
+from someone who hasn't opted in, stays visible only to its holder.
+
+Talfirms reads `skillfirms_credentials` directly (same Supabase project, no API needed) to render
+that section on a profile. Set `VITE_TALFIRMS_URL` (Skillfirms) and `VITE_SKILLFIRMS_URL` (Talfirms)
+once each app has a real deployed domain — the cross-product CTAs stay hidden until then rather than
+linking to a guessed URL.
+
+Pulling target-job requirements *from* Talfirms back into Skillfirms' diagnosis (the other direction
+in the brief) isn't built yet — this is Skillfirms-to-Talfirms only, for now.
+
 ## What's built so far
 
 Frontend scaffold only — routing, auth (shared with Talfirms), design tokens derived from the

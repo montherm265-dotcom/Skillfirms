@@ -22,6 +22,7 @@ const MissionDetail = lazy(() => import('@/pages/MissionDetail'));
 const MyCredentials = lazy(() => import('@/pages/MyCredentials'));
 const CredentialDetail = lazy(() => import('@/pages/CredentialDetail'));
 const VerifyCredential = lazy(() => import('@/pages/VerifyCredential'));
+const Settings = lazy(() => import('@/pages/Settings'));
 const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
 
 function RouteFallback() {
@@ -50,6 +51,7 @@ export default function App() {
                 <Route path="/verify/:code" element={<VerifyCredential />} />
                 <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
                 <Route path="/passport" element={<RequireAuth><SkillPassport /></RequireAuth>} />
+                <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
                 <Route path="*" element={<PageNotFound />} />
               </Route>
             </Routes>

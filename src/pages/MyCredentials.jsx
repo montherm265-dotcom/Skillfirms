@@ -27,7 +27,10 @@ export default function MyCredentials() {
   return (
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-2xl font-bold">Your credentials</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="font-display text-2xl font-bold">Your credentials</h1>
+          <Link to="/settings" className="text-sm font-medium text-mastery hover:underline">Manage Talfirms sharing</Link>
+        </div>
         <p className="mt-1 text-sm text-muted-foreground">Every Skillfirms Verified credential you've earned, with a permanent record even if one is later superseded by a newer version.</p>
 
         {credentials.length === 0 ? (

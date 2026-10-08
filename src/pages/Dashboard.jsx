@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Target } from "lucide-react";
+import { Target, ExternalLink } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { runDiagnosis, takePendingGoal } from "@/lib/diagnosis";
+import { TALFIRMS_URL } from "@/lib/externalLinks";
 import DiagnosisResult from "@/components/DiagnosisResult";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
@@ -65,6 +66,11 @@ export default function Dashboard() {
               <Link to="/passport"><Button variant="outline" size="sm">View your Skill Passport</Button></Link>
               <Link to="/credentials"><Button variant="outline" size="sm">Your credentials</Button></Link>
             </div>
+            {TALFIRMS_URL && (
+              <a href={TALFIRMS_URL} target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
+                <ExternalLink className="h-4 w-4" />See matching roles on Talfirms
+              </a>
+            )}
           </div>
         ) : (
           <div className="mt-6 card-soft p-6 text-center">

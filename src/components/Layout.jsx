@@ -36,6 +36,7 @@ export default function Layout() {
                     <AvatarFallback className="text-xs">{(profile?.display_name || "?").slice(0, 1).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Link>
+                <Link to="/settings"><Button variant="ghost" size="sm">Settings</Button></Link>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign out</Button>
               </>
             ) : (
