@@ -1,0 +1,22 @@
+-- Critical regression found while re-auditing Skillfirms for the same
+-- grant-level bug class just fixed on the Talfirms side: migration 0009
+-- revoked EXECUTE on skillfirms_apply_skill_estimate only `from public`,
+-- intending it to be an internal-only helper reachable solely through
+-- postgres-owned SECURITY DEFINER wrappers. Supabase grants EXECUTE to
+-- the anon/authenticated roles directly on new functions, separate from
+-- the PUBLIC pseudo-role grant -- revoking from PUBLIC alone left both
+-- roles still able to call it.
+--
+-- Confirmed live-exploitable before this fix: any authenticated user
+-- could call skillfirms_apply_skill_estimate(any_user_id, any_skill_id,
+-- 1.0, 'expert_verified') directly and forge a top proficiency score,
+-- sourced as expert-verified, for any other user on any skill -- the
+-- exact proficiency-forgery vulnerability migrations 0008/0009 were
+-- built to prevent.
+--
+-- The three legitimate callers (skillfirms_record_skill_estimates,
+-- skillfirms_expert_review_submission, skillfirms_submit_quiz) are all
+-- owned by postgres and reach this function by internal `perform` calls,
+-- which run under the owner's implicit privileges -- they are unaffected
+-- by revoking the role-level grants below.
+revoke execute on function public.skillfirms_apply_skill_estimate(uuid, uuid, numeric, text) from public, anon, authenticated;
