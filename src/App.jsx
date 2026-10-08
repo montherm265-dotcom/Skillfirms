@@ -19,6 +19,9 @@ const LearningPath = lazy(() => import('@/pages/LearningPath'));
 const CourseDetail = lazy(() => import('@/pages/CourseDetail'));
 const Missions = lazy(() => import('@/pages/Missions'));
 const MissionDetail = lazy(() => import('@/pages/MissionDetail'));
+const MyCredentials = lazy(() => import('@/pages/MyCredentials'));
+const CredentialDetail = lazy(() => import('@/pages/CredentialDetail'));
+const VerifyCredential = lazy(() => import('@/pages/VerifyCredential'));
 const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
 
 function RouteFallback() {
@@ -42,6 +45,9 @@ export default function App() {
                 <Route path="/path/:goalId" element={<RequireAuth><LearningPath /></RequireAuth>} />
                 <Route path="/missions" element={<Missions />} />
                 <Route path="/missions/:slug" element={<MissionDetail />} />
+                <Route path="/credentials" element={<RequireAuth><MyCredentials /></RequireAuth>} />
+                <Route path="/credentials/:code" element={<RequireAuth><CredentialDetail /></RequireAuth>} />
+                <Route path="/verify/:code" element={<VerifyCredential />} />
                 <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
                 <Route path="/passport" element={<RequireAuth><SkillPassport /></RequireAuth>} />
                 <Route path="*" element={<PageNotFound />} />

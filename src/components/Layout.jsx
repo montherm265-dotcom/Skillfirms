@@ -26,6 +26,7 @@ export default function Layout() {
             <Link to="/missions" className="hover:text-foreground">Missions</Link>
             {user && <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>}
             {user && <Link to="/passport" className="hover:text-foreground">Skill Passport</Link>}
+            {user && <Link to="/credentials" className="hover:text-foreground">Credentials</Link>}
           </nav>
           <div className="flex items-center gap-2">
             {user ? (

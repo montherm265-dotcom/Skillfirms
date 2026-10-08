@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Clock, Sparkles, UserCheck } from "lucide-react";
+import { Clock, Sparkles, UserCheck, Award } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { submitMission, runAiEvaluation, requestExpertReview } from "@/lib/missions";
@@ -28,6 +28,7 @@ export default function MissionDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [credential, setCredential] = useState(null);
 
   const load = useCallback(async () => {
     const { data: missionData, error: missionError } = await supabase.from("skillfirms_missions").select("*").eq("slug", slug).maybeSingle();
@@ -58,6 +59,15 @@ export default function MissionDetail() {
       } else {
         setEvaluations([]);
       }
+
+      const { data: credentialData } = await supabase
+        .from("skillfirms_credentials")
+        .select("credential_code")
+        .eq("user_id", user.id)
+        .eq("mission_id", missionData.id)
+        .eq("status", "active_verified")
+        .maybeSingle();
+      setCredential(credentialData ?? null);
     }
     setLoading(false);
   }, [slug, user]);
@@ -141,6 +151,12 @@ export default function MissionDetail() {
                   <Badge variant="outline">{STATUS_LABEL[submission.status]}</Badge>
                 </div>
                 <p className="mt-2 whitespace-pre-wrap text-sm">{submission.submission_text}</p>
+
+                {credential && (
+                  <Link to={`/credentials/${credential.credential_code}`} className="mt-3 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
+                    <Award className="h-4 w-4" />View your Skillfirms certificate
+                  </Link>
+                )}
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {!hasAiEval && (

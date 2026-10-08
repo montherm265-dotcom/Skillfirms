@@ -63,6 +63,7 @@ export default function Dashboard() {
             <div className="mt-4 flex flex-wrap gap-2">
               <Link to={`/path/${latestGoal.id}`}><Button size="sm">View my learning path</Button></Link>
               <Link to="/passport"><Button variant="outline" size="sm">View your Skill Passport</Button></Link>
+              <Link to="/credentials"><Button variant="outline" size="sm">Your credentials</Button></Link>
             </div>
           </div>
         ) : (

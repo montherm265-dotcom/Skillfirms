@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, Clock, Target } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Target, Award } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll, markModuleComplete, submitQuiz, refreshEnrollmentProgress } from "@/lib/courses";
@@ -48,6 +48,7 @@ export default function CourseDetail() {
   const [error, setError] = useState(null);
   const [openQuizModuleId, setOpenQuizModuleId] = useState(null);
   const [busyModuleId, setBusyModuleId] = useState(null);
+  const [credential, setCredential] = useState(null);
 
   const load = useCallback(async () => {
     const { data: courseData, error: courseError } = await supabase
@@ -72,6 +73,14 @@ export default function CourseDetail() {
         const { data: progressData } = await supabase.from("skillfirms_module_progress").select("*").eq("enrollment_id", enrollmentData.id);
         setProgressByModule(Object.fromEntries((progressData ?? []).map((p) => [p.module_id, p])));
       }
+      const { data: credentialData } = await supabase
+        .from("skillfirms_credentials")
+        .select("credential_code")
+        .eq("user_id", user.id)
+        .eq("course_id", courseData.id)
+        .eq("status", "active_verified")
+        .maybeSingle();
+      setCredential(credentialData ?? null);
     }
     setLoading(false);
   }, [slug, user]);
@@ -110,7 +119,7 @@ export default function CourseDetail() {
       await completeAndRefresh(module.id);
       setOpenQuizModuleId(null);
       if (score >= 0.6) {
-        toast.success(`You scored ${Math.round(score * 100)}% — this now counts as assessment-based proficiency, not just an AI estimate.`);
+        toast.success(`You scored ${Math.round(score * 100)}% — this now counts as assessment-based proficiency, and you've earned a Skillfirms certificate for this course.`);
       } else {
         toast.message(`You scored ${Math.round(score * 100)}%. No proficiency change — review the module and try again when ready.`);
       }
@@ -155,8 +164,13 @@ export default function CourseDetail() {
                 <span className="font-display tabular-nums text-mastery">{Math.round(enrollment.progress_percent)}%</span>
               </div>
               <Progress value={enrollment.progress_percent} className="mt-2" />
+              {credential && (
+                <Link to={`/credentials/${credential.credential_code}`} className="mt-4 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
+                  <Award className="h-4 w-4" />View your Skillfirms certificate
+                </Link>
+              )}
               {enrollment.progress_percent >= 100 && (
-                <Link to="/missions" className="mt-4 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
+                <Link to="/missions" className="mt-2 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
                   <Target className="h-4 w-4" />Course complete — practice it for real in a Mission
                 </Link>
               )}
