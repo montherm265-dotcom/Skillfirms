@@ -1,0 +1,23 @@
+-- Critical finding from the same audit pass as migration 0014: this is
+-- the certificate-issuance analog of skillfirms_apply_skill_estimate,
+-- and arguably more severe -- it mints a real row in
+-- skillfirms_credentials (the exact object the public Verify page and
+-- QR codes trust) with ZERO ownership check on p_user_id, and no
+-- validation of p_source_type against the three legitimate values.
+--
+-- Confirmed live-exploitable before this fix: any authenticated user
+-- could call skillfirms_issue_or_update_credential(any_user_id, any
+-- credential_name, 'expert_verified', ...) directly and mint a fully
+-- real, publicly QR-verifiable "expert_verified" certificate for any
+-- other user, with any title -- a direct violation of the no-false-
+-- accreditation requirement the whole credential system exists to
+-- guarantee.
+--
+-- It was never meant to be client-callable at all: the only two
+-- legitimate callers, skillfirms_expert_review_submission and
+-- skillfirms_submit_quiz, derive the user_id and source_type themselves
+-- (from the submission row / the caller's own graded quiz) and reach
+-- this function by an internal `perform` call, which runs under the
+-- postgres owner's implicit privileges and is unaffected by the
+-- role-level revokes below.
+revoke execute on function public.skillfirms_issue_or_update_credential(uuid, text, text, uuid, uuid, text) from public, anon, authenticated;
