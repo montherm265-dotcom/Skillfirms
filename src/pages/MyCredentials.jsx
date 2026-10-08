@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Award } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -21,6 +22,20 @@ export default function MyCredentials() {
       .order("issued_at", { ascending: false })
       .then(({ data }) => setCredentials(data ?? []));
   }, [user.id]);
+
+  async function toggleHidden(credential, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const nextHidden = !credential.hidden_from_talfirms;
+    setCredentials((prev) => prev.map((c) => (c.id === credential.id ? { ...c, hidden_from_talfirms: nextHidden } : c)));
+    const { error } = await supabase.from("skillfirms_credentials").update({ hidden_from_talfirms: nextHidden }).eq("id", credential.id);
+    if (error) {
+      setCredentials((prev) => prev.map((c) => (c.id === credential.id ? { ...c, hidden_from_talfirms: !nextHidden } : c)));
+      toast.error(error.message);
+      return;
+    }
+    toast.success(nextHidden ? "Hidden from your Talfirms profile." : "Visible on your Talfirms profile again.");
+  }
 
   if (credentials === null) return <LoadingSpinner className="py-24" />;
 
@@ -43,7 +58,18 @@ export default function MyCredentials() {
                   <p className="font-display font-semibold">{c.credential_name}</p>
                   <p className="mt-0.5 font-mono text-xs text-muted-foreground">{c.credential_code}</p>
                 </div>
-                <Badge variant={c.status === "active_verified" ? "default" : "outline"}>{STATUS_LABEL[c.status]}</Badge>
+                <div className="flex items-center gap-2">
+                  {c.status === "active_verified" && (
+                    <button
+                      type="button"
+                      onClick={(e) => toggleHidden(c, e)}
+                      className="text-xs font-medium text-muted-foreground hover:text-mastery hover:underline"
+                    >
+                      {c.hidden_from_talfirms ? "Hidden — show on Talfirms" : "Hide from Talfirms"}
+                    </button>
+                  )}
+                  <Badge variant={c.status === "active_verified" ? "default" : "outline"}>{STATUS_LABEL[c.status]}</Badge>
+                </div>
               </Link>
             ))}
           </div>

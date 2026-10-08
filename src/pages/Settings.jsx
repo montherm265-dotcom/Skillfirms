@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
@@ -52,7 +53,7 @@ export default function Settings() {
                 When on, anyone viewing your Talfirms profile can see your currently active Skillfirms Verified credentials, each linking back to its own public verification page here. Off by default — this is a separate decision from anyone checking one credential code you've already handed them, which always works regardless of this setting.
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                A credential that's later superseded or revoked stops showing on Talfirms immediately, even though nothing is ever deleted from your history on this page.
+                A credential that's later superseded or revoked stops showing on Talfirms immediately, even though nothing is ever deleted from your history on this page. Want to hide just one credential while keeping the rest visible? Use the per-credential toggle on <Link to="/credentials" className="underline hover:text-mastery">My Credentials</Link> instead of turning this off entirely.
               </p>
             </div>
             <label className="relative inline-flex flex-shrink-0 cursor-pointer items-center">
