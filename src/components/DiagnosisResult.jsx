@@ -1,7 +1,11 @@
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 const CONFIDENCE_LABEL = { high: "High confidence match", medium: "Medium confidence match", low: "Low confidence match" };
 
 export default function DiagnosisResult({ result }) {
-  const { matchedRole, confidence, currentPositionSummary, estimates } = result;
+  const { matchedRole, confidence, currentPositionSummary, estimates, persisted, goalId } = result;
   const sorted = [...estimates].sort((a, b) => a.proficiency - b.proficiency);
 
   return (
@@ -30,6 +34,12 @@ export default function DiagnosisResult({ result }) {
             ))}
           </div>
         </div>
+      )}
+
+      {persisted && goalId && (
+        <Link to={`/path/${goalId}`}>
+          <Button className="mt-6">Build my learning path<ArrowRight className="ml-1.5 h-4 w-4" /></Button>
+        </Link>
       )}
     </div>
   );

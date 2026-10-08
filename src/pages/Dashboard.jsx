@@ -60,7 +60,10 @@ export default function Dashboard() {
             <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground"><Target className="h-3.5 w-3.5" />Your goal</p>
             <h2 className="mt-1 font-display text-xl font-bold">{latestGoal.skillfirms_career_roles?.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">"{latestGoal.raw_goal_text}"</p>
-            <Link to="/passport"><Button variant="outline" size="sm" className="mt-4">View your Skill Passport</Button></Link>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link to={`/path/${latestGoal.id}`}><Button size="sm">View my learning path</Button></Link>
+              <Link to="/passport"><Button variant="outline" size="sm">View your Skill Passport</Button></Link>
+            </div>
           </div>
         ) : (
           <div className="mt-6 card-soft p-6 text-center">

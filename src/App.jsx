@@ -15,6 +15,8 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const SkillPassport = lazy(() => import('@/pages/SkillPassport'));
 const CareerRoles = lazy(() => import('@/pages/CareerRoles'));
 const CareerRoleDetail = lazy(() => import('@/pages/CareerRoleDetail'));
+const LearningPath = lazy(() => import('@/pages/LearningPath'));
+const CourseDetail = lazy(() => import('@/pages/CourseDetail'));
 const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
 
 function RouteFallback() {
@@ -34,6 +36,8 @@ export default function App() {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/roles" element={<CareerRoles />} />
                 <Route path="/roles/:slug" element={<CareerRoleDetail />} />
+                <Route path="/courses/:slug" element={<CourseDetail />} />
+                <Route path="/path/:goalId" element={<RequireAuth><LearningPath /></RequireAuth>} />
                 <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
                 <Route path="/passport" element={<RequireAuth><SkillPassport /></RequireAuth>} />
                 <Route path="*" element={<PageNotFound />} />
