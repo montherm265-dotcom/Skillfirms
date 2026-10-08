@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Target } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll, markModuleComplete, submitQuiz, refreshEnrollmentProgress } from "@/lib/courses";
@@ -155,6 +155,11 @@ export default function CourseDetail() {
                 <span className="font-display tabular-nums text-mastery">{Math.round(enrollment.progress_percent)}%</span>
               </div>
               <Progress value={enrollment.progress_percent} className="mt-2" />
+              {enrollment.progress_percent >= 100 && (
+                <Link to="/missions" className="mt-4 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
+                  <Target className="h-4 w-4" />Course complete — practice it for real in a Mission
+                </Link>
+              )}
             </>
           )}
         </div>

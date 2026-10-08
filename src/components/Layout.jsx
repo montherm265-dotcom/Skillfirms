@@ -23,6 +23,7 @@ export default function Layout() {
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground sm:flex">
             <Link to="/roles" className="hover:text-foreground">Career roles</Link>
+            <Link to="/missions" className="hover:text-foreground">Missions</Link>
             {user && <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>}
             {user && <Link to="/passport" className="hover:text-foreground">Skill Passport</Link>}
           </nav>
