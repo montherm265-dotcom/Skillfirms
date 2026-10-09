@@ -139,6 +139,7 @@ export default function MissionDetail() {
           educationalLevel: mission.difficulty || undefined,
           ...(mission.estimated_hours ? { timeRequired: `PT${mission.estimated_hours}H` } : {}),
         }}
+        breadcrumb={[{ label: "Missions", path: "/missions" }, { label: mission.title }]}
       />
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between">

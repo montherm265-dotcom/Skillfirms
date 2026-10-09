@@ -32,22 +32,22 @@ function absUrl(path) {
   return SITE_URL + (path.startsWith("/") ? path : "/" + path);
 }
 
-function upsertJsonLd(data) {
-  let script = document.getElementById("ld-json");
+function upsertJsonLd(id, data) {
+  let script = document.getElementById(id);
   if (!data) {
     if (script) script.remove();
     return;
   }
   if (!script) {
     script = document.createElement("script");
-    script.id = "ld-json";
+    script.id = id;
     script.type = "application/ld+json";
     document.head.appendChild(script);
   }
   script.textContent = JSON.stringify(data);
 }
 
-export default function Seo({ title, description, canonical = null, image = null, type = "website", noindex = false, jsonLd = null }) {
+export default function Seo({ title, description, canonical = null, image = null, type = "website", noindex = false, jsonLd = null, breadcrumb = null }) {
   useEffect(() => {
     const url = absUrl(canonical);
     const imgUrl = image ? absUrl(image) : absUrl(DEFAULT_OG_IMAGE);
@@ -71,8 +71,22 @@ export default function Seo({ title, description, canonical = null, image = null
     upsertMeta("name", "twitter:description", desc);
     upsertMeta("name", "twitter:image", imgUrl);
 
-    upsertJsonLd(jsonLd);
-  }, [title, description, canonical, image, type, noindex, jsonLd]);
+    upsertJsonLd("ld-json", jsonLd);
+    if (breadcrumb) {
+      upsertJsonLd("ld-json-breadcrumb", {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: breadcrumb.map((item, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: item.label,
+          ...(item.path ? { item: absUrl(item.path) } : {}),
+        })),
+      });
+    } else {
+      upsertJsonLd("ld-json-breadcrumb", null);
+    }
+  }, [title, description, canonical, image, type, noindex, jsonLd, breadcrumb]);
 
   return null;
 }

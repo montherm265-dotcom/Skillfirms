@@ -52,7 +52,11 @@ export default function Layout() {
         <Outlet />
       </main>
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        Skillfirms — Powered by Talfirms
+        <p>Skillfirms — Powered by Talfirms</p>
+        <div className="mt-2 flex justify-center gap-4">
+          <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+          <Link to="/terms" className="hover:text-foreground">Terms</Link>
+        </div>
       </footer>
     </div>
   );

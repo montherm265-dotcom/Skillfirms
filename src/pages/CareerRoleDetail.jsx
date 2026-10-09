@@ -72,6 +72,7 @@ export default function CareerRoleDetail() {
           occupationalCategory: role.industry || undefined,
           skills: roleSkills.length > 0 ? roleSkills.map((rs) => rs.skillName).join(", ") : undefined,
         }}
+        breadcrumb={[{ label: "Career Roles", path: "/roles" }, { label: role.title }]}
       />
       <div className="mx-auto max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{role.industry}</p>

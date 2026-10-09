@@ -59,7 +59,10 @@ export default function VerifyCredential() {
         }}
       />
       <div className="mx-auto max-w-3xl">
-        <div className="mx-auto flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground">
+        <h1 className="text-center font-display text-xl font-semibold">
+          {result.credentialName} — {result.holderName}
+        </h1>
+        <div className="mx-auto mt-2 flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground">
           <Icon className="h-4 w-4" />{meta.text}
         </div>
         <div className="mx-auto mt-6 w-full overflow-hidden rounded-xl shadow-lg">

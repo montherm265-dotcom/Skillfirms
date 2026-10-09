@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { isSupabaseConfigured } from "@/lib/supabaseClient";
 import AuthLayout from "@/components/AuthLayout";
+import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -47,6 +48,11 @@ export default function Auth() {
 
   return (
     <div className="section-pad">
+      <Seo
+        title={mode === "signup" ? "Create your account" : "Sign in"}
+        description={mode === "signup" ? "Join Skillfirms to diagnose skill gaps, build a learning path, and earn verified credentials." : "Sign in to Skillfirms."}
+        canonical="/auth"
+      />
       <AuthLayout
         title={mode === "signup" ? "Build your career path" : "Sign in to Skillfirms"}
         subtitle={

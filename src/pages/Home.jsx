@@ -42,7 +42,16 @@ export default function Home() {
 
   return (
     <div className="section-pad">
-      <Seo canonical="/" />
+      <Seo
+        canonical="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@graph": [
+            { "@type": "Organization", "@id": "https://skillfirms.com/#organization", name: "Skillfirms", url: "https://skillfirms.com" },
+            { "@type": "WebSite", "@id": "https://skillfirms.com/#website", name: "Skillfirms", url: "https://skillfirms.com", publisher: { "@id": "https://skillfirms.com/#organization" } },
+          ],
+        }}
+      />
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
           Don't search for what to learn.<br />Tell us where you want to go.

@@ -150,6 +150,7 @@ export default function CourseDetail() {
           ...(course.duration_hours ? { timeRequired: `PT${course.duration_hours}H` } : {}),
           educationalLevel: course.level || undefined,
         }}
+        breadcrumb={[{ label: "Home", path: "/" }, { label: course.title }]}
       />
       <div className="mx-auto max-w-2xl">
         <Badge variant="outline" className="capitalize">{course.level}</Badge>
