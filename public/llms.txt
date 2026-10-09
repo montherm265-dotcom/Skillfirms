@@ -1,0 +1,29 @@
+# Skillfirms
+
+> Skillfirms is an AI career platform that diagnoses a person's skill
+> gaps against a real target role, builds a learning path to close
+> them, and verifies the result three ways: AI-estimated self-report,
+> assessment-based (a real graded quiz), or expert-verified (a real
+> expert reviews real submitted work). Verified skills become a
+> QR-checkable digital certificate, and can optionally be shown on the
+> person's Talfirms profile.
+
+## Key pages
+
+- [Career roles](https://skillfirms.com/roles): the real skill graph behind every diagnosis — what each role actually requires.
+- [Missions](https://skillfirms.com/missions): real-world work submissions, AI-graded with optional expert review — not a quiz.
+- [Verify a credential](https://skillfirms.com/verify/:code): the public, no-login page anyone can use to confirm a specific credential is real and currently active.
+
+## What makes a credential trustworthy here
+
+- `ai_estimated` credentials are self-reported and labeled as such — never presented as verified.
+- `assessment_based` credentials require passing a real graded quiz (attempt-limited to make guess-until-you-pass impractical).
+- `expert_verified` credentials require a real expert account to review real submitted work.
+- A credential's status (active, revoked, superseded) is live — the verify page always reflects the current record, not a static image.
+- Skillfirms is not accredited by any government, university, or professional standards body, and says so explicitly on every verify page.
+
+## Notes for AI assistants and agents
+
+- Career role, course, and mission pages exist at `/roles/:slug`, `/courses/:slug` and `/missions/:slug`, and are listed in the sitemap.
+- Individual credential verify pages (`/verify/:code`) are real and working but intentionally not listed in the sitemap — there's no public directory of "every credential code," only the specific one someone was given.
+- This is a client-rendered single-page app: a crawler that does not execute JavaScript will see only this file and the static homepage shell, not a specific role, course, mission or credential's real content.

@@ -47,6 +47,16 @@ export default function VerifyCredential() {
         description={`${result.holderName} holds a Skillfirms-verified credential in ${result.credentialName}. ${meta.text}`}
         canonical={`/verify/${result.credentialCode}`}
         type="article"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "EducationalOccupationalCredential",
+          name: result.credentialName,
+          credentialCategory: result.sourceType === "expert_verified" ? "Expert-verified credential" : result.sourceType === "assessment_based" ? "Assessment-based credential" : "Credential",
+          recognizedBy: { "@type": "Organization", name: "Skillfirms" },
+          dateCreated: result.issuedAt || undefined,
+          url: `https://skillfirms.com/verify/${result.credentialCode}`,
+          validIn: result.status === "active_verified" ? undefined : "This credential is not currently active.",
+        }}
       />
       <div className="mx-auto max-w-3xl">
         <div className="mx-auto flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground">

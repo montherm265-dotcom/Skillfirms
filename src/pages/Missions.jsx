@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Clock } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
 
 export default function Missions() {
@@ -24,6 +25,11 @@ export default function Missions() {
 
   return (
     <div className="section-pad">
+      <Seo
+        title="Missions"
+        description="Real-world work, not a quiz — submit real output, get AI feedback immediately, and request expert review for proof that goes further than an estimate."
+        canonical="/missions"
+      />
       <div className="mx-auto max-w-4xl">
         <h1 className="font-display text-2xl font-bold">Missions</h1>
         <p className="mt-1 text-sm text-muted-foreground">

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Seo from "@/components/seo/Seo";
 
 export default function CareerRoles() {
   const [roles, setRoles] = useState([]);
@@ -18,6 +19,11 @@ export default function CareerRoles() {
 
   return (
     <div className="section-pad">
+      <Seo
+        title="Career roles"
+        description="Browse the real skill graph behind every Skillfirms diagnosis — what each career role actually requires."
+        canonical="/roles"
+      />
       <div className="mx-auto max-w-4xl">
         <h1 className="font-display text-2xl font-bold">Career roles</h1>
         <p className="mt-1 text-sm text-muted-foreground">The real skill graph behind every diagnosis — browse what each role actually requires.</p>

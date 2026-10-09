@@ -52,6 +52,31 @@ linking to a guessed URL.
 Pulling target-job requirements *from* Talfirms back into Skillfirms' diagnosis (the other direction
 in the brief) isn't built yet — this is Skillfirms-to-Talfirms only, for now.
 
+## SEO + GEO (generative-engine optimization)
+
+`src/components/seo/Seo.jsx` sets a real per-page `document.title`/description/OG tags/canonical via
+`useEffect`, now wired into every public page (home, career roles list + detail, course detail, missions
+list + detail, the public credential-verify page) — previously only the verify page had it. Each of those
+also emits real `schema.org` JSON-LD: `Occupation` on career roles, `Course` on courses, `LearningResource`
+on missions, `EducationalOccupationalCredential` on a verified credential.
+
+`supabase/functions/skillfirms-sitemap` generates a real sitemap (career roles, published courses,
+published missions) via the anon key so RLS does the filtering. Individual credential verify pages
+(`/verify/:code`) are deliberately left out of it — there's no public "directory of every credential code,"
+only the specific one someone was actually given.
+
+`public/llms.txt` is the GEO-era equivalent of `robots.txt`: a plain, always-fetchable description of what
+Skillfirms is, aimed at AI agents rather than search indexers. `robots.txt` explicitly allows the named AI
+crawlers (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, CCBot, anthropic-ai, etc.) rather than relying
+on the wildcard alone. The homepage also states plainly what Skillfirms is in one factual sentence, next to
+the existing marketing copy — AI answer engines favor an explicit, quotable definition over a tagline.
+
+The honest limit: this is a client-rendered single-page app. The dynamic `Seo.jsx` tags (and the JSON-LD)
+only reach a crawler that executes JavaScript — Google's indexing pipeline mostly does, on a delayed second
+pass. Link-preview unfurling (Slack, Twitter/X, LinkedIn, email clients) does not execute JavaScript, so a
+shared course or mission link still unfurls as the generic homepage card, not its own, until this has real
+SSR or a prerendering step.
+
 ## What's built so far
 
 Frontend scaffold only — routing, auth (shared with Talfirms), design tokens derived from the

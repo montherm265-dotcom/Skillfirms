@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll, markModuleComplete, submitQuiz, refreshEnrollmentProgress } from "@/lib/courses";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -135,6 +136,21 @@ export default function CourseDetail() {
 
   return (
     <div className="section-pad">
+      <Seo
+        title={course.title}
+        description={course.description || `${course.title} — a Skillfirms course with a real graded assessment, not just a completion certificate.`}
+        canonical={`/courses/${slug}`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Course",
+          name: course.title,
+          description: course.description || undefined,
+          provider: { "@type": "Organization", name: "Skillfirms" },
+          ...(course.skillfirms_experts?.display_name ? { instructor: { "@type": "Person", name: course.skillfirms_experts.display_name, description: course.skillfirms_experts.headline || undefined } } : {}),
+          ...(course.duration_hours ? { timeRequired: `PT${course.duration_hours}H` } : {}),
+          educationalLevel: course.level || undefined,
+        }}
+      />
       <div className="mx-auto max-w-2xl">
         <Badge variant="outline" className="capitalize">{course.level}</Badge>
         <h1 className="mt-2 font-display text-3xl font-bold">{course.title}</h1>

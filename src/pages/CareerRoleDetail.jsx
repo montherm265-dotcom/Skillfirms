@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { computeReadiness } from "@/lib/diagnosis";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
 
 export default function CareerRoleDetail() {
@@ -59,6 +60,19 @@ export default function CareerRoleDetail() {
 
   return (
     <div className="section-pad">
+      <Seo
+        title={role.title}
+        description={role.description || `${role.title} — the real skills this career role requires, and how to build toward them.`}
+        canonical={`/roles/${slug}`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Occupation",
+          name: role.title,
+          description: role.description || undefined,
+          occupationalCategory: role.industry || undefined,
+          skills: roleSkills.length > 0 ? roleSkills.map((rs) => rs.skillName).join(", ") : undefined,
+        }}
+      />
       <div className="mx-auto max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{role.industry}</p>
         <h1 className="mt-1 font-display text-3xl font-bold">{role.title}</h1>

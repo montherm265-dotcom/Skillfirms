@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { submitMission, runAiEvaluation, requestExpertReview } from "@/lib/missions";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -125,6 +126,20 @@ export default function MissionDetail() {
 
   return (
     <div className="section-pad">
+      <Seo
+        title={mission.title}
+        description={mission.brief || `${mission.title} — a real-world Skillfirms mission with AI feedback and optional expert review.`}
+        canonical={`/missions/${slug}`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "LearningResource",
+          name: mission.title,
+          description: mission.brief || undefined,
+          provider: { "@type": "Organization", name: "Skillfirms" },
+          educationalLevel: mission.difficulty || undefined,
+          ...(mission.estimated_hours ? { timeRequired: `PT${mission.estimated_hours}H` } : {}),
+        }}
+      />
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between">
           <Badge variant="outline" className="capitalize">{mission.difficulty}</Badge>

@@ -32,7 +32,22 @@ function absUrl(path) {
   return SITE_URL + (path.startsWith("/") ? path : "/" + path);
 }
 
-export default function Seo({ title, description, canonical = null, image = null, type = "website", noindex = false }) {
+function upsertJsonLd(data) {
+  let script = document.getElementById("ld-json");
+  if (!data) {
+    if (script) script.remove();
+    return;
+  }
+  if (!script) {
+    script = document.createElement("script");
+    script.id = "ld-json";
+    script.type = "application/ld+json";
+    document.head.appendChild(script);
+  }
+  script.textContent = JSON.stringify(data);
+}
+
+export default function Seo({ title, description, canonical = null, image = null, type = "website", noindex = false, jsonLd = null }) {
   useEffect(() => {
     const url = absUrl(canonical);
     const imgUrl = image ? absUrl(image) : absUrl(DEFAULT_OG_IMAGE);
@@ -55,7 +70,9 @@ export default function Seo({ title, description, canonical = null, image = null
     upsertMeta("name", "twitter:title", fullTitle);
     upsertMeta("name", "twitter:description", desc);
     upsertMeta("name", "twitter:image", imgUrl);
-  }, [title, description, canonical, image, type, noindex]);
+
+    upsertJsonLd(jsonLd);
+  }, [title, description, canonical, image, type, noindex, jsonLd]);
 
   return null;
 }
