@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
+import { identifyUser } from '@/lib/monitoring';
 
 const AuthContext = createContext(null);
 
@@ -29,11 +30,13 @@ export function AuthProvider({ children }) {
 
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session ?? null);
+      identifyUser(data.session?.user?.id ?? null);
       loadProfile(data.session?.user?.id).finally(() => setLoading(false));
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
+      identifyUser(newSession?.user?.id ?? null);
       loadProfile(newSession?.user?.id);
     });
 
