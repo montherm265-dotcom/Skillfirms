@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
-import { assemblePath, getPathForGoal } from "@/lib/path";
+import { assemblePath } from "@/lib/path";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import EmptyState from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
@@ -16,15 +16,15 @@ export default function LearningPath() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState(null);
 
+  // Adaptive by construction: re-assembles against the learner's CURRENT
+  // skill state every time this page loads, rather than trusting a
+  // snapshot from whenever the goal was first set. assemblePath() always
+  // deletes and re-inserts path_items from scratch, so this is cheap and
+  // safe to do on every visit -- a passed quiz or an expert-reviewed
+  // mission since the last visit is reflected immediately, with no
+  // separate "refresh" step the learner has to remember to trigger.
   const load = useCallback(async () => {
     try {
-      const existing = await getPathForGoal(goalId);
-      if (existing && existing.items.length > 0) {
-        setRoleTitle(existing.role?.title ?? null);
-        setItems(existing.items.map((i) => ({ course: i.skillfirms_courses, skillName: i.skillfirms_skills?.name, gapWeight: i.gap_weight })));
-        return;
-      }
-
       const { data: goal, error: goalError } = await supabase
         .from("skillfirms_user_career_goals")
         .select("target_role_id, skillfirms_career_roles(title)")

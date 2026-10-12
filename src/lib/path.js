@@ -84,17 +84,3 @@ export async function assemblePath({ userId, goalId, targetRoleId }) {
 
   return { pathId: pathRow.id, items, persisted: true };
 }
-
-export async function getPathForGoal(goalId) {
-  const { data: pathRow } = await supabase.from("skillfirms_user_learning_paths").select("*, skillfirms_career_roles(slug, title)").eq("goal_id", goalId).maybeSingle();
-  if (!pathRow) return null;
-
-  const { data: items, error } = await supabase
-    .from("skillfirms_path_items")
-    .select("order_index, gap_weight, skillfirms_skills(slug, name), skillfirms_courses(id, slug, title, description, level, duration_hours, rating_avg, enrollment_count, skillfirms_experts(display_name, headline))")
-    .eq("path_id", pathRow.id)
-    .order("order_index");
-  if (error) throw error;
-
-  return { pathId: pathRow.id, role: pathRow.skillfirms_career_roles, items: items ?? [] };
-}
