@@ -11,6 +11,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [expertId, setExpertId] = useState(null);
   const [loading, setLoading] = useState(isSupabaseConfigured);
 
   const loadProfile = useCallback(async (userId) => {
@@ -20,6 +21,17 @@ export function AuthProvider({ children }) {
     }
     const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
     setProfile(data ?? null);
+  }, []);
+
+  // A real (non-catalog) expert account -- profile_id set, not just a
+  // display_name placeholder row seeded for the course catalog (0006).
+  const loadExpertStatus = useCallback(async (userId) => {
+    if (!userId) {
+      setExpertId(null);
+      return;
+    }
+    const { data } = await supabase.from('skillfirms_experts').select('id').eq('profile_id', userId).maybeSingle();
+    setExpertId(data?.id ?? null);
   }, []);
 
   useEffect(() => {
@@ -32,16 +44,18 @@ export function AuthProvider({ children }) {
       setSession(data.session ?? null);
       identifyUser(data.session?.user?.id ?? null);
       loadProfile(data.session?.user?.id).finally(() => setLoading(false));
+      loadExpertStatus(data.session?.user?.id);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       identifyUser(newSession?.user?.id ?? null);
       loadProfile(newSession?.user?.id);
+      loadExpertStatus(newSession?.user?.id);
     });
 
     return () => sub.subscription.unsubscribe();
-  }, [loadProfile]);
+  }, [loadProfile, loadExpertStatus]);
 
   const signUp = useCallback(async ({ email, password, displayName }) => {
     const { data, error } = await supabase.auth.signUp({
@@ -76,6 +90,7 @@ export function AuthProvider({ children }) {
     session,
     user: session?.user ?? null,
     profile,
+    expertId,
     loading,
     signUp,
     signIn,

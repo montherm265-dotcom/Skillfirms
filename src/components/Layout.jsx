@@ -1,17 +1,33 @@
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
+const navLinkClass = ({ isActive }) =>
+  `rounded-lg px-3 py-2 text-sm font-medium ${isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`;
+
 export default function Layout() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, expertId, signOut } = useAuth();
   const navigate = useNavigate();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   async function handleSignOut() {
+    setMobileNavOpen(false);
     await signOut();
     navigate("/");
   }
+
+  const links = [
+    { to: "/roles", label: "Career roles" },
+    { to: "/missions", label: "Missions" },
+    ...(user ? [{ to: "/dashboard", label: "Dashboard" }] : []),
+    ...(user ? [{ to: "/passport", label: "Skill Passport" }] : []),
+    ...(user ? [{ to: "/credentials", label: "Credentials" }] : []),
+    ...(expertId ? [{ to: "/expert", label: "Review queue" }] : []),
+  ];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -21,14 +37,10 @@ export default function Layout() {
             <Logo />
             <span className="font-display text-lg font-semibold tracking-tight">Skillfirms</span>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground sm:flex">
-            <Link to="/roles" className="hover:text-foreground">Career roles</Link>
-            <Link to="/missions" className="hover:text-foreground">Missions</Link>
-            {user && <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>}
-            {user && <Link to="/passport" className="hover:text-foreground">Skill Passport</Link>}
-            {user && <Link to="/credentials" className="hover:text-foreground">Credentials</Link>}
+          <nav className="hidden items-center gap-1 sm:flex">
+            {links.map((l) => <NavLink key={l.to} to={l.to} className={navLinkClass}>{l.label}</NavLink>)}
           </nav>
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
             {user ? (
               <>
                 <Link to="/dashboard">
@@ -46,7 +58,37 @@ export default function Layout() {
               </>
             )}
           </div>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-foreground sm:hidden"
+            onClick={() => setMobileNavOpen((o) => !o)}
+            aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileNavOpen}
+          >
+            {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
+
+        {mobileNavOpen && (
+          <div className="flex flex-col gap-1 border-t border-border px-4 py-3 sm:hidden">
+            {links.map((l) => (
+              <NavLink key={l.to} to={l.to} className={navLinkClass} onClick={() => setMobileNavOpen(false)}>{l.label}</NavLink>
+            ))}
+            {user ? (
+              <>
+                <NavLink to="/settings" className={navLinkClass} onClick={() => setMobileNavOpen(false)}>Settings</NavLink>
+                <button type="button" className="rounded-lg px-3 py-2 text-left text-sm font-medium text-muted-foreground hover:text-foreground" onClick={handleSignOut}>
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink to="/auth" className={navLinkClass} onClick={() => setMobileNavOpen(false)}>Sign in</NavLink>
+                <NavLink to="/auth?mode=signup" className={navLinkClass} onClick={() => setMobileNavOpen(false)}>Build my path</NavLink>
+              </>
+            )}
+          </div>
+        )}
       </header>
       <main className="flex-1">
         <Outlet />

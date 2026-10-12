@@ -72,3 +72,28 @@ export async function requestExpertReview(submissionId) {
   const { error } = await supabase.from("skillfirms_mission_submissions").update({ status: "expert_requested" }).eq("id", submissionId);
   if (error) throw error;
 }
+
+// RLS already grants any real expert account read access to every
+// submission (see "experts can see submissions pending review" /
+// "mission submissions read access") -- this just narrows to the ones
+// actually awaiting a human review, which is what a review queue needs.
+export async function fetchPendingReviews() {
+  const { data, error } = await supabase
+    .from("skillfirms_mission_submissions")
+    .select("id, submission_text, submitted_at, skillfirms_missions(title, slug, brief, deliverable_instructions), profiles(display_name)")
+    .eq("status", "expert_requested")
+    .order("submitted_at", { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+export async function reviewSubmission(submissionId, { overallScore, feedback, strengths, improvements }) {
+  const { error } = await supabase.rpc("skillfirms_expert_review_submission", {
+    p_submission_id: submissionId,
+    p_overall_score: overallScore,
+    p_feedback: feedback,
+    p_strengths: strengths,
+    p_improvements: improvements,
+  });
+  if (error) throw error;
+}

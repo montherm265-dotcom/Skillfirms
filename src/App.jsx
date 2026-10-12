@@ -23,6 +23,7 @@ const MyCredentials = lazy(() => import('@/pages/MyCredentials'));
 const CredentialDetail = lazy(() => import('@/pages/CredentialDetail'));
 const VerifyCredential = lazy(() => import('@/pages/VerifyCredential'));
 const Settings = lazy(() => import('@/pages/Settings'));
+const ExpertReview = lazy(() => import('@/pages/ExpertReview'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
 const Terms = lazy(() => import('@/pages/Terms'));
 const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
@@ -54,6 +55,7 @@ export default function App() {
                 <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
                 <Route path="/passport" element={<RequireAuth><SkillPassport /></RequireAuth>} />
                 <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+                <Route path="/expert" element={<RequireAuth><ExpertReview /></RequireAuth>} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="*" element={<PageNotFound />} />
