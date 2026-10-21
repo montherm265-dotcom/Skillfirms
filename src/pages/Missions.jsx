@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Clock } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Missions() {
   const [missions, setMissions] = useState([]);
@@ -21,8 +21,6 @@ export default function Missions() {
       });
   }, []);
 
-  if (loading) return <LoadingSpinner className="py-24" />;
-
   return (
     <div className="section-pad">
       <Seo
@@ -35,6 +33,23 @@ export default function Missions() {
         <p className="mt-1 text-sm text-muted-foreground">
           Real-world work, not a quiz. Submit real output, get AI feedback immediately, and request a human expert review for proof that goes further than an estimate.
         </p>
+        {loading ? (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="card-soft space-y-3 p-4">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-3 w-10" />
+                </div>
+                <Skeleton className="h-5 w-3/4" />
+                <div className="flex gap-1.5">
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {missions.map((m) => (
             <Link key={m.id} to={`/missions/${m.slug}`} className="card-soft block p-4 transition hover:border-mastery/40">
@@ -51,6 +66,7 @@ export default function Missions() {
             </Link>
           ))}
         </div>
+        )}
       </div>
     </div>
   );

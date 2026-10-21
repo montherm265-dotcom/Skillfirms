@@ -4,10 +4,10 @@ import { ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { assemblePath } from "@/lib/path";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import EmptyState from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LearningPath() {
   const { goalId } = useParams();
@@ -43,7 +43,26 @@ export default function LearningPath() {
   useEffect(() => { load(); }, [load]);
 
   if (error) return <p className="section-pad text-center text-sm text-destructive">{error}</p>;
-  if (items === null) return <LoadingSpinner className="py-24" />;
+  if (items === null) {
+    return (
+      <div className="section-pad">
+        <div className="mx-auto max-w-2xl">
+          <Skeleton className="h-3 w-40" />
+          <Skeleton className="mt-2 h-7 w-4/5" />
+          <Skeleton className="mt-2 h-4 w-3/4" />
+          <div className="mt-6 space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="card-soft space-y-2 p-4">
+                <Skeleton className="h-3 w-1/3" />
+                <Skeleton className="h-5 w-2/3" />
+                <Skeleton className="h-3 w-1/4" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="section-pad">

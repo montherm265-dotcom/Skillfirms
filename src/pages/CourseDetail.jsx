@@ -5,11 +5,11 @@ import { CheckCircle2, Circle, Clock, Target, Award } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll, markModuleComplete, submitQuiz, refreshEnrollmentProgress } from "@/lib/courses";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function QuizForm({ module, onSubmit, busy }) {
   const [answers, setAnswers] = useState({});
@@ -60,28 +60,39 @@ export default function CourseDetail() {
     if (courseError || !courseData) { setError("Course not found"); setLoading(false); return; }
     setCourse(courseData);
 
-    const { data: moduleData } = await supabase
-      .from("skillfirms_course_modules")
-      .select("*, skillfirms_module_quiz_questions(id, order_index, question, choices)")
-      .eq("course_id", courseData.id)
-      .order("order_index");
+    // modules, enrollment, and credential all depend only on courseData.id
+    // (and user.id) -- none depend on each other, so fetch them concurrently
+    // instead of one-at-a-time. Only module progress has a real dependency
+    // (needs enrollment's id first).
+    const [{ data: moduleData }, enrollmentResult, credentialResult] = await Promise.all([
+      supabase
+        .from("skillfirms_course_modules")
+        .select("*, skillfirms_module_quiz_questions(id, order_index, question, choices)")
+        .eq("course_id", courseData.id)
+        .order("order_index"),
+      user
+        ? supabase.from("skillfirms_enrollments").select("*").eq("user_id", user.id).eq("course_id", courseData.id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      user
+        ? supabase
+            .from("skillfirms_credentials")
+            .select("credential_code")
+            .eq("user_id", user.id)
+            .eq("course_id", courseData.id)
+            .eq("status", "active_verified")
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
     setModules(moduleData ?? []);
 
     if (user) {
-      const { data: enrollmentData } = await supabase.from("skillfirms_enrollments").select("*").eq("user_id", user.id).eq("course_id", courseData.id).maybeSingle();
+      const enrollmentData = enrollmentResult.data;
       setEnrollment(enrollmentData ?? null);
+      setCredential(credentialResult.data ?? null);
       if (enrollmentData) {
         const { data: progressData } = await supabase.from("skillfirms_module_progress").select("*").eq("enrollment_id", enrollmentData.id);
         setProgressByModule(Object.fromEntries((progressData ?? []).map((p) => [p.module_id, p])));
       }
-      const { data: credentialData } = await supabase
-        .from("skillfirms_credentials")
-        .select("credential_code")
-        .eq("user_id", user.id)
-        .eq("course_id", courseData.id)
-        .eq("status", "active_verified")
-        .maybeSingle();
-      setCredential(credentialData ?? null);
     }
     setLoading(false);
   }, [slug, user]);
@@ -131,7 +142,30 @@ export default function CourseDetail() {
     }
   }
 
-  if (loading) return <LoadingSpinner className="py-24" />;
+  if (loading) {
+    return (
+      <div className="section-pad">
+        <div className="mx-auto max-w-2xl">
+          <Skeleton className="h-5 w-20 rounded-full" />
+          <Skeleton className="mt-3 h-9 w-4/5" />
+          <Skeleton className="mt-2 h-4 w-1/2" />
+          <Skeleton className="mt-3 h-16 w-full" />
+          <div className="mt-6 card-soft space-y-3 p-5">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-9 w-full rounded-md" />
+          </div>
+          <div className="mt-8 space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="space-y-2 rounded-lg border border-border p-4">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (error) return <p className="section-pad text-center text-sm text-destructive">{error}</p>;
 
   return (

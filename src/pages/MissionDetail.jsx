@@ -5,11 +5,11 @@ import { Clock, Sparkles, UserCheck, Award } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { submitMission, runAiEvaluation, requestExpertReview } from "@/lib/missions";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const STATUS_LABEL = {
   submitted: "Submitted — not yet evaluated",
@@ -36,19 +36,38 @@ export default function MissionDetail() {
     if (missionError || !missionData) { setError("Mission not found"); setLoading(false); return; }
     setMission(missionData);
 
-    const { data: skillData } = await supabase.from("skillfirms_mission_skills").select("coverage, skillfirms_skills(slug, name)").eq("mission_id", missionData.id);
+    // skills, the learner's submission, and their credential all depend only
+    // on missionData.id (and user.id) -- none depend on each other, so fetch
+    // them concurrently. Only evaluations has a real dependency (needs the
+    // submission's id first).
+    const [{ data: skillData }, submissionResult, credentialResult] = await Promise.all([
+      supabase.from("skillfirms_mission_skills").select("coverage, skillfirms_skills(slug, name)").eq("mission_id", missionData.id),
+      user
+        ? supabase
+            .from("skillfirms_mission_submissions")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("mission_id", missionData.id)
+            .order("submitted_at", { ascending: false })
+            .limit(1)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      user
+        ? supabase
+            .from("skillfirms_credentials")
+            .select("credential_code")
+            .eq("user_id", user.id)
+            .eq("mission_id", missionData.id)
+            .eq("status", "active_verified")
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
     setSkills(skillData ?? []);
 
     if (user) {
-      const { data: submissionData } = await supabase
-        .from("skillfirms_mission_submissions")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("mission_id", missionData.id)
-        .order("submitted_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      const submissionData = submissionResult.data;
       setSubmission(submissionData ?? null);
+      setCredential(credentialResult.data ?? null);
 
       if (submissionData) {
         const { data: evalData } = await supabase
@@ -60,15 +79,6 @@ export default function MissionDetail() {
       } else {
         setEvaluations([]);
       }
-
-      const { data: credentialData } = await supabase
-        .from("skillfirms_credentials")
-        .select("credential_code")
-        .eq("user_id", user.id)
-        .eq("mission_id", missionData.id)
-        .eq("status", "active_verified")
-        .maybeSingle();
-      setCredential(credentialData ?? null);
     }
     setLoading(false);
   }, [slug, user]);
@@ -118,7 +128,22 @@ export default function MissionDetail() {
     }
   }
 
-  if (loading) return <LoadingSpinner className="py-24" />;
+  if (loading) {
+    return (
+      <div className="section-pad">
+        <div className="mx-auto max-w-2xl">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-20 rounded-full" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+          <Skeleton className="mt-3 h-9 w-4/5" />
+          <Skeleton className="mt-3 h-4 w-full" />
+          <Skeleton className="mt-4 h-20 w-full rounded-lg" />
+          <Skeleton className="mt-8 h-32 w-full rounded-lg" />
+        </div>
+      </div>
+    );
+  }
   if (error) return <p className="section-pad text-center text-sm text-destructive">{error}</p>;
 
   const hasAiEval = evaluations.some((e) => e.evaluator_type === "ai");

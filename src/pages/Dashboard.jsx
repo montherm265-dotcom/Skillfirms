@@ -6,8 +6,8 @@ import { supabase } from "@/lib/supabaseClient";
 import { runDiagnosis, takePendingGoal } from "@/lib/diagnosis";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import DiagnosisResult from "@/components/DiagnosisResult";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const { user, profile } = useAuth();
@@ -45,7 +45,24 @@ export default function Dashboard() {
     return () => { active = false; };
   }, [user.id]);
 
-  if (loading) return <LoadingSpinner className="py-24" />;
+  if (loading) {
+    return (
+      <div className="section-pad">
+        <div className="mx-auto max-w-2xl">
+          <Skeleton className="h-8 w-56" />
+          <div className="mt-6 card-soft space-y-3 p-6">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-6 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+            <div className="mt-2 flex gap-2">
+              <Skeleton className="h-9 w-36 rounded-md" />
+              <Skeleton className="h-9 w-40 rounded-md" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="section-pad">

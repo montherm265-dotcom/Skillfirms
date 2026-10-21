@@ -4,9 +4,9 @@ import { Award } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
-import LoadingSpinner from "@/components/LoadingSpinner";
 import EmptyState from "@/components/EmptyState";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const STATUS_LABEL = { active_verified: "Active — Verified", revoked: "Revoked", superseded: "Superseded" };
 
@@ -37,7 +37,27 @@ export default function MyCredentials() {
     toast.success(nextHidden ? "Hidden from your Talfirms profile." : "Visible on your Talfirms profile again.");
   }
 
-  if (credentials === null) return <LoadingSpinner className="py-24" />;
+  if (credentials === null) {
+    return (
+      <div className="section-pad">
+        <div className="mx-auto max-w-2xl">
+          <Skeleton className="h-8 w-52" />
+          <Skeleton className="mt-2 h-4 w-full" />
+          <div className="mt-6 space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="card-soft flex items-center justify-between p-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+                <Skeleton className="h-6 w-28 rounded-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="section-pad">
