@@ -61,7 +61,13 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name: displayName || null } },
+      options: {
+        data: { display_name: displayName || null },
+        // Without this, the confirmation email falls back to the shared
+        // Auth project's Site URL -- a stale localhost placeholder.
+        // Point it at wherever this signup actually happened instead.
+        emailRedirectTo: window.location.origin,
+      },
     });
     if (error) throw error;
     if (data.session) {
