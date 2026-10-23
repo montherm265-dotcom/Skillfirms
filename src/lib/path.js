@@ -63,24 +63,28 @@ export async function assemblePath({ userId, goalId, targetRoleId }) {
     return { items: [], persisted: false };
   }
 
-  await supabase.from("skillfirms_user_learning_paths").delete().eq("user_id", userId).eq("goal_id", goalId);
-  const { data: pathRow, error: pathError } = await supabase
-    .from("skillfirms_user_learning_paths")
-    .insert({ user_id: userId, goal_id: goalId, target_role_id: targetRoleId })
-    .select()
-    .single();
+  // Both steps are atomic RPCs (supabase/migrations/0023_atomic_learning_
+  // path_save.sql) rather than three separate client round trips -- a
+  // delete-then-insert-then-insert left a real race window (two
+  // concurrent saves for the same user+goal could both pass the delete,
+  // then collide on unique(user_id, goal_id)), which this page's plain
+  // useEffect call site has no guard against.
+  const { data: pathId, error: pathError } = await supabase.rpc("skillfirms_upsert_learning_path", {
+    p_goal_id: goalId,
+    p_target_role_id: targetRoleId,
+  });
   if (pathError) throw pathError;
 
-  const { error: itemsError } = await supabase.from("skillfirms_path_items").insert(
-    items.map((item, index) => ({
-      path_id: pathRow.id,
+  const { error: itemsError } = await supabase.rpc("skillfirms_replace_my_path_items", {
+    p_path_id: pathId,
+    p_items: items.map((item, index) => ({
       course_id: item.course.id,
       order_index: index,
       primary_skill_id: item.primarySkillId,
       gap_weight: item.gapWeight,
     })),
-  );
+  });
   if (itemsError) throw itemsError;
 
-  return { pathId: pathRow.id, items, persisted: true };
+  return { pathId, items, persisted: true };
 }

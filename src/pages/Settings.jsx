@@ -9,6 +9,7 @@ export default function Settings() {
   const { user } = useAuth();
   const [shareCredentials, setShareCredentials] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -17,7 +18,12 @@ export default function Settings() {
       .select("share_credentials_with_talfirms")
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        // A failed fetch must never silently render the toggle as "off"
+        // -- that's indistinguishable from the user's real saved
+        // preference and could make someone who turned sharing ON think
+        // it reset. Show the failure instead of guessing.
+        if (error) { setLoadError(error.message); setLoading(false); return; }
         setShareCredentials(data?.share_credentials_with_talfirms ?? false);
         setLoading(false);
       });
@@ -39,6 +45,7 @@ export default function Settings() {
   }
 
   if (loading) return <LoadingSpinner className="py-24" />;
+  if (loadError) return <p className="section-pad text-center text-sm text-destructive">{loadError}</p>;
 
   return (
     <div className="section-pad">
