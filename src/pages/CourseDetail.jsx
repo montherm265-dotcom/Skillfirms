@@ -1,54 +1,26 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, Clock, Target, Award } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Target, Award, ArrowRight, BookOpen } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
-import { enroll, markModuleComplete, submitQuiz, refreshEnrollmentProgress } from "@/lib/courses";
+import { enroll } from "@/lib/courses";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 
-function QuizForm({ module, onSubmit, busy }) {
-  const [answers, setAnswers] = useState({});
-  const questions = module.skillfirms_module_quiz_questions ?? [];
-  const allAnswered = questions.every((q) => answers[q.id] !== undefined);
-
-  return (
-    <div className="mt-3 space-y-4 rounded-lg border border-border bg-secondary/30 p-4">
-      {questions.map((q, qi) => (
-        <div key={q.id}>
-          <p className="text-sm font-medium">{qi + 1}. {q.question}</p>
-          <div className="mt-2 space-y-1.5">
-            {q.choices.map((choice, ci) => (
-              <label key={ci} className="flex items-center gap-2 text-sm">
-                <input type="radio" name={q.id} checked={answers[q.id] === ci} onChange={() => setAnswers((a) => ({ ...a, [q.id]: ci }))} />
-                {choice}
-              </label>
-            ))}
-          </div>
-        </div>
-      ))}
-      <Button size="sm" disabled={!allAnswered || busy} onClick={() => onSubmit(answers)}>
-        {busy ? "Grading…" : "Submit answers"}
-      </Button>
-    </div>
-  );
-}
-
 export default function CourseDetail() {
   const { slug } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
   const [enrollment, setEnrollment] = useState(null);
   const [progressByModule, setProgressByModule] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [openQuizModuleId, setOpenQuizModuleId] = useState(null);
-  const [busyModuleId, setBusyModuleId] = useState(null);
   const [credential, setCredential] = useState(null);
 
   const load = useCallback(async () => {
@@ -102,45 +74,12 @@ export default function CourseDetail() {
   async function handleEnroll() {
     const row = await enroll(course.id, user.id);
     setEnrollment(row);
-    toast.success("Enrolled — your first module is ready.");
+    toast.success("Enrolled — here's your first lesson.");
+    navigate(`/courses/${slug}/lessons/1`);
   }
 
-  async function completeAndRefresh(moduleId) {
-    const completedCount = Object.keys(progressByModule).length + (progressByModule[moduleId] ? 0 : 1);
-    await refreshEnrollmentProgress(enrollment.id, modules.length, completedCount);
-    await load();
-  }
-
-  async function handleMarkComplete(moduleId) {
-    setBusyModuleId(moduleId);
-    try {
-      await markModuleComplete(enrollment.id, moduleId);
-      await completeAndRefresh(moduleId);
-      toast.success("Module marked complete.");
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setBusyModuleId(null);
-    }
-  }
-
-  async function handleQuizSubmit(module, answers) {
-    setBusyModuleId(module.id);
-    try {
-      const score = await submitQuiz(module.id, answers);
-      await completeAndRefresh(module.id);
-      setOpenQuizModuleId(null);
-      if (score >= 0.6) {
-        toast.success(`You scored ${Math.round(score * 100)}% — this now counts as assessment-based proficiency, and you've earned a Skillfirms certificate for this course.`);
-      } else {
-        toast.message(`You scored ${Math.round(score * 100)}%. No proficiency change — review the module and try again when ready.`);
-      }
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setBusyModuleId(null);
-    }
-  }
+  // First lesson not yet passed (or the last one, if all are done).
+  const nextIndex = Math.max(0, modules.findIndex((m) => !progressByModule[m.id]?.completed_at));
 
   if (loading) {
     return (
@@ -207,7 +146,7 @@ export default function CourseDetail() {
           {!user ? (
             <p className="text-sm text-muted-foreground">Sign in to enroll and track your progress.</p>
           ) : !enrollment ? (
-            <Button onClick={handleEnroll}>Enroll in this course</Button>
+            <Button onClick={handleEnroll}><BookOpen className="h-4 w-4" />Start the course — free</Button>
           ) : (
             <>
               <div className="flex items-center justify-between text-sm">
@@ -215,6 +154,11 @@ export default function CourseDetail() {
                 <span className="font-display tabular-nums text-mastery">{Math.round(enrollment.progress_percent)}%</span>
               </div>
               <Progress value={enrollment.progress_percent} className="mt-2" />
+              {enrollment.progress_percent < 100 && modules.length > 0 && (
+                <Button className="mt-4" onClick={() => navigate(`/courses/${slug}/lessons/${nextIndex + 1}`)}>
+                  {enrollment.progress_percent > 0 ? "Continue" : "Start"}: lesson {nextIndex + 1}<ArrowRight className="h-4 w-4" />
+                </Button>
+              )}
               {credential && (
                 <Link to={`/credentials/${credential.credential_code}`} className="mt-4 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
                   <Award className="h-4 w-4" />View your Skillfirms certificate
@@ -230,40 +174,25 @@ export default function CourseDetail() {
         </div>
 
         <div className="mt-8 space-y-3">
-          {modules.map((m) => {
+          {modules.map((m, i) => {
             const progress = progressByModule[m.id];
-            const hasRealQuiz = m.has_quiz && (m.skillfirms_module_quiz_questions?.length ?? 0) > 0;
-            const isBusy = busyModuleId === m.id;
             return (
-              <div key={m.id} className="rounded-lg border border-border p-4">
+              <Link key={m.id} to={`/courses/${slug}/lessons/${i + 1}`} className="group block rounded-xl border border-border p-4 transition-colors hover:border-mastery/50 hover:bg-mastery/5">
                 <div className="flex items-start gap-3">
                   {progress?.completed_at ? <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-mastery" /> : <Circle className="mt-0.5 h-5 w-5 flex-shrink-0 text-muted-foreground" />}
                   <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{m.title}</p>
-                      <span className="text-xs text-muted-foreground">{m.duration_minutes} min</span>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-medium">{i + 1}. {m.title}</p>
+                      <span className="flex-none text-xs text-muted-foreground">{m.duration_minutes} min</span>
                     </div>
                     {m.description && <p className="mt-1 text-sm text-muted-foreground">{m.description}</p>}
-                    {progress?.quiz_score != null && (
-                      <p className="mt-1 text-xs italic text-muted-foreground">Last score: {Math.round(progress.quiz_score * 100)}%</p>
-                    )}
-
-                    {enrollment && !progress?.completed_at && (
-                      hasRealQuiz ? (
-                        openQuizModuleId === m.id ? (
-                          <QuizForm module={m} busy={isBusy} onSubmit={(answers) => handleQuizSubmit(m, answers)} />
-                        ) : (
-                          <Button size="sm" variant="outline" className="mt-2" onClick={() => setOpenQuizModuleId(m.id)}>Take knowledge check</Button>
-                        )
-                      ) : (
-                        <Button size="sm" variant="outline" className="mt-2" disabled={isBusy} onClick={() => handleMarkComplete(m.id)}>
-                          {isBusy ? "Saving…" : "Mark complete"}
-                        </Button>
-                      )
-                    )}
+                    <p className="mt-1.5 text-xs text-muted-foreground">
+                      {progress?.completed_at ? `Passed${progress.quiz_score != null ? ` · ${Math.round(progress.quiz_score * 100)}%` : ""}` : progress?.quiz_score != null ? `Best so far ${Math.round(progress.quiz_score * 100)}% · needs 2 of 3` : "Lesson + knowledge check"}
+                      <ArrowRight className="ml-1 inline h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    </p>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

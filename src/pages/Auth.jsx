@@ -19,7 +19,10 @@ export default function Auth() {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/dashboard";
+  // ?next=/courses/x/lessons/2 (same-site paths only) or where RequireAuth sent you from.
+  const nextParam = params.get("next");
+  const from = (nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : null)
+    || location.state?.from?.pathname || "/dashboard";
 
   async function handleSubmit(e) {
     e.preventDefault();
