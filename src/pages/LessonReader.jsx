@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, Circle, Clock, Lightbulb, ListChecks, Lock, PenLine, Sparkles, Target, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll, submitQuiz } from "@/lib/courses";
 import { openLesson, readingMinutes, toBlocks } from "@/lib/lessons";
 import Seo from "@/components/seo/Seo";
+import LessonNotes from "@/components/course/LessonNotes";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,6 +44,8 @@ export default function LessonReader() {
   const [notFound, setNotFound] = useState(false);
 
   const mod = modules[index];
+  const { scrollYProgress } = useScroll();
+  const readBar = useSpring(scrollYProgress, { stiffness: 200, damping: 30, restDelta: 0.001 });
 
   const loadCourse = useCallback(async () => {
     const { data: c } = await supabase.from("skillfirms_courses").select("id, slug, title, level").eq("slug", slug).maybeSingle();
@@ -120,6 +123,7 @@ export default function LessonReader() {
 
   return (
     <div className="section-pad">
+      <motion.div aria-hidden="true" style={{ scaleX: readBar }} className="fixed inset-x-0 top-0 z-50 h-1 origin-left bg-mastery" />
       <Seo title={`${mod.title} — ${course.title}`} description={body?.summary ?? mod.description ?? course.title} canonical={`/courses/${slug}/lessons/${index + 1}`} />
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[16rem_minmax(0,1fr)]">
         {/* Lesson list */}
@@ -269,6 +273,8 @@ export default function LessonReader() {
                   </div>
                 </motion.section>
               )}
+
+              {user && <LessonNotes userId={user.id} moduleId={mod.id} />}
 
               <nav className="mt-10 flex items-center justify-between gap-3 border-t border-border pt-6">
                 {prev ? <Link to={`/courses/${slug}/lessons/${index}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />{prev.title}</Link> : <span />}

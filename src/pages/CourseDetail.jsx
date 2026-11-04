@@ -1,15 +1,28 @@
-import { useEffect, useState, useCallback } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { CheckCircle2, Circle, Clock, Target, Award, ArrowRight, BookOpen } from "lucide-react";
+import {
+  ArrowRight, Award, Bookmark, BookmarkCheck, Briefcase, Check, CheckCircle2, ChevronDown, Circle, Clock, ExternalLink,
+  Link2, ListChecks, MapPin, PlayCircle, ShieldCheck, Smartphone, Sparkles, Target, Users,
+} from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll } from "@/lib/courses";
+import { formatHours, loadCatalog, loadCourseJobs, loadReviews, saveReview, shapeCourse } from "@/lib/catalog";
+import { TALFIRMS_URL } from "@/lib/externalLinks";
+import { crossAppClick } from "@/lib/crossApp";
+import CourseCover from "@/components/course/CourseCover";
+import CourseCard from "@/components/course/CourseCard";
+import Stars, { RatingLine } from "@/components/course/Stars";
+import useSaved from "@/components/course/useSaved";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+
+const ease = [0.22, 1, 0.36, 1];
 
 export default function CourseDetail() {
   const { slug } = useParams();
@@ -17,101 +30,96 @@ export default function CourseDetail() {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
+  const [lessons, setLessons] = useState({});
   const [enrollment, setEnrollment] = useState(null);
   const [progressByModule, setProgressByModule] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [credential, setCredential] = useState(null);
+  const [reviews, setReviews] = useState(null);
+  const [jobs, setJobs] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [error, setError] = useState(null);
+  const [open, setOpen] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const { saved, toggle } = useSaved();
+  const userId = user?.id;
 
   const load = useCallback(async () => {
-    const { data: courseData, error: courseError } = await supabase
+    const { data: c, error: e } = await supabase
       .from("skillfirms_courses")
-      .select("*, skillfirms_experts(display_name, headline, bio), skillfirms_course_skills(coverage, skillfirms_skills(slug, name))")
-      .eq("slug", slug)
-      .maybeSingle();
-    if (courseError || !courseData) { setError("Course not found"); setLoading(false); return; }
-    setCourse(courseData);
+      .select("*, skillfirms_experts(display_name, headline, profile_id), skillfirms_course_modules(id, duration_minutes), skillfirms_course_skills(coverage, skillfirms_skills(slug, name))")
+      .eq("slug", slug).maybeSingle();
+    if (e || !c) { setError("Course not found"); return; }
+    const shaped = shapeCourse(c);
+    setCourse(shaped);
 
-    // modules, enrollment, and credential all depend only on courseData.id
-    // (and user.id) -- none depend on each other, so fetch them concurrently
-    // instead of one-at-a-time. Only module progress has a real dependency
-    // (needs enrollment's id first).
-    const [{ data: moduleData }, enrollmentResult, credentialResult] = await Promise.all([
-      supabase
-        .from("skillfirms_course_modules")
-        .select("*, skillfirms_module_quiz_questions(id, order_index, question, choices)")
-        .eq("course_id", courseData.id)
-        .order("order_index"),
-      user
-        ? supabase.from("skillfirms_enrollments").select("*").eq("user_id", user.id).eq("course_id", courseData.id).maybeSingle()
-        : Promise.resolve({ data: null }),
-      user
-        ? supabase
-            .from("skillfirms_credentials")
-            .select("credential_code")
-            .eq("user_id", user.id)
-            .eq("course_id", courseData.id)
-            .eq("status", "active_verified")
-            .maybeSingle()
-        : Promise.resolve({ data: null }),
+    const [{ data: mods }, enr, cred] = await Promise.all([
+      supabase.from("skillfirms_course_modules").select("id, title, description, order_index, duration_minutes, has_quiz").eq("course_id", c.id).order("order_index"),
+      userId ? supabase.from("skillfirms_enrollments").select("*").eq("user_id", userId).eq("course_id", c.id).maybeSingle() : Promise.resolve({ data: null }),
+      userId ? supabase.from("skillfirms_credentials").select("credential_code").eq("user_id", userId).eq("course_id", c.id).eq("status", "active_verified").maybeSingle() : Promise.resolve({ data: null }),
     ]);
-    setModules(moduleData ?? []);
-
-    if (user) {
-      const enrollmentData = enrollmentResult.data;
-      setEnrollment(enrollmentData ?? null);
-      setCredential(credentialResult.data ?? null);
-      if (enrollmentData) {
-        const { data: progressData } = await supabase.from("skillfirms_module_progress").select("*").eq("enrollment_id", enrollmentData.id);
-        setProgressByModule(Object.fromEntries((progressData ?? []).map((p) => [p.module_id, p])));
-      }
+    setModules(mods ?? []);
+    setEnrollment(enr.data ?? null);
+    setCredential(cred.data ?? null);
+    if (mods?.length) {
+      const { data: ls } = await supabase.from("skillfirms_lessons").select("module_id, body, reviewed_at").in("module_id", mods.map((m) => m.id));
+      setLessons(Object.fromEntries((ls ?? []).filter((l) => l.body).map((l) => [l.module_id, l])));
     }
-    setLoading(false);
-  }, [slug, user]);
+    if (enr.data) {
+      const { data: p } = await supabase.from("skillfirms_module_progress").select("module_id, completed_at, quiz_score").eq("enrollment_id", enr.data.id);
+      setProgressByModule(Object.fromEntries((p ?? []).map((r) => [r.module_id, r])));
+    }
+    loadReviews(c.id).then(setReviews);
+    loadCourseJobs(c.id).then(setJobs);
+    loadCatalog().then((all) => setRelated(all.filter((x) => x.id !== c.id && x.category?.id === shaped.category?.id).slice(0, 4))).catch(() => {});
+  }, [slug, userId]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { setCourse(null); setError(null); load(); }, [load]);
 
-  async function handleEnroll() {
-    const row = await enroll(course.id, user.id);
-    setEnrollment(row);
-    toast.success("Enrolled — here's your first lesson.");
-    navigate(`/courses/${slug}/lessons/1`);
-  }
+  const learn = useMemo(() => {
+    const points = [];
+    for (const m of modules) {
+      const kp = lessons[m.id]?.body?.key_points ?? [];
+      points.push(...kp.slice(0, 2));
+    }
+    return points.slice(0, 8);
+  }, [modules, lessons]);
 
-  // First lesson not yet passed (or the last one, if all are done).
   const nextIndex = Math.max(0, modules.findIndex((m) => !progressByModule[m.id]?.completed_at));
+  const passed = modules.filter((m) => progressByModule[m.id]?.completed_at).length;
+  const questions = modules.length * 3;
+  const reviewedAll = modules.length > 0 && modules.every((m) => lessons[m.id]?.reviewed_at);
+  const realExpert = course?.skillfirms_experts?.profile_id ? course.skillfirms_experts : null;
 
-  if (loading) {
-    return (
-      <div className="section-pad">
-        <div className="mx-auto max-w-2xl">
-          <Skeleton className="h-5 w-20 rounded-full" />
-          <Skeleton className="mt-3 h-9 w-4/5" />
-          <Skeleton className="mt-2 h-4 w-1/2" />
-          <Skeleton className="mt-3 h-16 w-full" />
-          <div className="mt-6 card-soft space-y-3 p-5">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-9 w-full rounded-md" />
-          </div>
-          <div className="mt-8 space-y-3">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="space-y-2 rounded-lg border border-border p-4">
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-3 w-2/3" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+  async function start() {
+    if (!user) { navigate(`/auth?mode=signup&next=${encodeURIComponent(`/courses/${slug}/lessons/1`)}`); return; }
+    if (enrollment) { navigate(`/courses/${slug}/lessons/${nextIndex + 1}`); return; }
+    setBusy(true);
+    try {
+      const row = await enroll(course.id, user.id);
+      setEnrollment(row);
+      navigate(`/courses/${slug}/lessons/1`);
+    } catch {
+      toast.error("Couldn't enroll you. Try again.");
+    } finally {
+      setBusy(false);
+    }
   }
-  if (error) return <p className="section-pad text-center text-sm text-destructive">{error}</p>;
+
+  function share() {
+    navigator.clipboard?.writeText(window.location.href).then(() => toast.success("Link copied"), () => {});
+  }
+
+  if (error) return <p className="section-pad text-center text-sm text-muted-foreground">{error}. <Link to="/courses" className="font-medium text-mastery hover:underline">Browse all courses</Link></p>;
+  if (!course) return <DetailSkeleton />;
+
+  const isSaved = saved.has(course.id);
+  const cta = !enrollment ? "Start learning — free" : credential ? "Review the course" : passed > 0 ? `Continue: lesson ${nextIndex + 1}` : "Start lesson 1";
 
   return (
-    <div className="section-pad">
+    <div>
       <Seo
         title={course.title}
-        description={course.description || `${course.title} — a Skillfirms course with a real graded assessment, not just a completion certificate.`}
+        description={course.description || `${course.title}: a free Skillfirms course with a graded check on every lesson.`}
         canonical={`/courses/${slug}`}
         jsonLd={{
           "@context": "https://schema.org",
@@ -119,84 +127,324 @@ export default function CourseDetail() {
           name: course.title,
           description: course.description || undefined,
           provider: { "@type": "Organization", name: "Skillfirms" },
-          ...(course.skillfirms_experts?.display_name ? { instructor: { "@type": "Person", name: course.skillfirms_experts.display_name, description: course.skillfirms_experts.headline || undefined } } : {}),
-          ...(course.duration_hours ? { timeRequired: `PT${course.duration_hours}H` } : {}),
+          isAccessibleForFree: true,
           educationalLevel: course.level || undefined,
+          timeRequired: `PT${course.total_minutes}M`,
+          ...(course.rating_count ? { aggregateRating: { "@type": "AggregateRating", ratingValue: course.rating_avg, ratingCount: course.rating_count } } : {}),
         }}
-        breadcrumb={[{ label: "Home", path: "/" }, { label: course.title }]}
+        breadcrumb={[{ label: "Courses", path: "/courses" }, { label: course.title }]}
       />
-      <div className="mx-auto max-w-2xl">
-        <Badge variant="outline" className="capitalize">{course.level}</Badge>
-        <h1 className="mt-2 font-display text-3xl font-bold">{course.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {course.skillfirms_experts?.display_name}{course.skillfirms_experts?.headline ? ` — ${course.skillfirms_experts.headline}` : ""}
-        </p>
-        {course.description && <p className="mt-3 text-muted-foreground">{course.description}</p>}
-        <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3.5 w-3.5" />{course.duration_hours} hours · {course.enrollment_count} enrolled</p>
 
-        {course.skillfirms_course_skills?.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {course.skillfirms_course_skills.map((cs) => (
-              <Badge key={cs.skillfirms_skills.slug} variant="secondary" className="text-xs">{cs.skillfirms_skills.name} · {Math.round(cs.coverage * 100)}%</Badge>
-            ))}
-          </div>
-        )}
-
-        <div className="mt-6 card-soft p-5">
-          {!user ? (
-            <p className="text-sm text-muted-foreground">Sign in to enroll and track your progress.</p>
-          ) : !enrollment ? (
-            <Button onClick={handleEnroll}><BookOpen className="h-4 w-4" />Start the course — free</Button>
-          ) : (
-            <>
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">Your progress</span>
-                <span className="font-display tabular-nums text-mastery">{Math.round(enrollment.progress_percent)}%</span>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-[hsl(222_38%_8%)] text-white">
+        <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]" />
+        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full blur-3xl" style={{ background: `hsl(${course.category?.hue ?? 189} 80% 45% / 0.35)` }} />
+        <div className="relative mx-auto grid max-w-8xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-8 lg:py-14">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
+            <p className="flex flex-wrap items-center gap-2 text-sm text-white/70">
+              <Link to="/courses" className="hover:text-white">Courses</Link><span>›</span>
+              <Link to={`/courses?category=${course.category?.id}`} className="font-medium text-[hsl(var(--mastery))] hover:underline">{course.category?.label}</Link>
+            </p>
+            <h1 className="mt-3 max-w-3xl font-display text-3xl font-semibold leading-tight tracking-tight sm:text-[2.6rem]">{course.title}</h1>
+            {course.description && <p className="mt-3 max-w-2xl text-lg text-white/80">{course.description}</p>}
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+              {course.rating_count ? <RatingLine course={course} className="[&_.text-muted-foreground]:text-white/60" /> : <span className="rounded-md bg-mastery px-2 py-0.5 text-xs font-bold text-mastery-foreground">New course</span>}
+              {course.enrollment_count > 0 && <span className="inline-flex items-center gap-1.5 text-white/80"><Users className="h-4 w-4" />{course.enrollment_count.toLocaleString()} learner{course.enrollment_count === 1 ? "" : "s"}</span>}
+              <span className="inline-flex items-center gap-1.5 text-white/80"><Clock className="h-4 w-4" />{formatHours(course)}</span>
+              <span className="capitalize text-white/80">{course.level ?? "All levels"}</span>
+            </div>
+            <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-white/60">
+              <Sparkles className="h-3.5 w-3.5" />
+              {realExpert ? <>By {realExpert.display_name}{realExpert.headline ? ` · ${realExpert.headline}` : ""}</> : reviewedAll ? "Lessons reviewed by an expert" : "Lessons drafted with AI from the course outline. Not yet reviewed by an expert, and each lesson says so."}
+            </p>
+            {course.skills.length > 0 && (
+              <div className="mt-5 flex flex-wrap gap-1.5">
+                {course.skills.map((s) => <span key={s.slug} className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs">{s.name}</span>)}
               </div>
-              <Progress value={enrollment.progress_percent} className="mt-2" />
-              {enrollment.progress_percent < 100 && modules.length > 0 && (
-                <Button className="mt-4" onClick={() => navigate(`/courses/${slug}/lessons/${nextIndex + 1}`)}>
-                  {enrollment.progress_percent > 0 ? "Continue" : "Start"}: lesson {nextIndex + 1}<ArrowRight className="h-4 w-4" />
-                </Button>
-              )}
-              {credential && (
-                <Link to={`/credentials/${credential.credential_code}`} className="mt-4 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
-                  <Award className="h-4 w-4" />View your Skillfirms certificate
-                </Link>
-              )}
-              {enrollment.progress_percent >= 100 && (
-                <Link to="/missions" className="mt-2 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
-                  <Target className="h-4 w-4" />Course complete — practice it for real in a Mission
-                </Link>
-              )}
-            </>
-          )}
+            )}
+          </motion.div>
         </div>
+      </section>
 
-        <div className="mt-8 space-y-3">
-          {modules.map((m, i) => {
-            const progress = progressByModule[m.id];
-            return (
-              <Link key={m.id} to={`/courses/${slug}/lessons/${i + 1}`} className="group block rounded-xl border border-border p-4 transition-colors hover:border-mastery/50 hover:bg-mastery/5">
-                <div className="flex items-start gap-3">
-                  {progress?.completed_at ? <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-mastery" /> : <Circle className="mt-0.5 h-5 w-5 flex-shrink-0 text-muted-foreground" />}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium">{i + 1}. {m.title}</p>
-                      <span className="flex-none text-xs text-muted-foreground">{m.duration_minutes} min</span>
-                    </div>
-                    {m.description && <p className="mt-1 text-sm text-muted-foreground">{m.description}</p>}
-                    <p className="mt-1.5 text-xs text-muted-foreground">
-                      {progress?.completed_at ? `Passed${progress.quiz_score != null ? ` · ${Math.round(progress.quiz_score * 100)}%` : ""}` : progress?.quiz_score != null ? `Best so far ${Math.round(progress.quiz_score * 100)}% · needs 2 of 3` : "Lesson + knowledge check"}
-                      <ArrowRight className="ml-1 inline h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-                    </p>
+      <div className="mx-auto grid max-w-8xl gap-10 px-4 pb-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-8">
+        {/* Sticky buy box (overlaps the hero on large screens) */}
+        <aside className="relative z-10 order-first -mt-2 lg:order-last lg:-mt-64">
+          <div className="lg:sticky lg:top-20">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease, delay: 0.1 }}
+              className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_60px_-30px_hsl(var(--foreground)/0.45)]">
+              <button type="button" onClick={start} className="group relative block w-full" aria-label={cta}>
+                <CourseCover course={course} size="lg" className="aspect-[16/9] w-full" />
+                <span className="absolute inset-0 flex items-center justify-center bg-black/0 transition group-hover:bg-black/20">
+                  <PlayCircle className="h-14 w-14 text-white opacity-90 drop-shadow-lg transition group-hover:scale-110" strokeWidth={1.25} />
+                </span>
+              </button>
+              <div className="p-5">
+                <p className="font-display text-3xl font-semibold">Free</p>
+                <p className="text-xs text-muted-foreground">Learning, graded checks and the certificate are all free.</p>
+                {enrollment && (
+                  <div className="mt-4">
+                    <div className="flex justify-between text-xs"><span className="font-medium">{passed} of {modules.length} lessons passed</span><span className="tabular-nums text-mastery">{Math.round(enrollment.progress_percent)}%</span></div>
+                    <Progress value={enrollment.progress_percent} className="mt-1.5 h-1.5" />
                   </div>
+                )}
+                <Button className="mt-4 h-11 w-full text-base" onClick={start} disabled={busy}>{busy ? "Starting…" : cta}<ArrowRight className="h-4 w-4" /></Button>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {toggle && <Button variant="outline" size="sm" onClick={() => toggle(course)}>{isSaved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}{isSaved ? "Saved" : "Save"}</Button>}
+                  <Button variant="outline" size="sm" onClick={share} className={toggle ? "" : "col-span-2"}><Link2 className="h-4 w-4" />Share</Button>
                 </div>
-              </Link>
+                {credential && (
+                  <Link to={`/credentials/${credential.credential_code}`} className="mt-4 flex items-center gap-2 rounded-xl bg-mastery/10 p-3 text-sm font-medium text-mastery hover:bg-mastery/15">
+                    <Award className="h-5 w-5" />You've earned this certificate
+                  </Link>
+                )}
+                <p className="mt-5 text-sm font-semibold">This course includes</p>
+                <ul className="mt-2 space-y-2 text-sm text-foreground/85">
+                  <li className="flex gap-2.5"><PlayCircle className="h-4 w-4 flex-none text-muted-foreground" />{modules.length} in-depth lessons with worked examples</li>
+                  <li className="flex gap-2.5"><ListChecks className="h-4 w-4 flex-none text-muted-foreground" />{questions} graded questions, 2 of 3 to pass each lesson</li>
+                  <li className="flex gap-2.5"><Target className="h-4 w-4 flex-none text-muted-foreground" />A hands-on exercise in every lesson</li>
+                  <li className="flex gap-2.5"><Award className="h-4 w-4 flex-none text-muted-foreground" />Certificate anyone can verify online</li>
+                  <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Counts as verified skill proof on Talfirms</li>
+                  <li className="flex gap-2.5"><Smartphone className="h-4 w-4 flex-none text-muted-foreground" />Learn on phone or computer, at your pace</li>
+                </ul>
+              </div>
+            </motion.div>
+          </div>
+        </aside>
+
+        <main className="min-w-0 pt-8 lg:pt-10">
+          {learn.length > 0 && (
+            <section className="rounded-2xl border border-border p-5 sm:p-6">
+              <h2 className="font-display text-2xl font-semibold">What you'll learn</h2>
+              <ul className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+                {learn.map((p, i) => <li key={i} className="flex gap-2.5 text-sm"><Check className="mt-0.5 h-4 w-4 flex-none text-mastery" />{p}</li>)}
+              </ul>
+            </section>
+          )}
+
+          {/* Curriculum */}
+          <section className="mt-10">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <h2 className="font-display text-2xl font-semibold">Course content</h2>
+              <p className="text-sm text-muted-foreground">{modules.length} lessons · {formatHours(course)} · {questions} graded questions</p>
+            </div>
+            <div className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border">
+              {modules.map((m, i) => {
+                const p = progressByModule[m.id];
+                const body = lessons[m.id]?.body;
+                const isOpen = open === i;
+                return (
+                  <div key={m.id}>
+                    <button type="button" onClick={() => setOpen(isOpen ? -1 : i)} aria-expanded={isOpen}
+                      className="flex w-full items-center gap-3 bg-secondary/40 px-4 py-3.5 text-left hover:bg-secondary/70">
+                      <ChevronDown className={`h-4 w-4 flex-none transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                      <span className="min-w-0 flex-1 font-medium">{i + 1}. {m.title}</span>
+                      {p?.completed_at ? <CheckCircle2 className="h-4 w-4 flex-none text-mastery" /> : null}
+                      <span className="flex-none text-xs text-muted-foreground">{m.duration_minutes} min</span>
+                    </button>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease }} className="overflow-hidden">
+                          <div className="px-4 pb-4 pl-11 pt-3 text-sm">
+                            <p className="text-muted-foreground">{body?.summary ?? m.description}</p>
+                            {body?.sections?.length > 0 && (
+                              <ul className="mt-3 space-y-1.5">
+                                {body.sections.map((s, j) => <li key={j} className="flex gap-2"><Circle className="mt-1.5 h-2 w-2 flex-none fill-current text-muted-foreground" />{s.heading}</li>)}
+                                {body.example?.title && <li className="flex gap-2"><Circle className="mt-1.5 h-2 w-2 flex-none fill-current text-mastery" />Worked example: {body.example.title}</li>}
+                              </ul>
+                            )}
+                            <div className="mt-3 flex flex-wrap items-center gap-3">
+                              <Link to={`/courses/${slug}/lessons/${i + 1}`} className="inline-flex items-center gap-1 font-medium text-mastery hover:underline">{p?.completed_at ? "Open again" : "Open lesson"}<ArrowRight className="h-3.5 w-3.5" /></Link>
+                              <span className="text-xs text-muted-foreground">{p?.completed_at ? `Passed${p.quiz_score != null ? ` · ${Math.round(p.quiz_score * 100)}%` : ""}` : "Ends in a 3-question graded check"}</span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* How proof works */}
+          <section className="mt-10 grid gap-3 sm:grid-cols-3">
+            {[
+              { icon: PlayCircle, t: "Learn", d: "Read each lesson, work through the example and the exercise." },
+              { icon: ListChecks, t: "Pass the checks", d: "Every lesson ends in a graded check. Pass them all to earn the certificate." },
+              { icon: ShieldCheck, t: "Show it on Talfirms", d: "Your certificate becomes verified skill proof on your Talfirms profile, which employers see." },
+            ].map((s, i) => (
+              <motion.div key={s.t} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.4, ease }}
+                className="rounded-2xl border border-border bg-card p-5">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-mastery/10 text-mastery"><s.icon className="h-5 w-5" /></span>
+                <p className="mt-3 font-display text-lg font-semibold">{i + 1}. {s.t}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
+              </motion.div>
+            ))}
+          </section>
+
+          {jobs && <JobsUnlocked jobs={jobs} course={course} />}
+
+          <Reviews course={course} reviews={reviews} onSaved={() => { loadReviews(course.id).then(setReviews); load(); }} />
+
+          {related.length > 0 && (
+            <section className="mt-12">
+              <h2 className="font-display text-2xl font-semibold">More in {course.category?.label}</h2>
+              <div className="mt-4 grid gap-5 sm:grid-cols-2">
+                {related.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} compact />)}
+              </div>
+            </section>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function JobsUnlocked({ jobs, course }) {
+  if (!jobs.jobs_total) {
+    return (
+      <section className="mt-10 rounded-2xl border border-dashed border-border p-5">
+        <p className="flex items-center gap-2 font-display text-lg font-semibold"><Briefcase className="h-5 w-5 text-mastery" />Jobs on Talfirms</p>
+        <p className="mt-1 text-sm text-muted-foreground">No open Talfirms job asks for these skills right now. When one does, it shows up here.</p>
+      </section>
+    );
+  }
+  return (
+    <section className="mt-10 overflow-hidden rounded-2xl border border-mastery/30 bg-gradient-to-br from-mastery/10 via-card to-card">
+      <div className="p-5 sm:p-6">
+        <p className="eyebrow text-mastery">Skill Bridge</p>
+        <h2 className="mt-1 font-display text-2xl font-semibold">{jobs.jobs_total} open job{jobs.jobs_total === 1 ? "" : "s"} on Talfirms ask for these skills</h2>
+        {jobs.gap_jobs > 0 && <p className="mt-1 text-sm">You're missing them on <span className="font-semibold">{jobs.gap_jobs}</span>. This course fills that gap.</p>}
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {jobs.jobs.map((j) => {
+            const path = `/opportunities/${j.id}`;
+            return (
+              <li key={j.id}>
+                <a href={`${TALFIRMS_URL}${path}`} onClick={crossAppClick(TALFIRMS_URL, path)} target="_blank" rel="noreferrer"
+                  className="group flex h-full items-start justify-between gap-3 rounded-xl border border-border bg-background p-3 transition hover:border-mastery/50">
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium">{j.title}</span>
+                    <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                      {j.company}{j.via_agency ? " · via agency" : ""}{j.city ? <><MapPin className="ml-1 h-3 w-3" />{j.city}</> : j.remote_ok ? " · Remote" : ""}
+                    </span>
+                  </span>
+                  <span className="flex flex-none flex-col items-end gap-1">
+                    {j.my_fit != null && <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold tabular-nums">{Math.round(j.my_fit)}% fit</span>}
+                    {j.fills_gap && <span className="text-[10px] font-semibold uppercase tracking-wide text-mastery">Fills a gap</span>}
+                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground group-hover:text-foreground" />
+                  </span>
+                </a>
+              </li>
             );
           })}
-        </div>
+        </ul>
+        <p className="mt-3 text-xs text-muted-foreground">Pass every lesson of {course.title} and these skills show as verified on your Talfirms profile. You can turn that off in Settings.</p>
       </div>
+    </section>
+  );
+}
+
+function Reviews({ course, reviews, onSaved }) {
+  const { user } = useAuth();
+  const [rating, setRating] = useState(0);
+  const [body, setBody] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (reviews?.mine) { setRating(reviews.mine.rating); setBody(reviews.mine.body ?? ""); }
+  }, [reviews?.mine]);
+
+  if (!reviews) return null; // reviews not switched on yet
+  const total = reviews.count ?? 0;
+
+  async function submit(e) {
+    e.preventDefault();
+    if (!rating) return;
+    setBusy(true);
+    try {
+      await saveReview(course.id, rating, body.trim());
+      toast.success("Thanks — your review is up");
+      setEditing(false);
+      onSaved();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="mt-12">
+      <h2 className="font-display text-2xl font-semibold">Learner reviews</h2>
+      {total === 0 ? (
+        <p className="mt-2 text-sm text-muted-foreground">No reviews yet. Only people who have passed at least one lesson can review, so every review comes from someone who did the work.</p>
+      ) : (
+        <div className="mt-4 grid gap-6 sm:grid-cols-[11rem_minmax(0,1fr)]">
+          <div>
+            <p className="font-display text-5xl font-semibold text-warning">{Number(reviews.avg).toFixed(1)}</p>
+            <Stars value={Number(reviews.avg)} size="h-4 w-4" />
+            <p className="mt-1 text-xs text-muted-foreground">{total} review{total === 1 ? "" : "s"}</p>
+          </div>
+          <div className="space-y-1.5">
+            {[5, 4, 3, 2, 1].map((s) => {
+              const n = reviews.stars?.[s] ?? 0;
+              return (
+                <div key={s} className="flex items-center gap-2 text-xs">
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-warning" style={{ width: `${(100 * n) / total}%` }} /></div>
+                  <Stars value={s} size="h-3 w-3" />
+                  <span className="w-8 text-right tabular-nums text-muted-foreground">{Math.round((100 * n) / total)}%</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {user && reviews.can_review && (!reviews.mine || editing) && (
+        <form onSubmit={submit} className="mt-6 rounded-2xl border border-border bg-card p-5">
+          <p className="font-medium">{reviews.mine ? "Edit your review" : "How was this course?"}</p>
+          <Stars value={rating} size="h-7 w-7" onPick={setRating} className="mt-2" />
+          <Textarea value={body} onChange={(e) => setBody(e.target.value)} maxLength={2000} placeholder="What helped? What would you change? (optional)" className="mt-3 min-h-24" />
+          <div className="mt-3 flex gap-2">
+            <Button type="submit" disabled={!rating || busy}>{busy ? "Saving…" : reviews.mine ? "Save changes" : "Post review"}</Button>
+            {editing && <Button type="button" variant="ghost" onClick={() => setEditing(false)}>Cancel</Button>}
+          </div>
+        </form>
+      )}
+      {user && reviews.mine && !editing && (
+        <button type="button" onClick={() => setEditing(true)} className="mt-4 text-sm font-medium text-mastery hover:underline">Edit your review</button>
+      )}
+      {user && !reviews.can_review && (
+        <p className="mt-4 text-xs text-muted-foreground">Pass one lesson's check to leave a review.</p>
+      )}
+
+      {reviews.reviews?.length > 0 && (
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+          {reviews.reviews.map((r, i) => (
+            <li key={i} className="rounded-2xl border border-border p-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary font-display text-sm font-semibold text-primary-foreground">{r.name.slice(0, 1)}</span>
+                <div>
+                  <p className="text-sm font-semibold">{r.name}</p>
+                  <p className="text-[11px] text-muted-foreground">Passed {r.passed} of {reviews.lessons} lessons · {new Date(r.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })}</p>
+                </div>
+              </div>
+              <Stars value={r.rating} className="mt-2" />
+              {r.body && <p className="mt-2 text-sm leading-relaxed">{r.body}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function DetailSkeleton() {
+  return (
+    <div>
+      <div className="bg-[hsl(222_38%_8%)]"><div className="mx-auto max-w-8xl space-y-3 px-4 py-14 sm:px-6 lg:px-8"><Skeleton className="h-4 w-40 bg-white/10" /><Skeleton className="h-10 w-2/3 bg-white/10" /><Skeleton className="h-5 w-1/2 bg-white/10" /></div></div>
+      <div className="mx-auto max-w-8xl space-y-3 px-4 py-10 sm:px-6 lg:px-8"><Skeleton className="h-40 w-full max-w-3xl" /><Skeleton className="h-64 w-full max-w-3xl" /></div>
     </div>
   );
 }

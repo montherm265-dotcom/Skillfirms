@@ -101,7 +101,7 @@ export default function Learn() {
                             </span>
                             <span className="flex flex-none items-center gap-2 text-xs text-muted-foreground">
                               {c.level && <span className="capitalize">{c.level}</span>}
-                              {c.duration_hours ? <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{c.duration_hours}h</span> : null}
+                              {c.duration_hours ? <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{Math.round(Number(c.duration_hours) * 10) / 10}h</span> : null}
                               <span className="font-medium text-primary">Start</span>
                             </span>
                           </Link>
