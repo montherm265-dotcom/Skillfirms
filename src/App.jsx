@@ -18,6 +18,7 @@ const CareerRoleDetail = lazy(() => import('@/pages/CareerRoleDetail'));
 const LearningPath = lazy(() => import('@/pages/LearningPath'));
 const CourseDetail = lazy(() => import('@/pages/CourseDetail'));
 const Missions = lazy(() => import('@/pages/Missions'));
+const Learn = lazy(() => import('@/pages/Learn'));
 const MissionDetail = lazy(() => import('@/pages/MissionDetail'));
 const MyCredentials = lazy(() => import('@/pages/MyCredentials'));
 const CredentialDetail = lazy(() => import('@/pages/CredentialDetail'));
@@ -47,6 +48,7 @@ export default function App() {
                 <Route path="/roles/:slug" element={<CareerRoleDetail />} />
                 <Route path="/courses/:slug" element={<CourseDetail />} />
                 <Route path="/path/:goalId" element={<RequireAuth><LearningPath /></RequireAuth>} />
+                <Route path="/learn" element={<Learn />} />
                 <Route path="/missions" element={<Missions />} />
                 <Route path="/missions/:slug" element={<MissionDetail />} />
                 <Route path="/credentials" element={<RequireAuth><MyCredentials /></RequireAuth>} />
