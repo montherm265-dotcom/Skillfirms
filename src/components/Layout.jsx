@@ -3,6 +3,8 @@ import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
+import { openCrossApp } from "@/lib/crossApp";
+import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
@@ -48,6 +50,7 @@ export default function Layout() {
                     <AvatarFallback className="text-xs">{(profile?.display_name || "?").slice(0, 1).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Link>
+                <Button variant="ghost" size="sm" onClick={() => openCrossApp(TALFIRMS_URL, "/matches")}>Talfirms jobs ↗</Button>
                 <Link to="/settings"><Button variant="ghost" size="sm">Settings</Button></Link>
                 <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign out</Button>
               </>

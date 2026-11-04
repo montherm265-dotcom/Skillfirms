@@ -50,8 +50,13 @@ export function AuthProvider({ children }) {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
       identifyUser(newSession?.user?.id ?? null);
-      loadProfile(newSession?.user?.id);
-      loadExpertStatus(newSession?.user?.id);
+      // Supabase holds its auth lock while this callback runs; querying the
+      // database from inside it waits on that same lock (and sign-ins like
+      // verifyOtp never finish). Load just after the callback returns.
+      setTimeout(() => {
+        loadProfile(newSession?.user?.id);
+        loadExpertStatus(newSession?.user?.id);
+      }, 0);
     });
 
     return () => sub.subscription.unsubscribe();

@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { runDiagnosis, takePendingGoal } from "@/lib/diagnosis";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
+import { signedLinkClick } from "@/lib/crossApp";
 import DiagnosisResult from "@/components/DiagnosisResult";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -84,7 +85,7 @@ export default function Dashboard() {
               <Link to="/credentials"><Button variant="outline" size="sm">Your credentials</Button></Link>
             </div>
             {TALFIRMS_URL && (
-              <a href={TALFIRMS_URL} target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
+              <a href={`${TALFIRMS_URL}/matches`} onClick={signedLinkClick(`${TALFIRMS_URL}/matches`)} target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-1.5 text-sm font-medium text-mastery hover:underline">
                 <ExternalLink className="h-4 w-4" />See matching roles on Talfirms
               </a>
             )}

@@ -11,6 +11,7 @@ import Layout from '@/components/Layout';
 import Home from '@/pages/Home';
 
 const Auth = lazy(() => import('@/pages/Auth'));
+const Sso = lazy(() => import('@/pages/Sso'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const SkillPassport = lazy(() => import('@/pages/SkillPassport'));
 const CareerRoles = lazy(() => import('@/pages/CareerRoles'));
@@ -44,6 +45,7 @@ export default function App() {
               <Route element={<Layout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/sso" element={<Sso />} />
                 <Route path="/roles" element={<CareerRoles />} />
                 <Route path="/roles/:slug" element={<CareerRoleDetail />} />
                 <Route path="/courses/:slug" element={<CourseDetail />} />
