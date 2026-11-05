@@ -1,8 +1,8 @@
 import { supabase } from "@/lib/supabaseClient";
 
-// The lesson tutor (Edge Function skillfirms-tutor) uses the same plans and
-// limits as every Talfirms AI feature: each question is one "quick AI help"
-// (Free 10 a day within the free monthly allowance, Pro 50, Ultra 120). The
+// The lesson tutor (Edge Function skillfirms-tutor) uses Skillfirms plans:
+// Free 10 questions a day within the free monthly AI allowance, Scholar 60,
+// Mastery 150 (Talfirms Pro / Ultra include them). The
 // lesson itself is loaded on the server; we only send which lesson, the
 // question and recent turns.
 export async function askTutor({ moduleId, question, history, mode = "ask", job }) {
@@ -26,6 +26,9 @@ export async function askTutor({ moduleId, question, history, mode = "ask", job 
 }
 
 export async function loadAllowance() {
+  // Skillfirms plans (0031) first; the shared Talfirms allowance before that's applied.
+  const { data: sf } = await supabase.rpc("my_skillfirms_plan");
+  if (sf) return { plan: sf.name ?? "Free", left: Math.max(0, (sf.tutor_per_day ?? 0) - (sf.tutor_today ?? 0)), perDay: sf.tutor_per_day ?? 0 };
   const { data, error } = await supabase.rpc("my_ai_allowance");
   if (error || !data) return null;
   return {

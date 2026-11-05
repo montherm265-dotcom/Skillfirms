@@ -135,7 +135,7 @@ export default function TutorPanel({ user, moduleId, lessonTitle, ready }) {
                   <div className="mt-4 rounded-2xl bg-primary p-4 text-primary-foreground">
                     <p className="flex items-center gap-2 font-semibold"><Crown className="h-4 w-4 text-warning" />Out of tutor questions for now</p>
                     <p className="mt-1 text-sm text-primary-foreground/80">{limitHit}</p>
-                    <Link to="/pro" className="mt-3 inline-block rounded-lg bg-mastery px-3 py-1.5 text-sm font-semibold text-mastery-foreground">See Pro</Link>
+                    <Link to="/pro" className="mt-3 inline-block rounded-lg bg-mastery px-3 py-1.5 text-sm font-semibold text-mastery-foreground">See plans</Link>
                   </div>
                 )}
                 <div ref={endRef} />

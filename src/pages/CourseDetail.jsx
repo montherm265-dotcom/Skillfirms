@@ -14,6 +14,7 @@ import { buyCourse, loadMyPurchase } from "@/lib/studio";
 import HiringBanner from "@/components/course/HiringBanner";
 import JobGoalBanner from "@/components/course/JobGoalBanner";
 import { jobGoalFromParams, rememberJobGoal } from "@/lib/jobGoal";
+import { loadMyPlan, loadSkillfirmsPlans } from "@/lib/plans";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { crossAppClick } from "@/lib/crossApp";
 import CourseCover from "@/components/course/CourseCover";
@@ -33,6 +34,11 @@ export default function CourseDetail() {
   const [params] = useSearchParams();
   const { user } = useAuth();
   useEffect(() => { rememberJobGoal(jobGoalFromParams(params)); }, [params]);
+  // Plan prices on expert courses: your discount, or what Scholar would save you.
+  const [myPlan, setMyPlan] = useState(null);
+  const [scholarPct, setScholarPct] = useState(null);
+  useEffect(() => { if (user) loadMyPlan().then(setMyPlan); else setMyPlan(null); }, [user]);
+  useEffect(() => { loadSkillfirmsPlans().then((ps) => setScholarPct(ps?.find((p) => p.plan === "scholar")?.expert_discount_pct ?? null)); }, []);
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
@@ -224,7 +230,16 @@ export default function CourseDetail() {
                 </span>
               </button>
               <div className="p-5">
-                <p className="font-display text-3xl font-semibold">{access && paid ? "You have access" : priceLabel(course.price_cents)}</p>
+                {access && paid ? <p className="font-display text-3xl font-semibold">You have access</p> : paid && myPlan?.expert_discount_pct > 0 ? (
+                  <p className="flex items-baseline gap-2">
+                    <span className="font-display text-3xl font-semibold">{priceLabel(course.price_cents - Math.round((course.price_cents * myPlan.expert_discount_pct) / 100))}</span>
+                    <span className="text-sm text-muted-foreground line-through">{priceLabel(course.price_cents)}</span>
+                    <span className="rounded-md bg-mastery/15 px-1.5 py-0.5 text-xs font-semibold text-mastery">{myPlan.expert_discount_pct}% off with {myPlan.name}</span>
+                  </p>
+                ) : <p className="font-display text-3xl font-semibold">{priceLabel(course.price_cents)}</p>}
+                {paid && !access && !(myPlan?.expert_discount_pct > 0) && scholarPct > 0 && (
+                  <Link to="/pro" className="text-xs font-medium text-mastery hover:underline">{scholarPct}% off with Scholar →</Link>
+                )}
                 <p className="text-xs text-muted-foreground">{paid ? "One payment: every lesson, the graded checks and the certificate. Lesson 1 is a free preview." : "Learning, graded checks and the certificate are all free."}</p>
                 {locked && <Link to={`/courses/${slug}/lessons/1`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-mastery hover:underline"><PlayCircle className="h-4 w-4" />Watch lesson 1 free</Link>}
                 {locked && purchase?.status === "waitlist" && <p className="mt-2 rounded-lg bg-secondary p-2 text-xs">You're on the list. Nothing has been charged; we'll let you know when buying opens.</p>}

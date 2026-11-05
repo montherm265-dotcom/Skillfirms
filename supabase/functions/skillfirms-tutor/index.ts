@@ -2,9 +2,9 @@
 // reading.  POST { moduleId, question, mode?, job?, history? } (signed in)
 //   -> { result: { answer, followups } } | { error }
 //
-// Same plans and limits as every Talfirms AI feature: each answer is one
-// "quick AI help" (my_ai_allowance: Free 10 a day inside the free $0.10 a
-// month cap, Pro 50, Ultra 120), logged to ai_usage_log with tier 'simple'.
+// Skillfirms plans (my_skillfirms_plan): Free 10 answers a day inside the free
+// $0.10 a month AI cap, Scholar 60, Mastery 150; logged to ai_usage_log
+// (feature skillfirms_tutor, tier 'simple').
 // The lesson, course and knowledge-check questions are read here from the
 // database, never taken from the browser. The tutor is never told the
 // check answers and is told not to give them; it never promises jobs.
@@ -95,21 +95,25 @@ Deno.serve(async (req) => {
     `Learner: ${question}`,
   ].filter(Boolean).join("\n\n");
 
-  // Same allowance as every AI feature: a quick help a day, and Free's monthly cap.
-  const { data: a } = await caller.rpc("my_ai_allowance");
+  // Skillfirms plans (migration 0031): Free 10 tutor questions a day inside
+  // the free $0.10 a month AI cap, Scholar 60, Mastery 150 (Talfirms Pro and
+  // Ultra include them). Before 0031 is applied, fall back to the shared
+  // Talfirms allowance.
+  const [{ data: sp, error: spError }, { data: a }] = await Promise.all([caller.rpc("my_skillfirms_plan"), caller.rpc("my_ai_allowance")]);
   const allowance = (a ?? {}) as Record<string, unknown>;
-  const perDay = typeof allowance.quick_per_day === "number" ? allowance.quick_per_day : 10;
-  const today = typeof allowance.quick_today === "number" ? allowance.quick_today : 0;
-  const plan = typeof allowance.plan === "string" ? allowance.plan : "free";
-  const planName = plan.charAt(0).toUpperCase() + plan.slice(1);
+  const sf = (spError ? null : sp) as Record<string, unknown> | null;
+  const perDay = sf ? Number(sf.tutor_per_day ?? 10) : (typeof allowance.quick_per_day === "number" ? allowance.quick_per_day : 10);
+  const today = sf ? Number(sf.tutor_today ?? 0) : (typeof allowance.quick_today === "number" ? allowance.quick_today : 0);
+  const planName = sf ? String(sf.name ?? "Free") : (() => { const p = typeof allowance.plan === "string" ? allowance.plan : "free"; return p.charAt(0).toUpperCase() + p.slice(1); })();
   if (today >= perDay) {
     return json({ error: `ai_limit_quick: You've used today's ${perDay} tutor questions on the ${planName} plan. They come back tomorrow, or upgrade for more.` }, 429);
   }
-  const cap = allowance.light_models === false ? null : Number(allowance.cost_cap_usd ?? 0.10);
+  const paid = sf ? sf.plan !== "free" : allowance.light_models === false;
+  const cap = paid ? null : Number(allowance.cost_cap_usd ?? 0.10);
   const spent = Number(allowance.cost_this_month_usd ?? 0) || 0;
   const worst = 2 * ((Math.ceil((SYSTEM.length + user.length) / 3) + 50) / 1e6 * IN_PRICE + (MAX_OUT + REASONING) / 1e6 * OUT_PRICE);
   if (cap != null && spent + worst > cap) {
-    return json({ error: "ai_limit_credit: You've used this month's free AI. It comes back on the 1st, or upgrade to Pro for much more." }, 429);
+    return json({ error: "ai_limit_credit: You've used this month's free AI. It comes back on the 1st, or upgrade to Scholar for much more." }, 429);
   }
 
   const log = (inTok: number, outTok: number, status: string) => admin.from("ai_usage_log").insert({

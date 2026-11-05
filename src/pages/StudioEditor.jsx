@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, CheckCircle2, Circle, Film, Plus, Send, Trash2, Upl
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { loadStudioCourse, saveStudioCourse, submitStudioCourse, uploadCourseVideo, videoEmbed } from "@/lib/studio";
+import { setCheckMinutes } from "@/lib/plans";
 import VideoPlayer from "@/components/course/VideoPlayer";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
@@ -28,10 +29,13 @@ export default function StudioEditor() {
   const [open, setOpen] = useState(0);
   const [busy, setBusy] = useState(null);
   const [skillFilter, setSkillFilter] = useState("");
+  const [checkMinutes, setCheckMinutesState] = useState("");
 
   useEffect(() => {
     supabase.from("skillfirms_skills").select("id, name").order("name").then(({ data }) => setSkills(data ?? []));
     if (!isNew) loadStudioCourse(id).then((c) => setCourse({ ...c, lessons: c.lessons.length ? c.lessons.map((l) => ({ ...l, video_url: l.video_url ?? "", key_points: l.key_points.length ? l.key_points : [""], sections: l.sections.length ? l.sections : [{ heading: "", body: "" }] })) : [blankLesson()] })).catch((e) => { toast.error(e.message); navigate("/teach"); });
+    if (!isNew) supabase.from("skillfirms_courses").select("check_minutes").eq("id", id).maybeSingle()
+      .then(({ data, error }) => { if (!error) setCheckMinutesState(data?.check_minutes ? String(data.check_minutes) : ""); });
   }, [id, isNew, navigate]);
 
   const set = (patch) => setCourse((c) => ({ ...c, ...patch }));
@@ -70,6 +74,7 @@ export default function StudioEditor() {
     setBusy(thenSubmit ? "submit" : "save");
     try {
       const newId = await saveStudioCourse(isNew ? null : id, payload());
+      await setCheckMinutes(newId, Number(checkMinutes) || null);
       if (thenSubmit) { await submitStudioCourse(newId); toast.success("Sent for review. We'll check it soon."); navigate("/teach"); return; }
       toast.success("Saved");
       if (isNew) navigate(`/teach/${newId}`, { replace: true });
@@ -108,6 +113,13 @@ export default function StudioEditor() {
                   <option value={0}>Free</option>
                   {[900, 1900, 2900, 4900, 7900, 9900, 14900, 19900].map((c) => <option key={c} value={c}>${c / 100} · you earn ${(c / 200).toFixed(2).replace(/\.00$/, "")}</option>)}
                 </select>
+              </label>
+              <label className="text-sm font-medium sm:col-span-2">Time limit for each lesson's check
+                <select value={checkMinutes} onChange={(e) => setCheckMinutesState(e.target.value)} className={`mt-1 ${input}`}>
+                  <option value="">No time limit</option>
+                  {[2, 3, 5, 10, 15, 20, 30, 45, 60, 90, 120].map((m) => <option key={m} value={m}>{m} minutes</option>)}
+                </select>
+                <span className="mt-1 block text-xs font-normal text-muted-foreground">With a limit, the questions only appear when the learner presses Start, and answers after the time runs out don't count.</span>
               </label>
             </div>
             <div>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
-import { ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, Circle, Clock, Lightbulb, ListChecks, Lock, PenLine, Sparkles, Target, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, Circle, Clock, Lightbulb, ListChecks, Lock, PenLine, Sparkles, Target, Timer, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll, submitQuiz } from "@/lib/courses";
@@ -13,6 +13,7 @@ import LessonNotes from "@/components/course/LessonNotes";
 import TutorPanel from "@/components/course/TutorPanel";
 import JobGoalBanner from "@/components/course/JobGoalBanner";
 import ProtectedCheck, { shuffledChoices } from "@/components/course/ProtectedCheck";
+import { loadMyPlan, startCheck } from "@/lib/plans";
 import { loadCourseHiring } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -50,6 +51,13 @@ export default function LessonReader() {
   const [credentialCode, setCredentialCode] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [hiring, setHiring] = useState([]);
+  // Timed checks (set by the course's expert): minutes, the running clock, and plan tries.
+  const [checkMinutes, setCheckMinutes] = useState(null);
+  const [endsAt, setEndsAt] = useState(null);
+  const [clock, setClock] = useState(Date.now());
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState(null);
+  const [tries, setTries] = useState(5);
 
   const mod = modules[index];
   const [access, setAccess] = useState(true);
@@ -60,6 +68,9 @@ export default function LessonReader() {
   const loadCourse = useCallback(async () => {
     const { data: c } = await supabase.from("skillfirms_courses").select("id, slug, title, level, taught_by, price_cents, skillfirms_experts(display_name, profile_id)").eq("slug", slug).maybeSingle();
     if (!c) { setNotFound(true); return; }
+    // Separate read so the page still works before migration 0031 is applied.
+    supabase.from("skillfirms_courses").select("check_minutes").eq("id", c.id).maybeSingle()
+      .then(({ data, error }) => setCheckMinutes(error ? null : data?.check_minutes ?? null));
     setCourse(c);
     const { data: mods } = await supabase.from("skillfirms_course_modules").select("id, title, description, order_index, duration_minutes").eq("course_id", c.id).order("order_index");
     setModules(mods ?? []);
@@ -109,12 +120,35 @@ export default function LessonReader() {
   }, [course?.id, user?.id]);
 
   // Questions appear once the lesson exists (writing a lesson adds them).
+  // On a timed check the server only shows them while your clock runs.
+  const loadQuestions = useCallback(() => {
+    if (!mod?.id) return Promise.resolve();
+    return supabase.from("skillfirms_module_quiz_questions").select("id, order_index, question, choices").eq("module_id", mod.id).order("order_index")
+      .then(({ data }) => setQuestions(data ?? []));
+  }, [mod?.id]);
   useEffect(() => {
     if (!mod || !lesson) return;
-    supabase.from("skillfirms_module_quiz_questions").select("id, order_index, question, choices").eq("module_id", mod.id).order("order_index")
-      .then(({ data }) => setQuestions(data ?? []));
+    loadQuestions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mod?.id, Boolean(lesson)]);
+
+  useEffect(() => { if (user) loadMyPlan().then((p) => { if (p?.check_tries_per_day) setTries(p.check_tries_per_day); }); }, [user]);
+
+  // A clock already running for this check (e.g. after a reload) carries on.
+  useEffect(() => {
+    setEndsAt(null);
+    setStartError(null);
+    if (!checkMinutes || !user || !mod?.id) return;
+    supabase.from("skillfirms_check_starts").select("ends_at").eq("module_id", mod.id).is("submitted_at", null)
+      .gt("ends_at", new Date().toISOString()).order("ends_at", { ascending: false }).limit(1).maybeSingle()
+      .then(({ data }) => { if (data?.ends_at) { setEndsAt(new Date(data.ends_at).getTime()); loadQuestions(); } });
+  }, [checkMinutes, user, mod?.id, loadQuestions]);
+
+  useEffect(() => {
+    if (!endsAt) return undefined;
+    const t = setInterval(() => setClock(Date.now()), 500);
+    return () => clearInterval(t);
+  }, [endsAt]);
 
   const done = Object.values(progress).filter((p) => p.completed_at).length;
   const pct = modules.length ? Math.round((100 * done) / modules.length) : 0;
@@ -129,11 +163,36 @@ export default function LessonReader() {
       setResult({ score, passed: score >= PASS });
       await loadCourse();
     } catch (e) {
-      setResult({ error: e.message });
+      const m = e.message ?? "";
+      setResult({ error: m.startsWith("time_up") ? "Time ran out before your answers arrived. Start the check again to retry." : m.startsWith("start_first") ? "Press Start to begin the timed check." : m });
     } finally {
       setBusy(false);
+      if (checkMinutes) { setEndsAt(null); setAnswers({}); loadQuestions(); }
     }
   }
+
+  async function begin() {
+    if (!user) { navigate(`/auth?next=${encodeURIComponent(window.location.pathname)}`); return; }
+    setStarting(true);
+    setStartError(null);
+    setResult(null);
+    try {
+      const r = await startCheck(mod.id);
+      if (r?.timed) { setEndsAt(Date.now() + (r.seconds_left ?? 0) * 1000); setClock(Date.now()); }
+      await loadQuestions();
+    } catch (e) {
+      setStartError(e.message);
+    } finally {
+      setStarting(false);
+    }
+  }
+
+  const secondsLeft = endsAt ? Math.max(0, Math.ceil((endsAt - clock) / 1000)) : null;
+  // Time's up: hand in whatever is answered.
+  useEffect(() => {
+    if (secondsLeft === 0 && endsAt && !busy) check();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsLeft === 0, endsAt]);
 
   if (notFound) return <p className="section-pad text-center text-sm text-muted-foreground">Course not found.</p>;
   if (!course || !modules.length) return <div className="section-pad"><div className="mx-auto max-w-3xl space-y-3"><Skeleton className="h-6 w-1/3" /><Skeleton className="h-10 w-2/3" /><Skeleton className="h-64 w-full" /></div></div>;
@@ -254,10 +313,32 @@ export default function LessonReader() {
               </div>
 
               {/* Knowledge check */}
-              {questions.length > 0 && (
+              {checkMinutes && !endsAt && !locked && Boolean(body) && (
+                <section className="mt-10 rounded-2xl border-2 border-foreground/10 bg-card p-5 sm:p-6" id="check-start">
+                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"><Timer className="h-4 w-4" />Timed check</p>
+                  <h2 className="mt-1 font-display text-xl font-semibold">{thisDone ? "You passed this one" : `You'll have ${checkMinutes} minute${checkMinutes === 1 ? "" : "s"}`}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Your instructor set a time limit. The questions appear when you press Start, and the clock keeps running if you leave the page. You get {tries} tries a day.</p>
+                  {startError && <p className="mt-3 text-sm text-destructive">{startError}</p>}
+                  {result?.error && <p className="mt-3 text-sm text-destructive">{result.error}</p>}
+                  {result && !result.error && <p className={`mt-3 text-sm font-semibold ${result.passed ? "text-mastery" : "text-destructive"}`}>{Math.round(result.score * 100)}% — {result.passed ? "passed" : "not yet"}</p>}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button onClick={begin} disabled={starting}>{starting ? "Starting…" : !user ? "Sign in to take the check" : thisDone ? "Take it again" : "Start the check"}</Button>
+                    {(thisDone || result?.passed) && next && <Button variant="outline" onClick={() => navigate(`/courses/${slug}/lessons/${index + 2}`)}>Next lesson<ArrowRight className="h-4 w-4" /></Button>}
+                  </div>
+                </section>
+              )}
+              {questions.length > 0 && (!checkMinutes || endsAt) && (
                 <ProtectedCheck who={profile?.display_name || user?.email}>
                 <section className="mt-10 rounded-2xl border-2 border-foreground/10 bg-card p-5 sm:p-6" id="check">
-                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"><ListChecks className="h-4 w-4" />Knowledge check</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"><ListChecks className="h-4 w-4" />Knowledge check</p>
+                    {secondsLeft != null && (
+                      <motion.span key={secondsLeft <= 60 ? "low" : "ok"} initial={{ scale: 0.9 }} animate={{ scale: 1 }}
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold tabular-nums ${secondsLeft <= 60 ? "animate-pulse bg-destructive/15 text-destructive" : "bg-secondary"}`}>
+                        <Timer className="h-3.5 w-3.5" />{Math.floor(secondsLeft / 60)}:{String(secondsLeft % 60).padStart(2, "0")} left
+                      </motion.span>
+                    )}
+                  </div>
                   <h2 className="mt-1 font-display text-xl font-semibold">{thisDone ? "You passed this one" : `Get ${Math.ceil(questions.length * PASS)} of ${questions.length} right to pass`}</h2>
                   <ol className="mt-4 space-y-5">
                     {questions.map((q, qi) => (
@@ -285,7 +366,7 @@ export default function LessonReader() {
                         {result.passed ? <CheckCircle2 className="h-6 w-6 flex-none text-mastery" /> : <XCircle className="h-6 w-6 flex-none text-destructive" />}
                         <div>
                           <p className="font-semibold">{Math.round(result.score * 100)}% — {result.passed ? "passed" : "not yet"}</p>
-                          <p className="text-sm text-muted-foreground">{result.passed ? "This counts toward your skill and your course certificate." : "Have another read of the lesson and try again — you get 5 tries a day."}</p>
+                          <p className="text-sm text-muted-foreground">{result.passed ? "This counts toward your skill and your course certificate." : `Have another read of the lesson and try again — you get ${tries} tries a day.`}</p>
                         </div>
                       </motion.div>
                     )}

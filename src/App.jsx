@@ -61,6 +61,7 @@ export default function App() {
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/courses/:slug" element={<CourseDetail />} />
                 <Route path="/pro" element={<Pro />} />
+                <Route path="/plans" element={<Pro />} />
                 <Route path="/experts" element={<Experts />} />
                 <Route path="/teach" element={<RequireAuth><Studio /></RequireAuth>} />
                 <Route path="/teach/:id" element={<RequireAuth><StudioEditor /></RequireAuth>} />
