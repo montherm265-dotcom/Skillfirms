@@ -24,33 +24,24 @@ Skillfirms points at the **exact same Supabase project** as Talfirms (same `VITE
 - Skillfirms' own data — skills graph, career roles, skill evidence, courses, missions, portfolio —
   lives in its own Postgres schema, `skillfirms`, inside that same project. It never writes to
   Talfirms' `public.*` tables; it only reads `public.profiles` for identity (display name, avatar).
-- Sessions are still per-origin (browser storage doesn't cross domains), so logging in on Talfirms
-  doesn't automatically log you into Skillfirms — "shared accounts" means the same credentials work
-  on both, not automatic cross-domain SSO. A signed handoff link is a reasonable future upgrade, not
-  built yet.
+- One sign-in for both sites: following a link to the sister site while signed in carries a
+  one-time code (2 minutes, single use) that the other site's `/sso` page trades for its own
+  session (Talfirms `cross-app-sso` Edge Function, migration 0228; `src/lib/crossApp.js`).
 - The Talfirms repo's existing `ai` Edge Function (OpenAI-backed, `OPENAI_API_KEY`) is reused for
   Skillfirms' AI features too, via new prompt modules — one AI integration, not two.
 
 This keeps both apps genuinely independently deployable (different domains, different repos,
 different release cycles) while sharing the one thing that actually needs to be shared: who the user is.
 
-### The Talfirms connection (verified credentials -> Talfirms profile)
+### The Talfirms connection
 
-A Skillfirms Verified credential is always individually checkable by anyone who has its code
-(`/verify/:code`, no login needed) — that's the point of a credential. Showing someone's *whole*
-credential list on their Talfirms profile without them asking is a bigger disclosure, so it's a
-separate, explicit, off-by-default opt-in: `/settings` → "Share verified credentials with Talfirms"
-(`skillfirms_user_settings.share_credentials_with_talfirms`). Only currently `active_verified`
-credentials from an opted-in user are publicly readable — a superseded or revoked one, or anything
-from someone who hasn't opted in, stays visible only to its holder.
-
-Talfirms reads `skillfirms_credentials` directly (same Supabase project, no API needed) to render
-that section on a profile. Set `VITE_TALFIRMS_URL` (Skillfirms) and `VITE_SKILLFIRMS_URL` (Talfirms)
-once each app has a real deployed domain — the cross-product CTAs stay hidden until then rather than
-linking to a guessed URL.
-
-Pulling target-job requirements *from* Talfirms back into Skillfirms' diagnosis (the other direction
-in the brief) isn't built yet — this is Skillfirms-to-Talfirms only, for now.
+- **Proof:** a passed course (every lesson's graded check) or an expert-passed Mission becomes verified
+  skill proof on the person's Talfirms profile (Talfirms migration 0229). On by default; the person can
+  turn it off in Settings or hide one credential, and the proof is removed at once. Every credential can
+  also be checked by anyone with its code at `/verify/:code`.
+- **Jobs:** each course page lists the open Talfirms jobs that ask for its skills, and the person's fit.
+- **Hiring courses:** a company can sponsor a course for one of its jobs ("learn this, we're hiring");
+  people who passed send their certificate in one tap (Talfirms migration 0230).
 
 ## SEO + GEO (generative-engine optimization)
 
@@ -77,8 +68,18 @@ pass. Link-preview unfurling (Slack, Twitter/X, LinkedIn, email clients) does no
 shared course or mission link still unfurls as the generic homepage card, not its own, until this has real
 SSR or a prerendering step.
 
-## What's built so far
+## What's built
 
-Frontend scaffold only — routing, auth (shared with Talfirms), design tokens derived from the
-Skillfirms mark. The skills graph, career role graph, AI diagnosis, and the rest of the product are
-being built next; this file will track real progress as each piece lands.
+- **Learning:** catalog (`/courses`), course pages, 92 AI-drafted lessons (each labelled as such) with a
+  3-question graded check (2 of 3 to pass), certificates only when every lesson is passed, reviews from
+  people who passed a lesson, private notes, saved courses, My learning.
+- **AI tutor** in every lesson (`skillfirms-tutor` Edge Function): same plans and limits as Talfirms AI
+  (Free 10 a day within the free monthly cap, Pro 50, Ultra 120); never gives check answers.
+- **Missions + paid expert reviews** (migration 0027): experts apply and are approved by an admin;
+  blind reviews of paid orders in their skills; pass = "Expert verified"; experts earn 60%.
+- **Team training** (migration 0028): invite link, assigned courses with due dates, exportable training
+  record; 3 seats free, then $15 per person a month.
+- **Pro** (`/pro`) is Talfirms Pro/Ultra: one plan for both sites. Certificates are never paid.
+
+Payments (Stripe) aren't switched on yet: paid reviews wait on a list, and admins can credit orders and
+set team seats until they are.
