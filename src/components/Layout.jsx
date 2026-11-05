@@ -44,6 +44,7 @@ export default function Layout() {
     { to: "/dashboard", label: "My goal & path" },
     { to: "/passport", label: "Skill Passport" },
     { to: "/credentials", label: "Certificates" },
+    { to: "/team", label: "Team training" },
     ...(expertId ? [{ to: "/expert", label: "Review queue" }] : []),
     { to: "/settings", label: "Settings" },
   ];
@@ -149,6 +150,7 @@ export default function Layout() {
               <li><Link to="/roles" className="hover:text-foreground">Career paths</Link></li>
               <li><Link to="/pro" className="hover:text-foreground">Pro</Link></li>
               <li><Link to="/experts" className="hover:text-foreground">Become an expert</Link></li>
+              <li><Link to="/team" className="hover:text-foreground">For teams</Link></li>
             </ul>
           </div>
           <div>

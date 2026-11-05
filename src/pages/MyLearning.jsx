@@ -5,6 +5,7 @@ import { ArrowRight, Award, BookOpen, Flame, ListChecks } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { loadCatalog, loadMyLearning } from "@/lib/catalog";
+import { loadMyAssignments } from "@/lib/team";
 import CourseCard from "@/components/course/CourseCard";
 import CourseCover from "@/components/course/CourseCover";
 import useSaved from "@/components/course/useSaved";
@@ -25,12 +26,14 @@ export default function MyLearning() {
   const [items, setItems] = useState(null);
   const [catalog, setCatalog] = useState([]);
   const [stats, setStats] = useState(null);
+  const [assigned, setAssigned] = useState([]);
   const { saved, toggle } = useSaved();
 
   useEffect(() => {
     let active = true;
     loadMyLearning(user.id).then((x) => active && setItems(x)).catch(() => active && setItems([]));
     loadCatalog().then((x) => active && setCatalog(x)).catch(() => {});
+    loadMyAssignments().then((x) => active && setAssigned(x));
     Promise.all([
       supabase.from("skillfirms_credentials").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "active_verified"),
       supabase.from("skillfirms_module_progress").select("completed_at, skillfirms_enrollments!inner(user_id)").eq("skillfirms_enrollments.user_id", user.id).not("completed_at", "is", null),
@@ -83,6 +86,31 @@ export default function MyLearning() {
             <Link to={`/courses/${resume.course.slug}/lessons/${resume.next}`}><Button className="mt-5">Continue lesson {resume.next}<ArrowRight className="h-4 w-4" /></Button></Link>
           </div>
         </motion.div>
+      )}
+
+      {assigned.length > 0 && (
+        <section className="mt-8 rounded-2xl border border-border bg-card p-5">
+          <p className="font-display text-xl font-semibold">Assigned by your company</p>
+          <ul className="mt-3 divide-y divide-border">
+            {assigned.map((a) => {
+              const course = catalog.find((c) => c.id === a.course_id);
+              const mine = (items ?? []).find((e) => e.course.id === a.course_id);
+              const overdue = a.due_on && !mine?.finished && a.due_on < new Date().toISOString().slice(0, 10);
+              if (!course) return null;
+              return (
+                <li key={a.course_id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                  <div className="min-w-0">
+                    <Link to={`/courses/${course.slug}`} className="font-semibold hover:underline">{course.title}</Link>
+                    <p className="text-xs text-muted-foreground">{a.company}{a.due_on ? <> · <span className={overdue ? "font-semibold text-destructive" : ""}>due {new Date(a.due_on).toLocaleDateString()}</span></> : ""}</p>
+                  </div>
+                  {mine?.finished ? <span className="text-sm font-semibold text-mastery">Done</span> : (
+                    <Link to={`/courses/${course.slug}/lessons/${mine?.next ?? 1}`}><Button size="sm" variant={overdue ? "default" : "outline"}>{mine?.done ? `Continue (${mine.done}/${course.lessons})` : "Start"}</Button></Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
       <div className="mt-10 flex gap-1 border-b border-border" role="tablist">
