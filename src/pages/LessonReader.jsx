@@ -9,6 +9,7 @@ import { openLesson, readingMinutes, toBlocks } from "@/lib/lessons";
 import Seo from "@/components/seo/Seo";
 import LessonNotes from "@/components/course/LessonNotes";
 import TutorPanel from "@/components/course/TutorPanel";
+import { loadCourseHiring } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -43,6 +44,7 @@ export default function LessonReader() {
   const [busy, setBusy] = useState(false);
   const [credentialCode, setCredentialCode] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  const [hiring, setHiring] = useState([]);
 
   const mod = modules[index];
   const { scrollYProgress } = useScroll();
@@ -71,6 +73,7 @@ export default function LessonReader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, user?.id]);
   useEffect(() => { loadCourse(); }, [loadCourse]);
+  useEffect(() => { if (course?.id) loadCourseHiring(course.id).then(setHiring); }, [course?.id]);
 
   useEffect(() => {
     if (!mod?.id) return undefined;
@@ -270,6 +273,9 @@ export default function LessonReader() {
                   <p className="mt-2 font-display text-2xl font-bold">You've earned your {course.title} certificate</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Button className="bg-mastery text-mastery-foreground hover:bg-mastery/90" onClick={() => navigate(`/credentials/${credentialCode}`)}>See your certificate</Button>
+                    {hiring.some((h) => !h.sent) && (
+                      <Button className="bg-warning text-black hover:bg-warning/90" onClick={() => navigate(`/courses/${slug}#hiring`)}>Send it to {hiring.find((h) => !h.sent).company} (hiring)</Button>
+                    )}
                     <Button variant="outline" className="border-white/30 bg-transparent text-primary-foreground hover:bg-white/10" onClick={() => navigate("/missions")}><Target className="h-4 w-4" />Prove it in a Mission</Button>
                   </div>
                 </motion.section>

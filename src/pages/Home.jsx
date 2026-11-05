@@ -12,6 +12,7 @@ import DiagnosisResult from "@/components/DiagnosisResult";
 import CourseCard from "@/components/course/CourseCard";
 import CourseCover from "@/components/course/CourseCover";
 import useSaved from "@/components/course/useSaved";
+import useHiring from "@/components/course/useHiring";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import Seo from "@/components/seo/Seo";
@@ -28,6 +29,7 @@ export default function Home() {
   const [mine, setMine] = useState([]);
   const [q, setQ] = useState("");
   const { saved, toggle } = useSaved();
+  const hiring = useHiring();
 
   useEffect(() => { loadCatalog().then(setCourses).catch(() => setCourses([])); }, []);
   useEffect(() => {
@@ -151,7 +153,7 @@ export default function Home() {
             <Link to={`/courses?category=${cat.id}`} className="group inline-flex flex-none items-center gap-1.5 text-sm font-semibold">See all<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></Link>
           </div>
           <div className="no-scrollbar -mx-4 mt-4 flex snap-x gap-5 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
-            {list.map((c) => <div key={c.id} className="w-72 flex-none snap-start"><CourseCard course={c} saved={saved.has(c.id)} onToggleSave={toggle} /></div>)}
+            {list.map((c) => <div key={c.id} className="w-72 flex-none snap-start"><CourseCard course={c} saved={saved.has(c.id)} onToggleSave={toggle} hiring={hiring[c.id]} /></div>)}
           </div>
         </section>
       ))}

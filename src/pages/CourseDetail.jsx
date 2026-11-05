@@ -9,7 +9,8 @@ import {
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll } from "@/lib/courses";
-import { formatHours, loadCatalog, loadCourseJobs, loadReviews, saveReview, shapeCourse } from "@/lib/catalog";
+import { formatHours, loadCatalog, loadCourseHiring, loadCourseJobs, loadReviews, saveReview, shapeCourse } from "@/lib/catalog";
+import HiringBanner from "@/components/course/HiringBanner";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { crossAppClick } from "@/lib/crossApp";
 import CourseCover from "@/components/course/CourseCover";
@@ -37,6 +38,7 @@ export default function CourseDetail() {
   const [reviews, setReviews] = useState(null);
   const [jobs, setJobs] = useState(null);
   const [related, setRelated] = useState([]);
+  const [hiring, setHiring] = useState([]);
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -70,10 +72,15 @@ export default function CourseDetail() {
     }
     loadReviews(c.id).then(setReviews);
     loadCourseJobs(c.id).then(setJobs);
+    loadCourseHiring(c.id).then(setHiring);
     loadCatalog().then((all) => setRelated(all.filter((x) => x.id !== c.id && x.category?.id === shaped.category?.id).slice(0, 4))).catch(() => {});
   }, [slug, userId]);
 
   useEffect(() => { setCourse(null); setError(null); load(); }, [load]);
+  // Arriving at /courses/x#hiring (e.g. from "send it to ..."): scroll there once it's loaded.
+  useEffect(() => {
+    if (hiring.length && window.location.hash === "#hiring") document.getElementById("hiring")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [hiring.length]);
 
   const learn = useMemo(() => {
     const points = [];
@@ -148,6 +155,7 @@ export default function CourseDetail() {
             <h1 className="mt-3 max-w-3xl font-display text-3xl font-semibold leading-tight tracking-tight sm:text-[2.6rem]">{course.title}</h1>
             {course.description && <p className="mt-3 max-w-2xl text-lg text-white/80">{course.description}</p>}
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+              {hiring.length > 0 && <a href="#hiring" className="rounded-md bg-warning px-2 py-0.5 text-xs font-bold text-black">Hiring now</a>}
               {course.rating_count ? <RatingLine course={course} className="[&_.text-muted-foreground]:text-white/60" /> : <span className="rounded-md bg-mastery px-2 py-0.5 text-xs font-bold text-mastery-foreground">New course</span>}
               {course.enrollment_count > 0 && <span className="inline-flex items-center gap-1.5 text-white/80"><Users className="h-4 w-4" />{course.enrollment_count.toLocaleString()} learner{course.enrollment_count === 1 ? "" : "s"}</span>}
               <span className="inline-flex items-center gap-1.5 text-white/80"><Clock className="h-4 w-4" />{formatHours(course)}</span>
@@ -202,7 +210,7 @@ export default function CourseDetail() {
                   <li className="flex gap-2.5"><PlayCircle className="h-4 w-4 flex-none text-muted-foreground" />{modules.length} in-depth lessons with worked examples</li>
                   <li className="flex gap-2.5"><ListChecks className="h-4 w-4 flex-none text-muted-foreground" />{questions} graded questions, 2 of 3 to pass each lesson</li>
                   <li className="flex gap-2.5"><Target className="h-4 w-4 flex-none text-muted-foreground" />A hands-on exercise in every lesson</li>
-                  <li className="flex gap-2.5"><Sparkles className="h-4 w-4 flex-none text-muted-foreground" />An AI tutor beside every lesson (<Link to="/pro" className="underline-offset-2 hover:underline">free daily questions</Link>)</li>
+                  <li className="flex gap-2.5"><Sparkles className="h-4 w-4 flex-none text-muted-foreground" /><span>An AI tutor beside every lesson (<Link to="/pro" className="underline-offset-2 hover:underline">free daily questions</Link>)</span></li>
                   <li className="flex gap-2.5"><Award className="h-4 w-4 flex-none text-muted-foreground" />Certificate anyone can verify online</li>
                   <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Counts as verified skill proof on Talfirms</li>
                   <li className="flex gap-2.5"><Smartphone className="h-4 w-4 flex-none text-muted-foreground" />Learn on phone or computer, at your pace</li>
@@ -213,6 +221,7 @@ export default function CourseDetail() {
         </aside>
 
         <main className="min-w-0 pt-8 lg:pt-10">
+          <HiringBanner hiring={hiring} user={user} hasCertificate={Boolean(credential)} lessons={modules.length} onSent={() => loadCourseHiring(course.id).then(setHiring)} />
           {learn.length > 0 && (
             <section className="rounded-2xl border border-border p-5 sm:p-6">
               <h2 className="font-display text-2xl font-semibold">What you'll learn</h2>

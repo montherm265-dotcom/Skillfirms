@@ -5,12 +5,15 @@ import CourseCover from "@/components/course/CourseCover";
 import { RatingLine } from "@/components/course/Stars";
 import { formatHours } from "@/lib/catalog";
 
-export default function CourseCard({ course, saved, onToggleSave, progress, compact = false }) {
+export default function CourseCard({ course, saved, onToggleSave, progress, compact = false, hiring }) {
   return (
     <motion.div initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-40px" }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       className="group relative h-full">
       <Link to={`/courses/${course.slug}`} className="hover-lift flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card">
-        <CourseCover course={course} className="aspect-[16/9] w-full transition-transform duration-500 group-hover:scale-[1.03]" />
+        <div className="relative overflow-hidden">
+          <CourseCover course={course} className="aspect-[16/9] w-full transition-transform duration-500 group-hover:scale-[1.03]" />
+          {hiring?.length > 0 && <span className="absolute bottom-2 left-2 rounded-md bg-warning px-2 py-0.5 text-[11px] font-bold text-black shadow">Hiring: {hiring.slice(0, 2).join(", ")}</span>}
+        </div>
         <div className="flex flex-1 flex-col p-4">
           <h3 className="line-clamp-2 font-display text-[17px] font-semibold leading-snug tracking-tight">{course.title}</h3>
           {!compact && course.skills.length > 0 && (

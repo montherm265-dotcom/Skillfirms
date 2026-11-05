@@ -4,6 +4,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { CATEGORIES, LEVELS, loadCatalog, searchCourses } from "@/lib/catalog";
 import CourseCard from "@/components/course/CourseCard";
 import useSaved from "@/components/course/useSaved";
+import useHiring from "@/components/course/useHiring";
 import Seo from "@/components/seo/Seo";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -24,6 +25,7 @@ export default function Courses() {
   const [error, setError] = useState(null);
   const [text, setText] = useState(q);
   const { saved, toggle } = useSaved();
+  const hiring = useHiring();
 
   useEffect(() => { setText(q); }, [q]);
   useEffect(() => {
@@ -96,7 +98,7 @@ export default function Courses() {
           </div>
         ) : (
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {shown.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} />)}
+            {shown.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} hiring={hiring[c.id]} />)}
           </div>
         )}
       </div>

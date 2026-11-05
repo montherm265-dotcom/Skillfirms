@@ -183,3 +183,30 @@ export async function loadMyLearning(userId) {
     return { ...e, course, done: passed.size, next: firstOpen === -1 ? 1 : firstOpen + 1, finished: ordered.length > 0 && firstOpen === -1 };
   });
 }
+
+// "Learn this, we're hiring" (Talfirms migration 0230): companies hiring
+// through a course. Sponsored, and always labelled so.
+export async function loadCourseHiring(courseId) {
+  const { data, error } = await supabase.rpc("skillfirms_course_hiring", { p_course_id: courseId });
+  if (error) return [];
+  return data ?? [];
+}
+
+let hiringCache = null;
+export function loadHiringCourses() {
+  if (!hiringCache) {
+    hiringCache = supabase.rpc("skillfirms_hiring_courses").then(({ data, error }) => (error ? {} : data ?? {}));
+  }
+  return hiringCache;
+}
+
+export async function sendCertificate(campaignId) {
+  const { data, error } = await supabase.rpc("skillfirms_send_certificate", { p_campaign_id: campaignId });
+  if (error) {
+    const m = error.message ?? "";
+    if (m.startsWith("pass_the_course_first")) throw new Error("Pass every lesson's check to earn the certificate first.");
+    if (m.startsWith("not_hiring")) throw new Error("This company isn't hiring through this course any more.");
+    throw new Error("Couldn't send it. Try again.");
+  }
+  return data;
+}
