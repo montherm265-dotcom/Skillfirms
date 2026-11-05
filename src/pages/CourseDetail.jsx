@@ -202,6 +202,7 @@ export default function CourseDetail() {
                   <li className="flex gap-2.5"><PlayCircle className="h-4 w-4 flex-none text-muted-foreground" />{modules.length} in-depth lessons with worked examples</li>
                   <li className="flex gap-2.5"><ListChecks className="h-4 w-4 flex-none text-muted-foreground" />{questions} graded questions, 2 of 3 to pass each lesson</li>
                   <li className="flex gap-2.5"><Target className="h-4 w-4 flex-none text-muted-foreground" />A hands-on exercise in every lesson</li>
+                  <li className="flex gap-2.5"><Sparkles className="h-4 w-4 flex-none text-muted-foreground" />An AI tutor beside every lesson (<Link to="/pro" className="underline-offset-2 hover:underline">free daily questions</Link>)</li>
                   <li className="flex gap-2.5"><Award className="h-4 w-4 flex-none text-muted-foreground" />Certificate anyone can verify online</li>
                   <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Counts as verified skill proof on Talfirms</li>
                   <li className="flex gap-2.5"><Smartphone className="h-4 w-4 flex-none text-muted-foreground" />Learn on phone or computer, at your pace</li>

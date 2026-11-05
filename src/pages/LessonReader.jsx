@@ -8,6 +8,7 @@ import { enroll, submitQuiz } from "@/lib/courses";
 import { openLesson, readingMinutes, toBlocks } from "@/lib/lessons";
 import Seo from "@/components/seo/Seo";
 import LessonNotes from "@/components/course/LessonNotes";
+import TutorPanel from "@/components/course/TutorPanel";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -284,6 +285,7 @@ export default function LessonReader() {
           )}
         </article>
       </div>
+      <TutorPanel user={user} moduleId={mod.id} lessonTitle={mod.title} ready={Boolean(body)} />
     </div>
   );
 }
