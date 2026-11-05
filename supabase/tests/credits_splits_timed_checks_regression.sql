@@ -164,4 +164,11 @@ do $$ declare v_company uuid; r jsonb; begin
   if (r->>'pool_cents')::int <> 5000 or jsonb_array_length(r->'experts') <> 1 or (r->'experts'->0->>'share_cents')::int <> 5000 then raise exception 'FAIL: %', r; end if;
   raise notice 'PASS: half of team-training money goes to experts, split by their learners'' minutes';
 end $$;
+do $$ begin
+  update public.skillfirms_courses set price_cents = 0 where id = (select course from t_k limit 1);
+  raise exception 'FAIL: an expert course was made free';
+exception when raise_exception then
+  if sqlerrm not like 'expert_courses_are_paid%' then raise; end if;
+  raise notice 'PASS: expert courses are always paid; only AI-made basics are free';
+end $$;
 rollback;

@@ -159,7 +159,7 @@ export default function CourseDetail() {
     <div>
       <Seo
         title={course.title}
-        description={course.description || `${course.title}: a free Skillfirms course with a graded check on every lesson.`}
+        description={course.description || `${course.title}: ${paid ? "an expert-taught" : "a free AI-taught"} Skillfirms course with a graded check on every lesson.`}
         canonical={`/courses/${slug}`}
         jsonLd={{
           "@context": "https://schema.org",
@@ -264,8 +264,8 @@ export default function CourseDetail() {
                   <li className="flex gap-2.5"><Sparkles className="h-4 w-4 flex-none text-muted-foreground" /><span>An AI tutor beside every lesson (<Link to="/pro" className="underline-offset-2 hover:underline">free daily questions</Link>)</span></li>
                   <li className="flex gap-2.5"><Award className="h-4 w-4 flex-none text-muted-foreground" />Certificate anyone can verify online</li>
                   {realExpert
-                    ? <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Counts as verified skill proof on Talfirms</li>
-                    : <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-muted-foreground" />Shows on Talfirms as AI-taught basics</li>}
+                    ? <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Verified on Talfirms, labelled taught by an expert</li>
+                    : <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Verified on Talfirms, labelled taught by AI</li>}
                   <li className="flex gap-2.5"><Smartphone className="h-4 w-4 flex-none text-muted-foreground" />Learn on phone or computer, at your pace</li>
                 </ul>
               </div>
@@ -404,7 +404,7 @@ function JobsUnlocked({ jobs, course }) {
           })}
         </ul>
         <p className="mt-3 text-xs text-muted-foreground">
-          Pass every lesson of {course.title} and these skills show on your Talfirms profile{course.taught_by === "expert" ? " as verified" : " as AI-taught basics; an expert-reviewed Mission makes them verified"}. You can turn that off in Settings.
+          Pass every lesson of {course.title} and these skills show on your Talfirms profile{course.taught_by === "expert" ? " as verified, taught by an expert" : " as verified, taught by AI"}. You can turn that off in Settings.
         </p>
       </div>
     </section>

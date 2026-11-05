@@ -61,12 +61,12 @@ export default function Courses() {
 
   return (
     <div>
-      <Seo title={activeCat ? `${activeCat.label} courses` : "All courses"} description="Job-skill courses with a graded check on every lesson and a certificate that counts on Talfirms. Free to learn." canonical="/courses" />
+      <Seo title={activeCat ? `${activeCat.label} courses` : "All courses"} description="Paid courses taught by real experts, plus free AI-taught basics. A graded check on every lesson and a certificate that shows on Talfirms as verified." canonical="/courses" />
       <section className="border-b border-border bg-card/60">
         <div className="mx-auto max-w-8xl px-4 pb-6 pt-10 sm:px-6 lg:px-8">
           <p className="eyebrow">{activeCat ? "Category" : "Explore"}</p>
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{activeCat ? activeCat.label : "All courses"}</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">{activeCat ? activeCat.blurb : "Every course is free to learn. Every lesson ends in a graded check, and passing them all earns a certificate that shows on Talfirms."}</p>
+          <p className="mt-2 max-w-2xl text-muted-foreground">{activeCat ? activeCat.blurb : "Expert courses are paid and taught by people who do the job. AI-taught basics are free. Every lesson ends in a graded check, and passing them all earns a certificate that shows on Talfirms as verified."}</p>
           <form onSubmit={(e) => { e.preventDefault(); set("q", text.trim()); }} className="mt-6 flex max-w-2xl items-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 shadow-soft focus-within:ring-2 focus-within:ring-ring/20">
             <Search className="h-4 w-4 flex-none text-muted-foreground" />
             <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Search courses or skills — e.g. URS, SQL, Agile" aria-label="Search courses" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />

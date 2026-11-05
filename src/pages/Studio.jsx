@@ -36,10 +36,10 @@ export default function Studio() {
   }, [expertId]);
 
   async function changePrice(c) {
-    const text = window.prompt(`New price for "${c.title}" in USD (Free, or 9 to 199). New buyers pay the new price.`, c.price_cents ? String(c.price_cents / 100) : "Free");
+    const text = window.prompt(`New price for "${c.title}" in USD (9 to 199). New buyers pay the new price.`, c.price_cents ? String(c.price_cents / 100) : "29");
     if (text == null) return;
     const cents = parsePrice(text);
-    if (cents == null) { toast.error("Pick free, or a price from $9 to $199."); return; }
+    if (cents == null) { toast.error("Expert courses are paid: pick a price from $9 to $199."); return; }
     try { await setCoursePrice(c.id, cents); toast.success("Price updated"); reload(); } catch (e) { toast.error(e.message); }
   }
 

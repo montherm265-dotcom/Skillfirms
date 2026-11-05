@@ -75,7 +75,7 @@ export default function Experts() {
 
       <section className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
         <h2 className="font-display text-2xl font-semibold">Teach a course: you keep more than anywhere else</h2>
-        <p className="mt-1 text-sm text-muted-foreground">You set your price ($9 to $199, or free) and can change it any time. Skillfirms checks every course before it goes live.</p>
+        <p className="mt-1 text-sm text-muted-foreground">You set your price ($9 to $199) and can change it any time. Expert courses are always paid; the free courses on Skillfirms are AI-taught basics. Skillfirms checks every course before it goes live.</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
             ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, UDEMY_SHARE.marketplace, "Someone finds your course by browsing or searching Skillfirms."],

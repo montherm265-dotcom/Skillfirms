@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 
 const ease = [0.22, 1, 0.36, 1];
 
-// Skillfirms pricing: learning is free; you only pay for extra AI tutor
-// questions (packs you keep for any course), expert courses at the price the
-// expert sets, and team training if you're a company. Numbers come from the
+// Skillfirms pricing: AI-taught basics are free; expert courses are paid at
+// the price the expert sets; extra AI tutor questions come in packs you keep
+// for any course; companies pay for team training. Numbers come from the
 // tables the server enforces (migration 0032).
 export default function Pro() {
   const { user } = useAuth();
@@ -50,15 +50,15 @@ export default function Pro() {
 
   return (
     <div>
-      <Seo title="Pricing" description="Learning, graded checks and certificates are free. Pay only for extra AI tutor questions, which you keep for any course." canonical="/pro" />
+      <Seo title="Pricing" description="Expert courses at the price the expert sets, free AI-taught basics, and AI tutor question packs you keep for any course." canonical="/pro" />
       <section className="relative overflow-hidden bg-[hsl(222_38%_8%)] text-white">
         <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
         <motion.div aria-hidden className="absolute left-1/2 top-0 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-mastery/30 blur-3xl"
           animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.08, 1] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }} />
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }} className="relative mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
           <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold"><Sparkles className="h-3.5 w-3.5 text-warning" />Pricing</p>
-          <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Learning is free. <span className="italic text-[hsl(var(--mastery))]">No plans, no subscriptions.</span></h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-white/75">Courses, graded checks and certificates are free. The AI tutor gives you free questions every day. Want more? Buy a pack once and keep the questions for any course, for as long as you like.</p>
+          <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Pay for experts. <span className="italic text-[hsl(var(--mastery))]">No plans, no subscriptions.</span></h1>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-white/75">Expert courses cost what the expert sets, paid once. AI-taught basics are free. The AI tutor gives you free questions every day; want more, buy a pack once and keep the questions for any course.</p>
           {user && allowance && (
             <div className="mx-auto mt-8 grid max-w-md grid-cols-2 gap-3 text-left">
               <div className="rounded-2xl border border-white/15 bg-white/5 p-4"><p className="text-xs text-white/60">Free today</p><p className="font-display text-2xl font-semibold">{allowance.left} of {allowance.perDay}</p></div>
@@ -107,7 +107,7 @@ export default function Pro() {
         <section className="mt-14 grid gap-5 md:grid-cols-3">
           {[
             { icon: Sparkles, t: "Free every day", d: `${freeLimits?.free ?? 10} tutor questions a day on Free (within the free monthly AI allowance), ${freeLimits?.pro ?? 50} with Talfirms Pro and ${freeLimits?.ultra ?? 120} with Talfirms Ultra.`, to: null },
-            { icon: GraduationCap, t: "Expert courses", d: `Real experts set their own price. Lesson 1 is always a free preview. Experts keep ${EXPERT_SHARE.marketplace}% of every sale, so your money goes to the person teaching you.`, to: "/courses?by=expert", cta: "Browse expert courses" },
+            { icon: GraduationCap, t: "Expert courses", d: `Real experts set their own price, paid once. Lesson 1 is always a free preview. Experts keep ${EXPERT_SHARE.marketplace}% of every sale, so your money goes to the person teaching you. AI-taught basics are free.`, to: "/courses?by=expert", cta: "Browse expert courses" },
             { icon: Building2, t: "For companies", d: `Train your team: assign courses, track every graded check, export the record. Free for 3 people, then $${(seat / 100).toFixed(0)} a person a month.`, to: "/team", cta: "Team training" },
           ].map((c, i) => (
             <motion.div key={c.t} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07, duration: 0.45, ease }}
@@ -125,7 +125,7 @@ export default function Pro() {
           <p className="mx-auto mt-1 max-w-xl text-sm text-muted-foreground">Set your own price and change it any time. Keep {EXPERT_SHARE.marketplace}% when we find the learner, {EXPERT_SHARE.expert_link}% through your own link, and share {EXPERT_SHARE.team_pool}% of company team-training money.</p>
           <Link to="/experts"><Button className="mt-4">Become an expert</Button></Link>
         </section>
-        <p className="mt-6 text-center text-xs text-muted-foreground">Certificates are never paid for: pass every lesson's check and you get it.</p>
+        <p className="mt-6 text-center text-xs text-muted-foreground">Certificates are never charged extra: pass every lesson's check and you get it. On Talfirms it shows as verified, taught by an expert or taught by AI.</p>
       </div>
     </div>
   );

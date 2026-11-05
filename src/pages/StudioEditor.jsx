@@ -24,7 +24,7 @@ export default function StudioEditor() {
   const isNew = id === "new";
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [course, setCourse] = useState(isNew ? { title: "", description: "", level: "beginner", price_cents: 0, skill_ids: [], lessons: [blankLesson()] } : null);
+  const [course, setCourse] = useState(isNew ? { title: "", description: "", level: "beginner", price_cents: 2900, skill_ids: [], lessons: [blankLesson()] } : null);
   const [skills, setSkills] = useState([]);
   const [open, setOpen] = useState(0);
   const [busy, setBusy] = useState(null);
@@ -58,7 +58,7 @@ export default function StudioEditor() {
   function payload() {
     return {
       ...course,
-      price_cents: parsePrice(priceText ?? String((course.price_cents ?? 0) / 100)) ?? 0,
+      price_cents: parsePrice(priceText ?? String((course.price_cents ?? 0) / 100)) ?? 2900,
       lessons: course.lessons.map((l) => ({
         ...l,
         key_points: l.key_points.filter((k) => k.trim()),
@@ -72,7 +72,7 @@ export default function StudioEditor() {
   }
 
   async function save(thenSubmit = false) {
-    if (parsePrice(priceText ?? String((course.price_cents ?? 0) / 100)) == null) { toast.error("Pick free, or a price from $9 to $199."); return; }
+    if (parsePrice(priceText ?? String((course.price_cents ?? 0) / 100)) == null) { toast.error("Expert courses are paid: pick a price from $9 to $199."); return; }
     setBusy(thenSubmit ? "submit" : "save");
     try {
       const newId = await saveStudioCourse(isNew ? null : id, payload());
@@ -111,12 +111,11 @@ export default function StudioEditor() {
                 </select>
               </label>
               <label className="text-sm font-medium">Price (USD)
-                <input value={priceText ?? (course.price_cents ? String(course.price_cents / 100) : "Free")} onChange={(e) => setPriceText(e.target.value)}
-                  inputMode="decimal" placeholder="Free, or 9 to 199" className={`mt-1 ${input}`} />
+                <input value={priceText ?? (course.price_cents ? String(course.price_cents / 100) : "")} onChange={(e) => setPriceText(e.target.value)}
+                  inputMode="decimal" placeholder="9 to 199" className={`mt-1 ${input}`} />
                 {(() => {
                   const c = parsePrice(priceText ?? String((course.price_cents ?? 0) / 100));
-                  if (c == null) return <span className="mt-1 block text-xs font-normal text-destructive">Free, or $9 to $199. You can change it any time.</span>;
-                  if (c === 0) return <span className="mt-1 block text-xs font-normal text-muted-foreground">Free course. You can set a price any time.</span>;
+                  if (c == null) return <span className="mt-1 block text-xs font-normal text-destructive">Expert courses are paid: $9 to $199. You can change it any time.</span>;
                   return <span className="mt-1 block text-xs font-normal text-muted-foreground">You keep {dollars(Math.round(c * EXPERT_SHARE.marketplace / 100))} ({EXPERT_SHARE.marketplace}%) when Skillfirms finds the learner, {dollars(Math.round(c * EXPERT_SHARE.expert_link / 100))} ({EXPERT_SHARE.expert_link}%) through your own link.</span>;
                 })()}
               </label>

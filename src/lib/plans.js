@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabaseClient";
 
-// Skillfirms money (migration 0032). Learning is free. The AI tutor has free
+// Skillfirms money (0032/0033). AI-taught basics are free; expert courses are
+// paid at the expert's price. The AI tutor has free
 // questions each day, then question packs you buy once and keep (saved for
 // any course). Experts set their own prices and keep 70% of marketplace
 // sales, 97% through their own link, and share 50% of team-training money.
@@ -47,7 +48,7 @@ export async function setCheckMinutes(courseId, minutes) {
 
 export async function setCoursePrice(courseId, cents) {
   const { error } = await supabase.rpc("skillfirms_studio_set_price", { p_course_id: courseId, p_price_cents: cents });
-  if (error) throw new Error(error.message?.startsWith("bad_price") ? "Pick free, or a price from $9 to $199." : "Couldn't save the price.");
+  if (error) throw new Error(error.message?.startsWith("bad_price") ? "Expert courses are paid: pick a price from $9 to $199." : "Couldn't save the price.");
 }
 
 export async function loadMyRefCode() {
@@ -60,10 +61,10 @@ export async function loadTeamMinutes() {
   return error ? {} : data ?? {};
 }
 
-// "$49" or "49.99" typed by an expert -> cents; null if it isn't a valid price.
+// "$49" or "49.99" typed by an expert -> cents; null if it isn't a valid
+// price. Expert courses are always paid ($9-$199); only AI basics are free.
 export function parsePrice(text) {
   const t = String(text ?? "").trim().replace(/^\$/, "");
-  if (t === "" || t === "0" || /^free$/i.test(t)) return 0;
   if (!/^\d{1,3}(\.\d{1,2})?$/.test(t)) return null;
   const cents = Math.round(Number(t) * 100);
   return cents >= 900 && cents <= 19900 ? cents : null;
