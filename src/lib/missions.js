@@ -68,32 +68,62 @@ export async function runAiEvaluation(submission, mission) {
   return { overallScore: result.overallScore, summary: result.summary, strengths: result.strengths, improvements: result.improvements, skillScores: validScores };
 }
 
-export async function requestExpertReview(submissionId) {
-  const { error } = await supabase.from("skillfirms_mission_submissions").update({ status: "expert_requested" }).eq("id", submissionId);
-  if (error) throw error;
-}
+// Paid expert reviews (migration 0027). A request joins the waiting list
+// (no charge) until paid reviews are switched on and an expert covers the
+// mission's skills.
+const reviewError = (error, fallback) => {
+  const m = String(error?.message ?? "");
+  const known = m.match(/^[a-z_]+: (.+)$/);
+  return new Error(known ? known[1] : fallback);
+};
 
-// RLS already grants any real expert account read access to every
-// submission (see "experts can see submissions pending review" /
-// "mission submissions read access") -- this just narrows to the ones
-// actually awaiting a human review, which is what a review queue needs.
-export async function fetchPendingReviews() {
-  const { data, error } = await supabase
-    .from("skillfirms_mission_submissions")
-    .select("id, submission_text, submitted_at, skillfirms_missions(title, slug, brief, deliverable_instructions), profiles(display_name)")
-    .eq("status", "expert_requested")
-    .order("submitted_at", { ascending: true });
-  if (error) throw error;
+export async function loadReviewOffer(missionId) {
+  const { data, error } = await supabase.rpc("skillfirms_mission_review_offer", { p_mission_id: missionId });
+  if (error) return null;
   return data;
 }
 
-export async function reviewSubmission(submissionId, { overallScore, feedback, strengths, improvements }) {
-  const { error } = await supabase.rpc("skillfirms_expert_review_submission", {
-    p_submission_id: submissionId,
-    p_overall_score: overallScore,
-    p_feedback: feedback,
-    p_strengths: strengths,
-    p_improvements: improvements,
+export async function requestExpertReview(submissionId) {
+  const { data, error } = await supabase.rpc("skillfirms_request_expert_review", { p_submission_id: submissionId });
+  if (error) throw reviewError(error, "Couldn't request a review. Try again.");
+  return data;
+}
+
+export async function loadExpertStatus() {
+  const { data, error } = await supabase.rpc("skillfirms_my_expert_status");
+  if (error) return null;
+  return data;
+}
+
+export async function applyAsExpert({ headline, experience, years, skillIds, links }) {
+  const { error } = await supabase.rpc("skillfirms_apply_as_expert", {
+    p_headline: headline, p_experience: experience, p_years: years, p_skill_ids: skillIds, p_links: links || null,
   });
-  if (error) throw error;
+  if (error) {
+    const m = String(error.message ?? "");
+    if (m.includes("already_applied")) throw new Error("You've already applied. We'll let you know.");
+    if (m.includes("already_an_expert")) throw new Error("You're already a Skillfirms expert.");
+    if (m.includes("check constraint")) throw new Error("Please fill in every field (experience needs at least 50 characters).");
+    throw new Error("Couldn't send your application. Try again.");
+  }
+}
+
+export async function loadExpertQueue() {
+  const { data, error } = await supabase.rpc("skillfirms_expert_queue");
+  if (error) throw reviewError(error, "Couldn't load your review queue.");
+  return data;
+}
+
+export async function claimReview(orderId) {
+  const { error } = await supabase.rpc("skillfirms_claim_review", { p_order_id: orderId });
+  if (error) throw reviewError(error, "Couldn't claim this review.");
+}
+
+export async function submitReview(orderId, { skillScores, overall, feedback, strengths, improvements, passed }) {
+  const { data, error } = await supabase.rpc("skillfirms_submit_review", {
+    p_order_id: orderId, p_skill_scores: skillScores, p_overall: overall, p_feedback: feedback,
+    p_strengths: strengths, p_improvements: improvements, p_passed: passed,
+  });
+  if (error) throw reviewError(error, "Couldn't submit the review.");
+  return data;
 }

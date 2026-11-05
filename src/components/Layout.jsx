@@ -148,6 +148,7 @@ export default function Layout() {
               <li><Link to="/missions" className="hover:text-foreground">Missions</Link></li>
               <li><Link to="/roles" className="hover:text-foreground">Career paths</Link></li>
               <li><Link to="/pro" className="hover:text-foreground">Pro</Link></li>
+              <li><Link to="/experts" className="hover:text-foreground">Become an expert</Link></li>
             </ul>
           </div>
           <div>

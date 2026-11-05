@@ -22,6 +22,7 @@ const CourseDetail = lazy(() => import('@/pages/CourseDetail'));
 const Courses = lazy(() => import('@/pages/Courses'));
 const MyLearning = lazy(() => import('@/pages/MyLearning'));
 const Pro = lazy(() => import('@/pages/Pro'));
+const Experts = lazy(() => import('@/pages/Experts'));
 const Missions = lazy(() => import('@/pages/Missions'));
 const Learn = lazy(() => import('@/pages/Learn'));
 const MissionDetail = lazy(() => import('@/pages/MissionDetail'));
@@ -55,6 +56,7 @@ export default function App() {
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/courses/:slug" element={<CourseDetail />} />
                 <Route path="/pro" element={<Pro />} />
+                <Route path="/experts" element={<Experts />} />
                 <Route path="/my-learning" element={<RequireAuth><MyLearning /></RequireAuth>} />
                 <Route path="/courses/:slug/lessons/:n" element={<LessonReader />} />
                 <Route path="/path/:goalId" element={<RequireAuth><LearningPath /></RequireAuth>} />

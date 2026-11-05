@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Clock, Sparkles, UserCheck, Award } from "lucide-react";
+import { Clock, Sparkles, Award } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
-import { submitMission, runAiEvaluation, requestExpertReview } from "@/lib/missions";
+import { submitMission, runAiEvaluation } from "@/lib/missions";
+import ExpertReviewCard from "@/components/ExpertReviewCard";
 import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -115,19 +116,6 @@ export default function MissionDetail() {
     }
   }
 
-  async function handleRequestExpertReview() {
-    setBusy(true);
-    try {
-      await requestExpertReview(submission.id);
-      toast.success("Requested — a Skillfirms expert will see this in their review queue.");
-      await load();
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
   if (loading) {
     return (
       <div className="section-pad">
@@ -147,7 +135,6 @@ export default function MissionDetail() {
   if (error) return <p className="section-pad text-center text-sm text-destructive">{error}</p>;
 
   const hasAiEval = evaluations.some((e) => e.evaluator_type === "ai");
-  const hasExpertEval = evaluations.some((e) => e.evaluator_type === "expert");
 
   return (
     <div className="section-pad">
@@ -205,11 +192,6 @@ export default function MissionDetail() {
                       <Sparkles className="mr-1.5 h-4 w-4" />{busy ? "Evaluating…" : "Get AI feedback"}
                     </Button>
                   )}
-                  {submission.status !== "expert_requested" && submission.status !== "expert_reviewed" && (
-                    <Button size="sm" variant="outline" disabled={busy} onClick={handleRequestExpertReview}>
-                      <UserCheck className="mr-1.5 h-4 w-4" />Request expert review
-                    </Button>
-                  )}
                 </div>
 
                 {evaluations.map((ev) => (
@@ -241,11 +223,10 @@ export default function MissionDetail() {
                   </div>
                 ))}
 
-                {submission.status === "expert_requested" && !hasExpertEval && (
-                  <p className="mt-4 text-xs italic text-muted-foreground">Waiting on a Skillfirms expert — this will update here once reviewed.</p>
-                )}
               </div>
             )}
+
+            <ExpertReviewCard mission={mission} submission={submission} onChange={load} />
 
             <form onSubmit={handleSubmit} className="mt-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
