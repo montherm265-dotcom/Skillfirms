@@ -12,6 +12,7 @@ import Seo from "@/components/seo/Seo";
 import LessonNotes from "@/components/course/LessonNotes";
 import TutorPanel from "@/components/course/TutorPanel";
 import JobGoalBanner from "@/components/course/JobGoalBanner";
+import ProtectedCheck, { shuffledChoices } from "@/components/course/ProtectedCheck";
 import { loadCourseHiring } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -34,7 +35,8 @@ export default function LessonReader() {
   const { slug, n } = useParams();
   const index = Math.max(1, Number(n) || 1) - 1;
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * 2 ** 31));
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
   const [enrollment, setEnrollment] = useState(null);
@@ -87,6 +89,7 @@ export default function LessonReader() {
     setLessonError(null);
     setResult(null);
     setAnswers({});
+    setShuffleSeed(Math.floor(Math.random() * 2 ** 31));
     window.scrollTo({ top: 0, behavior: "smooth" });
     // Expert lessons are written by the instructor: read them (a locked paid
     // lesson simply comes back empty); never ask the AI to write one.
@@ -252,6 +255,7 @@ export default function LessonReader() {
 
               {/* Knowledge check */}
               {questions.length > 0 && (
+                <ProtectedCheck who={profile?.display_name || user?.email}>
                 <section className="mt-10 rounded-2xl border-2 border-foreground/10 bg-card p-5 sm:p-6" id="check">
                   <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"><ListChecks className="h-4 w-4" />Knowledge check</p>
                   <h2 className="mt-1 font-display text-xl font-semibold">{thisDone ? "You passed this one" : `Get ${Math.ceil(questions.length * PASS)} of ${questions.length} right to pass`}</h2>
@@ -260,7 +264,7 @@ export default function LessonReader() {
                       <li key={q.id}>
                         <p className="font-medium">{qi + 1}. {q.question}</p>
                         <div className="mt-2 grid gap-2">
-                          {q.choices.map((c, ci) => {
+                          {shuffledChoices(q.choices, shuffleSeed + qi * 7919).map(({ c, i: ci }) => {
                             const on = answers[q.id] === ci;
                             return (
                               <button key={ci} type="button" disabled={busy} onClick={() => setAnswers((a) => ({ ...a, [q.id]: ci }))}
@@ -295,6 +299,7 @@ export default function LessonReader() {
                     {(thisDone || result?.passed) && next && <Button variant="outline" onClick={() => navigate(`/courses/${slug}/lessons/${index + 2}`)}>Next lesson<ArrowRight className="h-4 w-4" /></Button>}
                   </div>
                 </section>
+                </ProtectedCheck>
               )}
 
               {credentialCode && pct >= 100 && (

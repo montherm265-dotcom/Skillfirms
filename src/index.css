@@ -88,5 +88,7 @@
    site chrome around it -- see CredentialDetail/VerifyCredential. */
 @media print {
   header, footer { display: none !important; }
+  /* Graded checks never print. */
+  .protected-check { display: none !important; }
   body { background: white; }
 }
