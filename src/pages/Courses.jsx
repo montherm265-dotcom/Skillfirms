@@ -20,7 +20,7 @@ export default function Courses() {
   const q = params.get("q") ?? "";
   const cat = params.get("category") ?? "";
   const level = params.get("level") ?? "";
-  const by = params.get("by") ?? "";
+  const taughtBy = params.get("by") ?? "";
   const sort = params.get("sort") ?? "best";
   const [courses, setCourses] = useState(null);
   const [error, setError] = useState(null);
@@ -44,7 +44,7 @@ export default function Courses() {
     let list = searchCourses(courses, q);
     if (cat) list = list.filter((c) => c.category?.id === cat);
     if (level) list = list.filter((c) => c.level === level);
-    if (by) list = list.filter((c) => teacherOf(c).kind === by);
+    if (taughtBy) list = list.filter((c) => teacherOf(c).kind === taughtBy);
     // Experts first: they're the main product; AI-taught basics follow.
     list = [...list].sort((a, b) => Number(teacherOf(b).kind === "expert") - Number(teacherOf(a).kind === "expert"));
     const by = {
@@ -53,11 +53,11 @@ export default function Courses() {
       new: (a, b) => new Date(b.created_at) - new Date(a.created_at),
     }[sort];
     return by ? [...list].sort(by) : list;
-  }, [courses, q, cat, level, sort]);
+  }, [courses, q, cat, level, taughtBy, sort]);
 
   const counts = useMemo(() => Object.fromEntries(CATEGORIES.map((c) => [c.id, (courses ?? []).filter((x) => x.category?.id === c.id).length])), [courses]);
   const activeCat = CATEGORIES.find((c) => c.id === cat);
-  const filtersOn = Boolean(q || cat || level || by);
+  const filtersOn = Boolean(q || cat || level || taughtBy);
 
   return (
     <div>
@@ -82,7 +82,7 @@ export default function Courses() {
       <div className="mx-auto max-w-8xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center gap-2">
           <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-          <Select value={by} onChange={(v) => set("by", v)} label="Taught by" options={[{ id: "", label: "Experts and AI basics" }, { id: "expert", label: "Taught by experts" }, { id: "ai", label: "AI-taught basics" }]} />
+          <Select value={taughtBy} onChange={(v) => set("by", v)} label="Taught by" options={[{ id: "", label: "Experts and AI basics" }, { id: "expert", label: "Taught by experts" }, { id: "ai", label: "AI-taught basics" }]} />
           <Select value={level} onChange={(v) => set("level", v)} label="Level" options={[{ id: "", label: "All levels" }, ...LEVELS.map((l) => ({ id: l, label: l[0].toUpperCase() + l.slice(1) }))]} />
           <Select value={sort} onChange={(v) => set("sort", v === "best" ? "" : v)} label="Sort" options={SORTS} />
           {filtersOn && <button type="button" onClick={() => setParams({}, { replace: true })} className="ml-1 text-sm font-medium text-mastery hover:underline">Clear all</button>}
