@@ -1,8 +1,8 @@
 import { supabase } from "@/lib/supabaseClient";
 
-// The lesson tutor (Edge Function skillfirms-tutor) uses Skillfirms plans:
-// Free 10 questions a day within the free monthly AI allowance, Scholar 60,
-// Mastery 150 (Talfirms Pro / Ultra include them). The
+// The lesson tutor (Edge Function skillfirms-tutor): free questions each day
+// (Free 10 within the free monthly AI allowance; Talfirms Pro 50, Ultra 120),
+// then saved questions from packs you bought, kept for any course. The
 // lesson itself is loaded on the server; we only send which lesson, the
 // question and recent turns.
 export async function askTutor({ moduleId, question, history, mode = "ask", job }) {
@@ -26,29 +26,15 @@ export async function askTutor({ moduleId, question, history, mode = "ask", job 
 }
 
 export async function loadAllowance() {
-  // Skillfirms plans (0031) first; the shared Talfirms allowance before that's applied.
-  const { data: sf } = await supabase.rpc("my_skillfirms_plan");
-  if (sf) return { plan: sf.name ?? "Free", left: Math.max(0, (sf.tutor_per_day ?? 0) - (sf.tutor_today ?? 0)), perDay: sf.tutor_per_day ?? 0 };
-  const { data, error } = await supabase.rpc("my_ai_allowance");
+  const [{ data, error }, { data: wallet }] = await Promise.all([supabase.rpc("my_ai_allowance"), supabase.rpc("my_tutor_wallet")]);
   if (error || !data) return null;
   return {
-    plan: data.plan ?? "free",
     left: Math.max(0, (data.quick_per_day ?? 0) - (data.quick_today ?? 0)),
     perDay: data.quick_per_day ?? 0,
-    freeCap: data.cost_cap_usd != null,
-    capUsedPct: data.cost_cap_usd != null ? Math.min(100, Math.round((100 * Number(data.cost_this_month_usd ?? 0)) / Number(data.cost_cap_usd))) : null,
+    saved: Number(wallet?.balance ?? 0),
   };
 }
 
-export async function loadPlans() {
-  const [{ data: limits }, { data: prices }] = await Promise.all([
-    supabase.from("ai_plan_limits").select("plan, quick_per_day, light_models, monthly_cost_cap_usd").in("plan", ["free", "pro", "ultra"]),
-    supabase.from("billing_plans").select("plan, monthly_price_usd_cents, yearly_price_usd_cents").eq("target", "profile"),
-  ]);
-  const byPlan = Object.fromEntries((limits ?? []).map((l) => [l.plan, l]));
-  const priceOf = Object.fromEntries((prices ?? []).map((p) => [p.plan, p]));
-  return ["free", "pro", "ultra"].map((plan) => ({ plan, ...byPlan[plan], ...priceOf[plan] }));
-}
 
 const KEY = (moduleId) => `sf_tutor_${moduleId}`;
 export function loadChat(moduleId) {

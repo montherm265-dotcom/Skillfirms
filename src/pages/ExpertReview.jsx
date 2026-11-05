@@ -83,7 +83,7 @@ export default function ExpertReview() {
               {queue.available.map((o) => (
                 <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
                   <div className="min-w-0">
-                    <p className="font-semibold">{o.mission}{o.priority && <span className="ml-2 rounded-md bg-warning/20 px-1.5 py-0.5 text-xs font-semibold">Priority · Mastery</span>}</p>
+                    <p className="font-semibold">{o.mission}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground"><span className="capitalize">{o.difficulty}</span> · {(o.skills ?? []).join(", ")}{o.paid_at ? ` · waiting since ${new Date(o.paid_at).toLocaleDateString()}` : ""}</p>
                   </div>
                   <div className="flex items-center gap-3">

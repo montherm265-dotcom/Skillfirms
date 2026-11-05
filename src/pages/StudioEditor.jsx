@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, CheckCircle2, Circle, Film, Plus, Send, Trash2, Upl
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { loadStudioCourse, saveStudioCourse, submitStudioCourse, uploadCourseVideo, videoEmbed } from "@/lib/studio";
-import { setCheckMinutes } from "@/lib/plans";
+import { EXPERT_SHARE, dollars, parsePrice, setCheckMinutes } from "@/lib/plans";
 import VideoPlayer from "@/components/course/VideoPlayer";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ export default function StudioEditor() {
   const [busy, setBusy] = useState(null);
   const [skillFilter, setSkillFilter] = useState("");
   const [checkMinutes, setCheckMinutesState] = useState("");
+  const [priceText, setPriceText] = useState(null);
 
   useEffect(() => {
     supabase.from("skillfirms_skills").select("id, name").order("name").then(({ data }) => setSkills(data ?? []));
@@ -57,7 +58,7 @@ export default function StudioEditor() {
   function payload() {
     return {
       ...course,
-      price_cents: Number(course.price_cents) || 0,
+      price_cents: parsePrice(priceText ?? String((course.price_cents ?? 0) / 100)) ?? 0,
       lessons: course.lessons.map((l) => ({
         ...l,
         key_points: l.key_points.filter((k) => k.trim()),
@@ -71,6 +72,7 @@ export default function StudioEditor() {
   }
 
   async function save(thenSubmit = false) {
+    if (parsePrice(priceText ?? String((course.price_cents ?? 0) / 100)) == null) { toast.error("Pick free, or a price from $9 to $199."); return; }
     setBusy(thenSubmit ? "submit" : "save");
     try {
       const newId = await saveStudioCourse(isNew ? null : id, payload());
@@ -109,10 +111,14 @@ export default function StudioEditor() {
                 </select>
               </label>
               <label className="text-sm font-medium">Price (USD)
-                <select value={course.price_cents} onChange={(e) => set({ price_cents: Number(e.target.value) })} className={`mt-1 ${input}`}>
-                  <option value={0}>Free</option>
-                  {[900, 1900, 2900, 4900, 7900, 9900, 14900, 19900].map((c) => <option key={c} value={c}>${c / 100} · you earn ${(c / 200).toFixed(2).replace(/\.00$/, "")}</option>)}
-                </select>
+                <input value={priceText ?? (course.price_cents ? String(course.price_cents / 100) : "Free")} onChange={(e) => setPriceText(e.target.value)}
+                  inputMode="decimal" placeholder="Free, or 9 to 199" className={`mt-1 ${input}`} />
+                {(() => {
+                  const c = parsePrice(priceText ?? String((course.price_cents ?? 0) / 100));
+                  if (c == null) return <span className="mt-1 block text-xs font-normal text-destructive">Free, or $9 to $199. You can change it any time.</span>;
+                  if (c === 0) return <span className="mt-1 block text-xs font-normal text-muted-foreground">Free course. You can set a price any time.</span>;
+                  return <span className="mt-1 block text-xs font-normal text-muted-foreground">You keep {dollars(Math.round(c * EXPERT_SHARE.marketplace / 100))} ({EXPERT_SHARE.marketplace}%) when Skillfirms finds the learner, {dollars(Math.round(c * EXPERT_SHARE.expert_link / 100))} ({EXPERT_SHARE.expert_link}%) through your own link.</span>;
+                })()}
               </label>
               <label className="text-sm font-medium sm:col-span-2">Time limit for each lesson's check
                 <select value={checkMinutes} onChange={(e) => setCheckMinutesState(e.target.value)} className={`mt-1 ${input}`}>
@@ -220,7 +226,7 @@ export default function StudioEditor() {
             </ul>
             <Button variant="outline" className="w-full" onClick={() => save(false)} disabled={!!busy}>{busy === "save" ? "Saving…" : "Save draft"}</Button>
             <Button className="w-full" onClick={() => save(true)} disabled={!!busy || !allReady}><Send className="h-4 w-4" />{busy === "submit" ? "Sending…" : "Send for review"}</Button>
-            <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who pass every check earn a certificate that counts as verified proof on Talfirms. You earn 50% of every sale.</p>
+            <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who pass every check earn a certificate that counts as verified proof on Talfirms. You keep 70% of sales Skillfirms brings and 97% through your own link.</p>
           </div>
         </aside>
       </div>

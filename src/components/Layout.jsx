@@ -38,7 +38,7 @@ export default function Layout() {
     { to: "/missions", label: "Missions" },
     { to: "/roles", label: "Careers" },
     ...(user ? [{ to: "/my-learning", label: "My learning" }] : []),
-    { to: "/pro", label: "Plans" },
+    { to: "/pro", label: "Pricing" },
   ];
   const accountLinks = [
     { to: "/dashboard", label: "My goal & path" },
@@ -148,7 +148,7 @@ export default function Layout() {
               <li><Link to="/courses" className="hover:text-foreground">All courses</Link></li>
               <li><Link to="/missions" className="hover:text-foreground">Missions</Link></li>
               <li><Link to="/roles" className="hover:text-foreground">Career paths</Link></li>
-              <li><Link to="/pro" className="hover:text-foreground">Plans</Link></li>
+              <li><Link to="/pro" className="hover:text-foreground">Pricing</Link></li>
               <li><Link to="/experts" className="hover:text-foreground">Teach or review as an expert</Link></li>
               <li><Link to="/team" className="hover:text-foreground">For teams</Link></li>
             </ul>

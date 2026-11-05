@@ -2,9 +2,11 @@
 // reading.  POST { moduleId, question, mode?, job?, history? } (signed in)
 //   -> { result: { answer, followups } } | { error }
 //
-// Skillfirms plans (my_skillfirms_plan): Free 10 answers a day inside the free
-// $0.10 a month AI cap, Scholar 60, Mastery 150; logged to ai_usage_log
-// (feature skillfirms_tutor, tier 'simple').
+// Free answers each day (my_ai_allowance quick helps: Free 10 inside the free
+// $0.10 a month AI cap, Talfirms Pro 50, Ultra 120), then saved questions from
+// a bought pack (skillfirms_tutor_wallets), one per answer. Logged to
+// ai_usage_log as skillfirms_tutor or skillfirms_tutor_credit (tier 'simple');
+// paid answers never use up the free monthly allowance.
 // The lesson, course and knowledge-check questions are read here from the
 // database, never taken from the browser. The tutor is never told the
 // check answers and is told not to give them; it never promises jobs.
@@ -95,29 +97,31 @@ Deno.serve(async (req) => {
     `Learner: ${question}`,
   ].filter(Boolean).join("\n\n");
 
-  // Skillfirms plans (migration 0031): Free 10 tutor questions a day inside
-  // the free $0.10 a month AI cap, Scholar 60, Mastery 150 (Talfirms Pro and
-  // Ultra include them). Before 0031 is applied, fall back to the shared
-  // Talfirms allowance.
-  const [{ data: sp, error: spError }, { data: a }] = await Promise.all([caller.rpc("my_skillfirms_plan"), caller.rpc("my_ai_allowance")]);
+  // Free tutor questions each day (your plan's quick AI helps: Free 10 inside
+  // the free $0.10 a month AI cap, Talfirms Pro 50, Ultra 120). After that,
+  // saved questions from a pack you bought (migration 0032), one per answer.
+  const { data: a } = await caller.rpc("my_ai_allowance");
   const allowance = (a ?? {}) as Record<string, unknown>;
-  const sf = (spError ? null : sp) as Record<string, unknown> | null;
-  const perDay = sf ? Number(sf.tutor_per_day ?? 10) : (typeof allowance.quick_per_day === "number" ? allowance.quick_per_day : 10);
-  const today = sf ? Number(sf.tutor_today ?? 0) : (typeof allowance.quick_today === "number" ? allowance.quick_today : 0);
-  const planName = sf ? String(sf.name ?? "Free") : (() => { const p = typeof allowance.plan === "string" ? allowance.plan : "free"; return p.charAt(0).toUpperCase() + p.slice(1); })();
-  if (today >= perDay) {
-    return json({ error: `ai_limit_quick: You've used today's ${perDay} tutor questions on the ${planName} plan. They come back tomorrow, or upgrade for more.` }, 429);
-  }
-  const paid = sf ? sf.plan !== "free" : allowance.light_models === false;
-  const cap = paid ? null : Number(allowance.cost_cap_usd ?? 0.10);
+  const perDay = typeof allowance.quick_per_day === "number" ? allowance.quick_per_day : 10;
+  const today = typeof allowance.quick_today === "number" ? allowance.quick_today : 0;
+  const cap = allowance.light_models === false ? null : Number(allowance.cost_cap_usd ?? 0.10);
   const spent = Number(allowance.cost_this_month_usd ?? 0) || 0;
   const worst = 2 * ((Math.ceil((SYSTEM.length + user.length) / 3) + 50) / 1e6 * IN_PRICE + (MAX_OUT + REASONING) / 1e6 * OUT_PRICE);
-  if (cap != null && spent + worst > cap) {
-    return json({ error: "ai_limit_credit: You've used this month's free AI. It comes back on the 1st, or upgrade to Scholar for much more." }, 429);
+  const freeLeft = today < perDay && !(cap != null && spent + worst > cap);
+  let useCredit = false;
+  if (!freeLeft) {
+    const { data: w } = await admin.from("skillfirms_tutor_wallets").select("balance").eq("user_id", u.user.id).maybeSingle();
+    if (Number(w?.balance ?? 0) > 0) useCredit = true;
+    else if (today >= perDay) {
+      return json({ error: `ai_limit_quick: You've used today's ${perDay} free tutor questions. Get a question pack to keep going; unused questions are saved for any course.` }, 429);
+    } else {
+      return json({ error: "ai_limit_credit: You've used this month's free AI. Get a question pack to keep going; unused questions are saved for any course." }, 429);
+    }
   }
+  const feature = useCredit ? "skillfirms_tutor_credit" : "skillfirms_tutor";
 
   const log = (inTok: number, outTok: number, status: string) => admin.from("ai_usage_log").insert({
-    user_id: u.user!.id, feature: "skillfirms_tutor", model: MODEL, tier: "simple", prompt_version: "1.0.0",
+    user_id: u.user!.id, feature, model: MODEL, tier: "simple", prompt_version: "1.0.0",
     input_tokens: inTok, output_tokens: outTok,
     estimated_cost_usd: Math.round(((inTok / 1e6) * IN_PRICE + (outTok / 1e6) * OUT_PRICE) * 1e6) / 1e6, status,
   });
@@ -140,6 +144,7 @@ Deno.serve(async (req) => {
       const followups = (Array.isArray(out.followups) ? out.followups : [])
         .filter((f: unknown) => typeof f === "string" && f.trim() && f.length <= 120).map((f: string) => f.trim()).slice(0, 3);
       if (wasteIn || wasteOut) await log(wasteIn, wasteOut, "invalid_output");
+      if (useCredit) await admin.rpc("_skillfirms_take_credit", { p_user: u.user.id });
       await log(inTok, outTok, "success");
       return json({ result: { answer, followups } });
     } catch {

@@ -93,7 +93,7 @@ do $$ begin
 exception when insufficient_privilege then raise notice 'PASS: learners can never read the right answers';
 end $$;
 do $$ declare r jsonb; begin
-  r := public.skillfirms_buy_course((select v from t_k where k = 'course'));
+  r := public.skillfirms_buy_course_v2((select v from t_k where k = 'course'), null);
   if r->>'status' <> 'waitlist' then raise exception 'FAIL: %', r; end if;
   insert into t_k values ('purchase', (r->>'id')::uuid);
   raise notice 'PASS: with sales off, buying joins the waiting list (no charge)';
@@ -110,8 +110,8 @@ do $$ declare n int; begin
 end $$;
 reset role;
 do $$ begin
-  if (select instructor_share_cents from public.skillfirms_course_purchases where id = (select v from t_k where k = 'purchase')) <> 2450 then
-    raise exception 'FAIL: instructor share not 50%%'; end if;
-  raise notice 'PASS: the instructor''s share is 50%%';
+  if (select instructor_share_cents from public.skillfirms_course_purchases where id = (select v from t_k where k = 'purchase')) <> 3430 then
+    raise exception 'FAIL: instructor share not 70%%'; end if;
+  raise notice 'PASS: the instructor keeps 70%% of a marketplace sale';
 end $$;
 rollback;

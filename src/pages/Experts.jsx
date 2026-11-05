@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { applyAsExpert, loadExpertStatus } from "@/lib/missions";
 import Seo from "@/components/seo/Seo";
+import { EXPERT_SHARE, UDEMY_SHARE } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -57,13 +58,13 @@ export default function Experts() {
 
   return (
     <div>
-      <Seo title="Become a Skillfirms expert" description="Review real work from people learning your field, and earn 60% of every review." canonical="/experts" />
+      <Seo title="Become a Skillfirms expert" description="Teach your own courses at your own price and keep 70% (97% through your own link), or review real work for 60% of every review." canonical="/experts" />
       <section className="relative overflow-hidden bg-[hsl(222_38%_8%)] text-white">
         <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]" />
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }} className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6">
           <p className="eyebrow text-[hsl(var(--mastery))]">Skillfirms experts</p>
-          <h1 className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Know the work? Get paid to judge it.</h1>
-          <p className="mt-4 max-w-xl text-lg text-white/75">Review real Mission submissions from people learning your field. Score each skill, write honest feedback, and decide pass or not yet. You earn 60% of every review.</p>
+          <h1 className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Know the work? Teach it, judge it, get paid.</h1>
+          <p className="mt-4 max-w-xl text-lg text-white/75">Build your own courses, with video, at the price you choose, and change it whenever you like. Or review real Mission submissions from people learning your field. One expert account does both.</p>
           <dl className="mt-8 grid max-w-xl grid-cols-3 gap-6 border-t border-white/15 pt-6">
             <div><dt className="text-xs text-white/60">You earn per review</dt><dd className="mt-1 font-display text-2xl font-semibold">{earn(lo)}–{earn(hi)}</dd></div>
             <div><dt className="text-xs text-white/60">Time per review</dt><dd className="mt-1 font-display text-2xl font-semibold">20–40 min</dd></div>
@@ -72,9 +73,29 @@ export default function Experts() {
         </motion.div>
       </section>
 
+      <section className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
+        <h2 className="font-display text-2xl font-semibold">Teach a course: you keep more than anywhere else</h2>
+        <p className="mt-1 text-sm text-muted-foreground">You set your price ($9 to $199, or free) and can change it any time. Skillfirms checks every course before it goes live.</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, UDEMY_SHARE.marketplace, "Someone finds your course by browsing or searching Skillfirms."],
+            ["You bring the learner", EXPERT_SHARE.expert_link, UDEMY_SHARE.expert_link, "They buy through your own link. The 3% only covers card fees."],
+            ["Companies train their teams", EXPERT_SHARE.team_pool, UDEMY_SHARE.team_pool, "Half of what companies pay for team training goes to experts, shared by how many minutes of your lessons their staff complete."],
+          ].map(([t, ours, udemy, d], i) => (
+            <motion.div key={t} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.45, ease }}
+              whileHover={{ y: -3 }} className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-sm font-semibold">{t}</p>
+              <p className="mt-2 flex items-baseline gap-2"><span className="font-display text-4xl font-semibold text-mastery">{ours}%</span><span className="text-sm text-muted-foreground">yours</span></p>
+              <p className="text-xs text-muted-foreground">Udemy pays {udemy}%{t === "Companies train their teams" ? " of its subscription pool" : ""}.</p>
+              <p className="mt-2 text-sm text-muted-foreground">{d}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
       <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_22rem]">
         <section>
-          <h2 className="font-display text-2xl font-semibold">How it works</h2>
+          <h2 className="font-display text-2xl font-semibold">Reviewing work: how it works</h2>
           <ol className="mt-4 space-y-4">
             {[
               { icon: Search, t: "Pick work in your skills", d: "You only see paid reviews for missions that match the skills you were approved for. Take one, and you have 3 days." },

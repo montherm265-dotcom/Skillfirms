@@ -135,7 +135,7 @@ export default function TutorPanel({ user, moduleId, lessonTitle, ready }) {
                   <div className="mt-4 rounded-2xl bg-primary p-4 text-primary-foreground">
                     <p className="flex items-center gap-2 font-semibold"><Crown className="h-4 w-4 text-warning" />Out of tutor questions for now</p>
                     <p className="mt-1 text-sm text-primary-foreground/80">{limitHit}</p>
-                    <Link to="/pro" className="mt-3 inline-block rounded-lg bg-mastery px-3 py-1.5 text-sm font-semibold text-mastery-foreground">See plans</Link>
+                    <Link to="/pro" className="mt-3 inline-block rounded-lg bg-mastery px-3 py-1.5 text-sm font-semibold text-mastery-foreground">Get a question pack</Link>
                   </div>
                 )}
                 <div ref={endRef} />
@@ -154,7 +154,7 @@ export default function TutorPanel({ user, moduleId, lessonTitle, ready }) {
                 )}
                 <p className="mt-2 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
                   <span>AI can be wrong. It won't give you check answers.</span>
-                  {allowance && <Link to="/pro" className="flex-none font-medium hover:text-foreground">{allowance.left} of {allowance.perDay} left today · <span className="capitalize">{allowance.plan}</span></Link>}
+                  {allowance && <Link to="/pro" className="flex-none font-medium hover:text-foreground">{allowance.left} of {allowance.perDay} free left today{allowance.saved ? ` · ${allowance.saved} saved` : ""}</Link>}
                 </p>
               </footer>
             </motion.aside>

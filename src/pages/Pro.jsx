@@ -2,42 +2,43 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { BookOpenCheck, Check, Crown, GraduationCap, Minus, Sparkles, Timer, Zap } from "lucide-react";
+import { ArrowRight, Building2, Check, GraduationCap, PiggyBank, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { INCLUDED_WITH, dollars, joinPlan, loadMyPlan, loadSkillfirmsPlans } from "@/lib/plans";
-import { TALFIRMS_URL } from "@/lib/externalLinks";
-import { crossAppClick } from "@/lib/crossApp";
+import { supabase } from "@/lib/supabaseClient";
+import { EXPERT_SHARE, buyPack, dollars, loadPacks, loadWallet } from "@/lib/plans";
+import { loadAllowance } from "@/lib/tutor";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 
 const ease = [0.22, 1, 0.36, 1];
-const CARDS = {
-  free: { icon: BookOpenCheck, blurb: "Learn anything here and prove it. Free for good." },
-  scholar: { icon: GraduationCap, blurb: "For steady learners: a tutor all month and more tries.", best: true },
-  mastery: { icon: Crown, blurb: "For going all in: the most tutor time, the best prices, reviewed first." },
-};
 
-// Skillfirms plans: Free, Scholar, Mastery. Every number on this page is read
-// from the table the server enforces (migration 0031).
+// Skillfirms pricing: learning is free; you only pay for extra AI tutor
+// questions (packs you keep for any course), expert courses at the price the
+// expert sets, and team training if you're a company. Numbers come from the
+// tables the server enforces (migration 0032).
 export default function Pro() {
   const { user } = useAuth();
-  const [plans, setPlans] = useState(null);
-  const [mine, setMine] = useState(null);
-  const [yearly, setYearly] = useState(false);
+  const [packs, setPacks] = useState(null);
+  const [wallet, setWallet] = useState(null);
+  const [allowance, setAllowance] = useState(null);
+  const [freeLimits, setFreeLimits] = useState(null);
+  const [seat, setSeat] = useState(1500);
   const [busy, setBusy] = useState(null);
 
-  useEffect(() => { loadSkillfirmsPlans().then(setPlans); }, []);
-  useEffect(() => { if (user) loadMyPlan().then(setMine); }, [user]);
+  useEffect(() => {
+    loadPacks().then(setPacks);
+    supabase.from("ai_plan_limits").select("plan, quick_per_day").in("plan", ["free", "pro", "ultra"])
+      .then(({ data }) => setFreeLimits(Object.fromEntries((data ?? []).map((r) => [r.plan, r.quick_per_day]))));
+    supabase.from("ad_pricing").select("cents").eq("key", "team_seat_month").maybeSingle().then(({ data }) => { if (data?.cents) setSeat(data.cents); });
+  }, []);
+  useEffect(() => { if (user) { loadWallet().then(setWallet); loadAllowance().then(setAllowance); } }, [user]);
 
-  const byPlan = Object.fromEntries((plans ?? []).map((p) => [p.plan, p]));
-  const waiting = mine?.membership && ["waitlist", "awaiting_payment"].includes(mine.membership.status) ? mine.membership.plan : null;
-
-  async function join(plan) {
-    setBusy(plan);
+  async function buy(p) {
+    setBusy(p.pack);
     try {
-      await joinPlan(plan, yearly ? "yearly" : "monthly");
-      toast.success(`You're on the ${byPlan[plan]?.name} waiting list. Nothing is charged now; you'll confirm before you ever pay.`);
-      setMine(await loadMyPlan());
+      await buyPack(p.pack);
+      toast.success(`You're on the list for ${p.questions} questions. Nothing is charged now; you'll confirm before you ever pay.`);
+      setWallet(await loadWallet());
     } catch (e) {
       toast.error(e.message);
     } finally {
@@ -45,120 +46,86 @@ export default function Pro() {
     }
   }
 
-  const rows = [
-    ["Every free course, lesson and graded check", true, true, true],
-    ["Certificate when you pass every check", true, true, true],
-    ["Proof that shows on your Talfirms profile", true, true, true],
-    ["AI tutor questions a day", byPlan.free?.tutor_per_day, byPlan.scholar?.tutor_per_day, byPlan.mastery?.tutor_per_day],
-    ["Tutor never pauses mid-month", false, true, true],
-    ["Tries a day at each graded check", byPlan.free?.check_tries_per_day, byPlan.scholar?.check_tries_per_day, byPlan.mastery?.check_tries_per_day],
-    ["Off expert-taught courses", false, `${byPlan.scholar?.expert_discount_pct ?? "–"}%`, `${byPlan.mastery?.expert_discount_pct ?? "–"}%`],
-    ["Your Missions reviewed first by experts", false, false, true],
-    ["Included with", "–", INCLUDED_WITH.scholar, INCLUDED_WITH.mastery],
-  ];
+  const best = packs?.length ? packs.reduce((a, b) => (a.price_cents / a.questions <= b.price_cents / b.questions ? a : b)) : null;
 
   return (
     <div>
-      <Seo title="Plans" description="Skillfirms is free to learn. Scholar and Mastery add an AI tutor all month, more tries, money off expert courses and faster expert reviews." canonical="/pro" />
+      <Seo title="Pricing" description="Learning, graded checks and certificates are free. Pay only for extra AI tutor questions, which you keep for any course." canonical="/pro" />
       <section className="relative overflow-hidden bg-[hsl(222_38%_8%)] text-white">
         <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
         <motion.div aria-hidden className="absolute left-1/2 top-0 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-mastery/30 blur-3xl"
           animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.08, 1] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }} />
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }} className="relative mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold"><Sparkles className="h-3.5 w-3.5 text-warning" />Skillfirms plans</p>
-          <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Learning is free. <span className="italic text-[hsl(var(--mastery))]">Go further, faster.</span></h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-white/75">Courses, graded checks and certificates are free for everyone, always. Scholar and Mastery give you a tutor all month, more tries, money off expert courses and faster expert reviews.</p>
-          {mine && mine.plan !== "free" && (
-            <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-mastery px-4 py-1.5 text-sm font-semibold text-mastery-foreground">
-              <Check className="h-4 w-4" />You're on {mine.name}{mine.via_talfirms ? ` (included with your Talfirms ${mine.talfirms_plan === "ultra" ? "Ultra" : "Pro"})` : ""}
-            </p>
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold"><Sparkles className="h-3.5 w-3.5 text-warning" />Pricing</p>
+          <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Learning is free. <span className="italic text-[hsl(var(--mastery))]">No plans, no subscriptions.</span></h1>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-white/75">Courses, graded checks and certificates are free. The AI tutor gives you free questions every day. Want more? Buy a pack once and keep the questions for any course, for as long as you like.</p>
+          {user && allowance && (
+            <div className="mx-auto mt-8 grid max-w-md grid-cols-2 gap-3 text-left">
+              <div className="rounded-2xl border border-white/15 bg-white/5 p-4"><p className="text-xs text-white/60">Free today</p><p className="font-display text-2xl font-semibold">{allowance.left} of {allowance.perDay}</p></div>
+              <div className="rounded-2xl border border-white/15 bg-white/5 p-4"><p className="text-xs text-white/60">Saved questions</p><p className="font-display text-2xl font-semibold">{wallet?.balance ?? allowance.saved ?? 0}</p></div>
+            </div>
           )}
-          <div className="mt-8 inline-flex rounded-full border border-white/15 bg-white/5 p-1 text-sm">
-            {[["Monthly", false], ["Yearly · 2 months free", true]].map(([label, y]) => (
-              <button key={label} type="button" onClick={() => setYearly(y)} aria-pressed={yearly === y}
-                className={`rounded-full px-4 py-1.5 font-medium transition-colors ${yearly === y ? "bg-white text-black" : "text-white/75 hover:text-white"}`}>{label}</button>
-            ))}
-          </div>
         </motion.div>
       </section>
 
       <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-        <div className="grid gap-5 md:grid-cols-3">
-          {["free", "scholar", "mastery"].map((plan, i) => {
-            const p = byPlan[plan];
-            const c = CARDS[plan];
-            const current = (mine?.plan ?? (user ? "free" : null)) === plan;
-            const price = plan === "free" ? 0 : yearly ? p?.yearly_cents : p?.monthly_cents;
+        <h2 className="font-display text-2xl font-semibold">AI tutor question packs</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Used only after your free questions for the day run out. Saved questions never expire and work in every course.</p>
+        <div className="mt-5 grid gap-5 md:grid-cols-3">
+          {(packs ?? [{ pack: "a" }, { pack: "b" }, { pack: "c" }]).map((p, i) => {
+            const isBest = best && p.pack === best.pack;
+            const waiting = wallet?.waiting?.pack === p.pack;
             return (
-              <motion.div key={plan} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.5, ease }}
+              <motion.div key={p.pack} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.5, ease }}
                 whileHover={{ y: -4 }}
-                className={`relative flex flex-col rounded-3xl border p-6 ${c.best ? "border-mastery bg-gradient-to-b from-mastery/10 to-card shadow-glow" : "border-border bg-card"}`}>
-                {c.best && <span className="absolute -top-3 left-6 rounded-full bg-mastery px-3 py-0.5 text-xs font-bold text-mastery-foreground">Most popular</span>}
-                <div className="flex items-center gap-2">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-mastery/15 text-mastery"><c.icon className="h-5 w-5" /></span>
-                  <p className="font-display text-2xl font-semibold">{p?.name ?? plan}</p>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">{c.blurb}</p>
-                <p className="mt-5">
-                  <span className="font-display text-4xl font-semibold">{plans ? dollars(price) : "–"}</span>
-                  {plan !== "free" && <span className="text-sm text-muted-foreground"> / {yearly ? "year" : "month"}</span>}
-                </p>
-                {plan !== "free" && <p className="text-xs text-muted-foreground">Included with {INCLUDED_WITH[plan]}</p>}
+                className={`relative flex flex-col rounded-3xl border p-6 ${isBest ? "border-mastery bg-gradient-to-b from-mastery/10 to-card shadow-glow" : "border-border bg-card"}`}>
+                {isBest && <span className="absolute -top-3 left-6 rounded-full bg-mastery px-3 py-0.5 text-xs font-bold text-mastery-foreground">Best value</span>}
+                <p className="flex items-baseline gap-2"><span className="font-display text-5xl font-semibold">{p.questions ?? "–"}</span><span className="text-sm text-muted-foreground">questions</span></p>
+                <p className="mt-3 font-display text-3xl font-semibold">{dollars(p.price_cents)}</p>
+                <p className="text-xs text-muted-foreground">{p.questions ? `${(p.price_cents / p.questions).toFixed(1)}¢ a question · paid once` : ""}</p>
                 <ul className="mt-5 space-y-2 text-sm">
-                  <li className="flex gap-2"><Sparkles className="mt-0.5 h-4 w-4 flex-none text-mastery" /><span><b>{p?.tutor_per_day ?? "–"}</b> AI tutor questions a day{plan === "free" ? ", within the free monthly AI allowance" : ""}</span></li>
-                  <li className="flex gap-2"><Timer className="mt-0.5 h-4 w-4 flex-none text-mastery" /><span><b>{p?.check_tries_per_day ?? "–"}</b> tries a day at each graded check</span></li>
-                  {plan === "free" ? (
-                    <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 flex-none text-mastery" />All free courses, checks and certificates</li>
-                  ) : (
-                    <li className="flex gap-2"><Zap className="mt-0.5 h-4 w-4 flex-none text-mastery" /><span><b>{p?.expert_discount_pct ?? "–"}% off</b> expert-taught courses (the expert still earns their full share)</span></li>
-                  )}
-                  {plan === "mastery" && <li className="flex gap-2"><Crown className="mt-0.5 h-4 w-4 flex-none text-mastery" />Your Missions go to the front of the expert review queue</li>}
+                  <li className="flex gap-2"><PiggyBank className="mt-0.5 h-4 w-4 flex-none text-mastery" />Saved to your balance, never expire</li>
+                  <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 flex-none text-mastery" />Any course, now or later</li>
                 </ul>
-                <div className="mt-auto space-y-2 pt-6">
-                  {current ? (
-                    <Button variant="outline" className="w-full" disabled>Your plan</Button>
-                  ) : plan === "free" ? (
-                    user ? <Button variant="outline" className="w-full" disabled>Included</Button> : <Link to="/auth?mode=signup"><Button variant="outline" className="w-full">Join free</Button></Link>
-                  ) : !user ? (
-                    <Link to="/auth?mode=signup&next=/pro"><Button className={`w-full ${c.best ? "bg-mastery text-mastery-foreground hover:bg-mastery/90" : ""}`}>Get {p?.name}</Button></Link>
-                  ) : waiting === plan ? (
-                    <Button variant="outline" className="w-full" disabled>On the waiting list</Button>
+                <div className="mt-auto pt-6">
+                  {!user ? (
+                    <Link to="/auth?mode=signup&next=/pro"><Button className="w-full">Get {p.questions} questions</Button></Link>
+                  ) : waiting ? (
+                    <Button variant="outline" className="w-full" disabled>On the list</Button>
                   ) : (
-                    <Button className={`w-full ${c.best ? "bg-mastery text-mastery-foreground hover:bg-mastery/90" : ""}`} disabled={busy === plan} onClick={() => join(plan)}>
-                      {busy === plan ? "Saving…" : `Get ${p?.name ?? plan}`}
+                    <Button className={`w-full ${isBest ? "bg-mastery text-mastery-foreground hover:bg-mastery/90" : ""}`} disabled={!p.questions || busy === p.pack} onClick={() => buy(p)}>
+                      {busy === p.pack ? "Saving…" : `Get ${p.questions ?? ""} questions`}
                     </Button>
-                  )}
-                  {plan !== "free" && TALFIRMS_URL && !current && (
-                    <a href={`${TALFIRMS_URL}/pricing`} onClick={crossAppClick(TALFIRMS_URL, "/pricing")} target="_blank" rel="noreferrer"
-                      className="block text-center text-xs font-medium text-muted-foreground hover:text-foreground">Or get it with {INCLUDED_WITH[plan]}, jobs included ↗</a>
                   )}
                 </div>
               </motion.div>
             );
           })}
         </div>
-        <p className="mt-4 text-center text-xs text-muted-foreground">Card payments open soon. Until then a paid plan puts you on the waiting list and nothing is charged.</p>
+        <p className="mt-4 text-center text-xs text-muted-foreground">Card payments open soon. Until then, picking a pack puts you on the list and nothing is charged.</p>
 
-        <section className="mt-14 overflow-x-auto">
-          <h2 className="font-display text-2xl font-semibold">Compare</h2>
-          <table className="mt-4 w-full min-w-[36rem] text-sm">
-            <thead><tr className="border-b border-border text-left text-muted-foreground"><th className="py-2 font-medium"></th>
-              {["free", "scholar", "mastery"].map((pl) => <th key={pl} className={`w-28 py-2 text-center font-medium ${pl === "scholar" ? "text-mastery" : ""}`}>{byPlan[pl]?.name ?? pl}</th>)}</tr></thead>
-            <tbody>
-              {rows.map(([label, ...cells]) => (
-                <tr key={label} className="border-b border-border">
-                  <td className="py-3">{label}</td>
-                  {cells.map((v, i) => (
-                    <td key={i} className="py-3 text-center">
-                      {v === true ? <Check className="mx-auto h-4 w-4 text-mastery" /> : v === false ? <Minus className="mx-auto h-4 w-4 text-muted-foreground/50" /> : <span className="font-semibold tabular-nums">{v ?? "–"}</span>}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="mt-3 text-xs text-muted-foreground">Free AI pauses for the rest of the month once the free monthly allowance is used up, and comes back on the 1st. Certificates never depend on a plan: pass every lesson's check and you get it. Experts can put a time limit on their checks; it's the same for every plan.</p>
+        <section className="mt-14 grid gap-5 md:grid-cols-3">
+          {[
+            { icon: Sparkles, t: "Free every day", d: `${freeLimits?.free ?? 10} tutor questions a day on Free (within the free monthly AI allowance), ${freeLimits?.pro ?? 50} with Talfirms Pro and ${freeLimits?.ultra ?? 120} with Talfirms Ultra.`, to: null },
+            { icon: GraduationCap, t: "Expert courses", d: `Real experts set their own price. Lesson 1 is always a free preview. Experts keep ${EXPERT_SHARE.marketplace}% of every sale, so your money goes to the person teaching you.`, to: "/courses?by=expert", cta: "Browse expert courses" },
+            { icon: Building2, t: "For companies", d: `Train your team: assign courses, track every graded check, export the record. Free for 3 people, then $${(seat / 100).toFixed(0)} a person a month.`, to: "/team", cta: "Team training" },
+          ].map((c, i) => (
+            <motion.div key={c.t} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07, duration: 0.45, ease }}
+              className="flex flex-col rounded-2xl border border-border bg-card p-5">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-mastery/15 text-mastery"><c.icon className="h-5 w-5" /></span>
+              <p className="mt-3 font-display text-xl font-semibold">{c.t}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{c.d}</p>
+              {c.to && <Link to={c.to} className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-semibold text-mastery hover:underline">{c.cta}<ArrowRight className="h-4 w-4" /></Link>}
+            </motion.div>
+          ))}
         </section>
+
+        <section className="mt-10 rounded-3xl border border-border bg-card p-6 text-center">
+          <p className="font-display text-2xl font-semibold">Teach on Skillfirms</p>
+          <p className="mx-auto mt-1 max-w-xl text-sm text-muted-foreground">Set your own price and change it any time. Keep {EXPERT_SHARE.marketplace}% when we find the learner, {EXPERT_SHARE.expert_link}% through your own link, and share {EXPERT_SHARE.team_pool}% of company team-training money.</p>
+          <Link to="/experts"><Button className="mt-4">Become an expert</Button></Link>
+        </section>
+        <p className="mt-6 text-center text-xs text-muted-foreground">Certificates are never paid for: pass every lesson's check and you get it.</p>
       </div>
     </div>
   );

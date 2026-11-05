@@ -13,7 +13,7 @@ import LessonNotes from "@/components/course/LessonNotes";
 import TutorPanel from "@/components/course/TutorPanel";
 import JobGoalBanner from "@/components/course/JobGoalBanner";
 import ProtectedCheck, { shuffledChoices } from "@/components/course/ProtectedCheck";
-import { loadMyPlan, startCheck } from "@/lib/plans";
+import { startCheck } from "@/lib/plans";
 import { loadCourseHiring } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -51,13 +51,13 @@ export default function LessonReader() {
   const [credentialCode, setCredentialCode] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [hiring, setHiring] = useState([]);
-  // Timed checks (set by the course's expert): minutes, the running clock, and plan tries.
+  // Timed checks (set by the course's expert): minutes and the running clock.
   const [checkMinutes, setCheckMinutes] = useState(null);
   const [endsAt, setEndsAt] = useState(null);
   const [clock, setClock] = useState(Date.now());
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState(null);
-  const [tries, setTries] = useState(5);
+  const tries = 5;
 
   const mod = modules[index];
   const [access, setAccess] = useState(true);
@@ -132,7 +132,6 @@ export default function LessonReader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mod?.id, Boolean(lesson)]);
 
-  useEffect(() => { if (user) loadMyPlan().then((p) => { if (p?.check_tries_per_day) setTries(p.check_tries_per_day); }); }, [user]);
 
   // A clock already running for this check (e.g. after a reload) carries on.
   useEffect(() => {

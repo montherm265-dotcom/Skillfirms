@@ -40,8 +40,9 @@ export async function uploadCourseVideo(userId, file) {
   return supabase.storage.from("course-videos").getPublicUrl(path).data.publicUrl;
 }
 
-export async function buyCourse(courseId) {
-  const { data, error } = await supabase.rpc("skillfirms_buy_course", { p_course_id: courseId });
+// ref: the expert's own link code, if the learner came through it (97% to the expert).
+export async function buyCourse(courseId, ref = null) {
+  const { data, error } = await supabase.rpc("skillfirms_buy_course_v2", { p_course_id: courseId, p_ref: ref });
   if (error) throw friendly(error, "Couldn't start the purchase.");
   return data;
 }
