@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
 import { identifyUser } from '@/lib/monitoring';
+import { assertPasswordNotLeaked } from '@/lib/leakedPassword';
 
 const AuthContext = createContext(null);
 
@@ -63,6 +64,7 @@ export function AuthProvider({ children }) {
   }, [loadProfile, loadExpertStatus]);
 
   const signUp = useCallback(async ({ email, password, displayName }) => {
+    await assertPasswordNotLeaked(password);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
