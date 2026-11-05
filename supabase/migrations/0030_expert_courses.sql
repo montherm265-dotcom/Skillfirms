@@ -86,7 +86,8 @@ do $$ begin
       status = 'ready' and exists (
         select 1 from public.skillfirms_course_modules m join public.skillfirms_courses c on c.id = m.course_id
         where m.id = skillfirms_lessons.module_id
-          and (c.status = 'published' or c.expert_id in (select id from public.skillfirms_experts where profile_id = (select auth.uid())))
+          and (c.status = 'published' or public.skillfirms_is_admin()
+               or c.expert_id in (select id from public.skillfirms_experts where profile_id = (select auth.uid())))
           and (c.price_cents = 0 or m.order_index = 0 or public.skillfirms_can_open_course(c.id))));
   end if;
 end $$;
