@@ -3,13 +3,14 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import {
-  ArrowRight, Award, Bookmark, BookmarkCheck, Briefcase, Check, CheckCircle2, ChevronDown, Circle, Clock, ExternalLink,
-  Link2, ListChecks, MapPin, PlayCircle, ShieldCheck, Smartphone, Sparkles, Target, Users,
+  ArrowRight, Award, Bookmark, BookmarkCheck, Bot, Briefcase, Check, CheckCircle2, ChevronDown, Circle, Clock, ExternalLink,
+  Link2, ListChecks, Lock, MapPin, PlayCircle, ShieldCheck, Smartphone, Sparkles, Target, Users,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll } from "@/lib/courses";
-import { formatHours, loadCatalog, loadCourseHiring, loadCourseJobs, loadReviews, saveReview, shapeCourse } from "@/lib/catalog";
+import { formatHours, loadCatalog, loadCourseHiring, loadCourseJobs, loadReviews, priceLabel, saveReview, shapeCourse } from "@/lib/catalog";
+import { buyCourse, loadMyPurchase } from "@/lib/studio";
 import HiringBanner from "@/components/course/HiringBanner";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { crossAppClick } from "@/lib/crossApp";
@@ -42,6 +43,8 @@ export default function CourseDetail() {
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [access, setAccess] = useState(false);
+  const [purchase, setPurchase] = useState(null);
   const { saved, toggle } = useSaved();
   const userId = user?.id;
 
@@ -55,7 +58,7 @@ export default function CourseDetail() {
     setCourse(shaped);
 
     const [{ data: mods }, enr, cred] = await Promise.all([
-      supabase.from("skillfirms_course_modules").select("id, title, description, order_index, duration_minutes, has_quiz").eq("course_id", c.id).order("order_index"),
+      supabase.from("skillfirms_course_modules").select("id, title, description, order_index, duration_minutes, has_quiz, video_url").eq("course_id", c.id).order("order_index"),
       userId ? supabase.from("skillfirms_enrollments").select("*").eq("user_id", userId).eq("course_id", c.id).maybeSingle() : Promise.resolve({ data: null }),
       userId ? supabase.from("skillfirms_credentials").select("credential_code").eq("user_id", userId).eq("course_id", c.id).eq("status", "active_verified").maybeSingle() : Promise.resolve({ data: null }),
     ]);
@@ -69,6 +72,12 @@ export default function CourseDetail() {
     if (enr.data) {
       const { data: p } = await supabase.from("skillfirms_module_progress").select("module_id, completed_at, quiz_score").eq("enrollment_id", enr.data.id);
       setProgressByModule(Object.fromEntries((p ?? []).map((r) => [r.module_id, r])));
+    }
+    if (Number(c.price_cents) > 0) {
+      supabase.rpc("skillfirms_can_open_course", { p_course: c.id }).then(({ data }) => setAccess(Boolean(data)));
+      loadMyPurchase(userId, c.id).then(setPurchase);
+    } else {
+      setAccess(true);
     }
     loadReviews(c.id).then(setReviews);
     loadCourseJobs(c.id).then(setJobs);
@@ -95,9 +104,24 @@ export default function CourseDetail() {
   const passed = modules.filter((m) => progressByModule[m.id]?.completed_at).length;
   const questions = modules.length * 3;
   const reviewedAll = modules.length > 0 && modules.every((m) => lessons[m.id]?.reviewed_at);
-  const realExpert = course?.skillfirms_experts?.profile_id ? course.skillfirms_experts : null;
+  const realExpert = course?.skillfirms_experts?.profile_id && course?.taught_by === "expert" ? course.skillfirms_experts : null;
+  const paid = Number(course?.price_cents ?? 0) > 0;
+  const videoCount = modules.filter((m) => m.video_url).length;
+  const locked = paid && !access;
+
+  async function buy() {
+    if (!user) { navigate(`/auth?mode=signup&next=${encodeURIComponent(`/courses/${slug}`)}`); return; }
+    setBusy(true);
+    try {
+      const p = await buyCourse(course.id);
+      setPurchase(p);
+      if (p.payment_status === "paid" || p.payment_status === "credit") { setAccess(true); toast.success("You're in."); }
+      else toast.success("You're on the list. Nothing is charged; we'll let you know when buying opens.");
+    } catch (e) { toast.error(e.message); } finally { setBusy(false); }
+  }
 
   async function start() {
+    if (locked) { buy(); return; }
     if (!user) { navigate(`/auth?mode=signup&next=${encodeURIComponent(`/courses/${slug}/lessons/1`)}`); return; }
     if (enrollment) { navigate(`/courses/${slug}/lessons/${nextIndex + 1}`); return; }
     setBusy(true);
@@ -120,7 +144,9 @@ export default function CourseDetail() {
   if (!course) return <DetailSkeleton />;
 
   const isSaved = saved.has(course.id);
-  const cta = !enrollment ? "Start learning — free" : credential ? "Review the course" : passed > 0 ? `Continue: lesson ${nextIndex + 1}` : "Start lesson 1";
+  const cta = locked
+    ? (purchase?.status === "waitlist" ? "You're on the list" : `Buy · ${priceLabel(course.price_cents)}`)
+    : !enrollment ? (paid ? "Start learning" : "Start learning — free") : credential ? "Review the course" : passed > 0 ? `Continue: lesson ${nextIndex + 1}` : "Start lesson 1";
 
   return (
     <div>
@@ -134,7 +160,7 @@ export default function CourseDetail() {
           name: course.title,
           description: course.description || undefined,
           provider: { "@type": "Organization", name: "Skillfirms" },
-          isAccessibleForFree: true,
+          isAccessibleForFree: !paid,
           educationalLevel: course.level || undefined,
           timeRequired: `PT${course.total_minutes}M`,
           ...(course.rating_count ? { aggregateRating: { "@type": "AggregateRating", ratingValue: course.rating_avg, ratingCount: course.rating_count } } : {}),
@@ -161,10 +187,17 @@ export default function CourseDetail() {
               <span className="inline-flex items-center gap-1.5 text-white/80"><Clock className="h-4 w-4" />{formatHours(course)}</span>
               <span className="capitalize text-white/80">{course.level ?? "All levels"}</span>
             </div>
-            <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-white/60">
-              <Sparkles className="h-3.5 w-3.5" />
-              {realExpert ? <>By {realExpert.display_name}{realExpert.headline ? ` · ${realExpert.headline}` : ""}</> : reviewedAll ? "Lessons reviewed by an expert" : "Lessons drafted with AI from the course outline. Not yet reviewed by an expert, and each lesson says so."}
-            </p>
+            {realExpert ? (
+              <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-3 text-sm">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[hsl(var(--mastery))] font-display text-sm font-semibold text-black">{realExpert.display_name.slice(0, 1)}</span>
+                <span>Taught by <b>{realExpert.display_name}</b>{realExpert.headline ? <span className="text-white/70"> · {realExpert.headline}</span> : null}</span>
+              </p>
+            ) : (
+              <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-white/60">
+                <Bot className="h-3.5 w-3.5" />
+                {reviewedAll ? "AI-taught basics, reviewed by an expert" : "AI-taught basics: lessons drafted with AI and not yet reviewed by an expert (each lesson says so)."}
+              </p>
+            )}
             {course.skills.length > 0 && (
               <div className="mt-5 flex flex-wrap gap-1.5">
                 {course.skills.map((s) => <span key={s.slug} className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs">{s.name}</span>)}
@@ -187,8 +220,10 @@ export default function CourseDetail() {
                 </span>
               </button>
               <div className="p-5">
-                <p className="font-display text-3xl font-semibold">Free</p>
-                <p className="text-xs text-muted-foreground">Learning, graded checks and the certificate are all free.</p>
+                <p className="font-display text-3xl font-semibold">{access && paid ? "You have access" : priceLabel(course.price_cents)}</p>
+                <p className="text-xs text-muted-foreground">{paid ? "One payment: every lesson, the graded checks and the certificate. Lesson 1 is a free preview." : "Learning, graded checks and the certificate are all free."}</p>
+                {locked && <Link to={`/courses/${slug}/lessons/1`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-mastery hover:underline"><PlayCircle className="h-4 w-4" />Watch lesson 1 free</Link>}
+                {locked && purchase?.status === "waitlist" && <p className="mt-2 rounded-lg bg-secondary p-2 text-xs">You're on the list. Nothing has been charged; we'll let you know when buying opens.</p>}
                 {enrollment && (
                   <div className="mt-4">
                     <div className="flex justify-between text-xs"><span className="font-medium">{passed} of {modules.length} lessons passed</span><span className="tabular-nums text-mastery">{Math.round(enrollment.progress_percent)}%</span></div>
@@ -207,12 +242,23 @@ export default function CourseDetail() {
                 )}
                 <p className="mt-5 text-sm font-semibold">This course includes</p>
                 <ul className="mt-2 space-y-2 text-sm text-foreground/85">
-                  <li className="flex gap-2.5"><PlayCircle className="h-4 w-4 flex-none text-muted-foreground" />{modules.length} in-depth lessons with worked examples</li>
-                  <li className="flex gap-2.5"><ListChecks className="h-4 w-4 flex-none text-muted-foreground" />{questions} graded questions, 2 of 3 to pass each lesson</li>
-                  <li className="flex gap-2.5"><Target className="h-4 w-4 flex-none text-muted-foreground" />A hands-on exercise in every lesson</li>
+                  {realExpert ? (
+                    <>
+                      <li className="flex gap-2.5"><PlayCircle className="h-4 w-4 flex-none text-muted-foreground" /><span>{modules.length} lessons{videoCount ? `, ${videoCount} with video` : ""}, taught by {realExpert.display_name}</span></li>
+                      <li className="flex gap-2.5"><ListChecks className="h-4 w-4 flex-none text-muted-foreground" />A graded check in every lesson, written by the instructor</li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="flex gap-2.5"><PlayCircle className="h-4 w-4 flex-none text-muted-foreground" />{modules.length} AI-drafted lessons with worked examples</li>
+                      <li className="flex gap-2.5"><ListChecks className="h-4 w-4 flex-none text-muted-foreground" />{questions} graded questions, 2 of 3 to pass each lesson</li>
+                      <li className="flex gap-2.5"><Target className="h-4 w-4 flex-none text-muted-foreground" />A hands-on exercise in every lesson</li>
+                    </>
+                  )}
                   <li className="flex gap-2.5"><Sparkles className="h-4 w-4 flex-none text-muted-foreground" /><span>An AI tutor beside every lesson (<Link to="/pro" className="underline-offset-2 hover:underline">free daily questions</Link>)</span></li>
                   <li className="flex gap-2.5"><Award className="h-4 w-4 flex-none text-muted-foreground" />Certificate anyone can verify online</li>
-                  <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Counts as verified skill proof on Talfirms</li>
+                  {realExpert
+                    ? <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Counts as verified skill proof on Talfirms</li>
+                    : <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-muted-foreground" />Shows on Talfirms as AI-taught basics</li>}
                   <li className="flex gap-2.5"><Smartphone className="h-4 w-4 flex-none text-muted-foreground" />Learn on phone or computer, at your pace</li>
                 </ul>
               </div>
@@ -264,7 +310,8 @@ export default function CourseDetail() {
                             )}
                             <div className="mt-3 flex flex-wrap items-center gap-3">
                               <Link to={`/courses/${slug}/lessons/${i + 1}`} className="inline-flex items-center gap-1 font-medium text-mastery hover:underline">{p?.completed_at ? "Open again" : "Open lesson"}<ArrowRight className="h-3.5 w-3.5" /></Link>
-                              <span className="text-xs text-muted-foreground">{p?.completed_at ? `Passed${p.quiz_score != null ? ` · ${Math.round(p.quiz_score * 100)}%` : ""}` : "Ends in a 3-question graded check"}</span>
+                              <span className="text-xs text-muted-foreground">{p?.completed_at ? `Passed${p.quiz_score != null ? ` · ${Math.round(p.quiz_score * 100)}%` : ""}` : locked && i > 0 ? "Unlocks when you buy the course" : "Ends in a graded check"}</span>
+                              {locked && i > 0 && <Lock className="h-3.5 w-3.5 text-muted-foreground" />}
                             </div>
                           </div>
                         </motion.div>
@@ -348,7 +395,9 @@ function JobsUnlocked({ jobs, course }) {
             );
           })}
         </ul>
-        <p className="mt-3 text-xs text-muted-foreground">Pass every lesson of {course.title} and these skills show as verified on your Talfirms profile. You can turn that off in Settings.</p>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Pass every lesson of {course.title} and these skills show on your Talfirms profile{course.taught_by === "expert" ? " as verified" : " as AI-taught basics; an expert-reviewed Mission makes them verified"}. You can turn that off in Settings.
+        </p>
       </div>
     </section>
   );

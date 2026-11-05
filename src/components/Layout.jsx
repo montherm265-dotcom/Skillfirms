@@ -45,7 +45,7 @@ export default function Layout() {
     { to: "/passport", label: "Skill Passport" },
     { to: "/credentials", label: "Certificates" },
     { to: "/team", label: "Team training" },
-    ...(expertId ? [{ to: "/expert", label: "Review queue" }] : []),
+    ...(expertId ? [{ to: "/teach", label: "Teach: my courses" }, { to: "/expert", label: "Review queue" }] : []),
     { to: "/settings", label: "Settings" },
   ];
   const initial = (profile?.display_name || user?.email || "?").slice(0, 1).toUpperCase();
@@ -149,7 +149,7 @@ export default function Layout() {
               <li><Link to="/missions" className="hover:text-foreground">Missions</Link></li>
               <li><Link to="/roles" className="hover:text-foreground">Career paths</Link></li>
               <li><Link to="/pro" className="hover:text-foreground">Pro</Link></li>
-              <li><Link to="/experts" className="hover:text-foreground">Become an expert</Link></li>
+              <li><Link to="/experts" className="hover:text-foreground">Teach or review as an expert</Link></li>
               <li><Link to="/team" className="hover:text-foreground">For teams</Link></li>
             </ul>
           </div>

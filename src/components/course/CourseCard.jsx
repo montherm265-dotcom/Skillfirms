@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Bookmark, BookmarkCheck, CheckCircle2, Clock, ListChecks, Users } from "lucide-react";
+import { BadgeCheck, Bookmark, BookmarkCheck, Bot, CheckCircle2, Clock, ListChecks, Users } from "lucide-react";
 import CourseCover from "@/components/course/CourseCover";
 import { RatingLine } from "@/components/course/Stars";
-import { formatHours } from "@/lib/catalog";
+import { formatHours, priceLabel, teacherOf } from "@/lib/catalog";
 
 export default function CourseCard({ course, saved, onToggleSave, progress, compact = false, hiring }) {
   return (
@@ -19,7 +19,12 @@ export default function CourseCard({ course, saved, onToggleSave, progress, comp
           {!compact && course.skills.length > 0 && (
             <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{course.skills.slice(0, 3).map((s) => s.name).join(" · ")}</p>
           )}
-          <div className="mt-2"><RatingLine course={course} /></div>
+          {teacherOf(course).kind === "expert" ? (
+            <p className="mt-1.5 flex items-center gap-1 text-xs font-semibold"><BadgeCheck className="h-3.5 w-3.5 text-mastery" />{teacherOf(course).name}</p>
+          ) : (
+            <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground"><Bot className="h-3.5 w-3.5" />AI-taught basics</p>
+          )}
+          <div className="mt-1.5"><RatingLine course={course} /></div>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{formatHours(course)}</span>
             <span className="inline-flex items-center gap-1"><ListChecks className="h-3.5 w-3.5" />{course.lessons} graded lessons</span>
@@ -30,7 +35,7 @@ export default function CourseCard({ course, saved, onToggleSave, progress, comp
             {progress != null ? (
               <span className="text-[11px] font-semibold text-mastery">{progress >= 100 ? <span className="inline-flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5" />Completed</span> : `${Math.round(progress)}% done`}</span>
             ) : (
-              <span className="text-[11px] font-semibold text-mastery">Free · Certificate</span>
+              <span className="text-[11px] font-semibold text-mastery">{priceLabel(course.price_cents)} · Certificate</span>
             )}
           </div>
           {progress != null && progress < 100 && (

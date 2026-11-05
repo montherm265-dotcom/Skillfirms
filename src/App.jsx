@@ -23,6 +23,8 @@ const Courses = lazy(() => import('@/pages/Courses'));
 const MyLearning = lazy(() => import('@/pages/MyLearning'));
 const Pro = lazy(() => import('@/pages/Pro'));
 const Experts = lazy(() => import('@/pages/Experts'));
+const Studio = lazy(() => import('@/pages/Studio'));
+const StudioEditor = lazy(() => import('@/pages/StudioEditor'));
 const Team = lazy(() => import('@/pages/Team'));
 const TeamDashboard = lazy(() => import('@/pages/TeamDashboard'));
 const JoinTeam = lazy(() => import('@/pages/JoinTeam'));
@@ -60,6 +62,8 @@ export default function App() {
                 <Route path="/courses/:slug" element={<CourseDetail />} />
                 <Route path="/pro" element={<Pro />} />
                 <Route path="/experts" element={<Experts />} />
+                <Route path="/teach" element={<RequireAuth><Studio /></RequireAuth>} />
+                <Route path="/teach/:id" element={<RequireAuth><StudioEditor /></RequireAuth>} />
                 <Route path="/team" element={<Team />} />
                 <Route path="/team/:slug" element={<RequireAuth><TeamDashboard /></RequireAuth>} />
                 <Route path="/join/:code" element={<JoinTeam />} />

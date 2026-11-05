@@ -5,7 +5,9 @@ import { ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, Circle, Cl
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll, submitQuiz } from "@/lib/courses";
-import { openLesson, readingMinutes, toBlocks } from "@/lib/lessons";
+import { loadLesson, openLesson, readingMinutes, toBlocks } from "@/lib/lessons";
+import { priceLabel } from "@/lib/catalog";
+import VideoPlayer from "@/components/course/VideoPlayer";
 import Seo from "@/components/seo/Seo";
 import LessonNotes from "@/components/course/LessonNotes";
 import TutorPanel from "@/components/course/TutorPanel";
@@ -47,11 +49,13 @@ export default function LessonReader() {
   const [hiring, setHiring] = useState([]);
 
   const mod = modules[index];
+  const [access, setAccess] = useState(true);
+  const locked = Number(course?.price_cents ?? 0) > 0 && !access && index > 0;
   const { scrollYProgress } = useScroll();
   const readBar = useSpring(scrollYProgress, { stiffness: 200, damping: 30, restDelta: 0.001 });
 
   const loadCourse = useCallback(async () => {
-    const { data: c } = await supabase.from("skillfirms_courses").select("id, slug, title, level").eq("slug", slug).maybeSingle();
+    const { data: c } = await supabase.from("skillfirms_courses").select("id, slug, title, level, taught_by, price_cents, skillfirms_experts(display_name, profile_id)").eq("slug", slug).maybeSingle();
     if (!c) { setNotFound(true); return; }
     setCourse(c);
     const { data: mods } = await supabase.from("skillfirms_course_modules").select("id, title, description, order_index, duration_minutes").eq("course_id", c.id).order("order_index");
@@ -83,12 +87,22 @@ export default function LessonReader() {
     setResult(null);
     setAnswers({});
     window.scrollTo({ top: 0, behavior: "smooth" });
-    openLesson(mod.id, { signedIn: Boolean(user) })
+    // Expert lessons are written by the instructor: read them (a locked paid
+    // lesson simply comes back empty); never ask the AI to write one.
+    const open = course?.taught_by === "expert" ? loadLesson(mod.id) : openLesson(mod.id, { signedIn: Boolean(user) });
+    open
       .then((l) => { if (active) setLesson(l); })
       .catch((e) => { if (active) { setLesson(null); setLessonError(e.message); } });
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mod?.id, Boolean(user)]);
+  }, [mod?.id, Boolean(user), course?.taught_by]);
+
+  useEffect(() => {
+    if (!course?.id) return;
+    if (!(Number(course.price_cents) > 0)) { setAccess(true); return; }
+    supabase.rpc("skillfirms_can_open_course", { p_course: course.id }).then(({ data }) => setAccess(Boolean(data)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [course?.id, user?.id]);
 
   // Questions appear once the lesson exists (writing a lesson adds them).
   useEffect(() => {
@@ -172,7 +186,15 @@ export default function LessonReader() {
               <div className="mt-5 space-y-2.5"><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-11/12" /><Skeleton className="h-4 w-4/5" /><Skeleton className="h-4 w-full" /></div>
             </div>
           )}
-          {lesson === null && (
+          {lesson === null && locked && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 overflow-hidden rounded-2xl bg-[hsl(222_38%_8%)] p-8 text-center text-white">
+              <Lock className="mx-auto h-8 w-8 text-[hsl(var(--mastery))]" />
+              <p className="mt-3 font-display text-2xl font-semibold">This lesson is part of the full course</p>
+              <p className="mx-auto mt-1 max-w-md text-sm text-white/70">Lesson 1 is a free preview. Get every lesson, the graded checks and the certificate for {priceLabel(course.price_cents)}.</p>
+              <Link to={`/courses/${slug}`}><Button className="mt-5 bg-mastery text-mastery-foreground hover:bg-mastery/90">See the course</Button></Link>
+            </motion.div>
+          )}
+          {lesson === null && !locked && (
             <div className="mt-8 rounded-2xl border border-border p-6 text-center">
               {!user ? (
                 <>
@@ -188,9 +210,11 @@ export default function LessonReader() {
 
           {body && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease }}>
-              <p className="mt-6 text-lg leading-relaxed text-foreground/90">{body.summary}</p>
+              {body.video_url && <div className="mt-6"><VideoPlayer url={body.video_url} title={mod.title} /></div>}
+              {body.summary && <p className="mt-6 text-lg leading-relaxed text-foreground/90">{body.summary}</p>}
               <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-[11px] text-muted-foreground">
-                <Sparkles className="h-3 w-3" />{lesson.reviewed_at ? "Reviewed by an expert" : "Drafted with AI from the course outline · not yet reviewed by an expert"}
+                <Sparkles className="h-3 w-3" />
+                {lesson.source === "expert_written" ? `Taught by ${course.skillfirms_experts?.display_name ?? "an expert"}` : lesson.reviewed_at ? "AI-taught basics · reviewed by an expert" : "AI-taught basics · drafted with AI, not yet reviewed by an expert"}
               </p>
 
               {body.sections.map((s, i) => (
@@ -200,23 +224,29 @@ export default function LessonReader() {
                 </section>
               ))}
 
-              <section className="mt-10 rounded-2xl border border-mastery/30 bg-mastery/5 p-5 sm:p-6">
-                <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-mastery"><BookOpen className="h-4 w-4" />Worked example</p>
-                <h3 className="mt-2 font-display text-lg font-semibold">{body.example.title}</h3>
-                <div className="text-[15px] text-foreground/90"><Prose text={body.example.body} /></div>
-              </section>
+              {body.example?.body && (
+                <section className="mt-10 rounded-2xl border border-mastery/30 bg-mastery/5 p-5 sm:p-6">
+                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-mastery"><BookOpen className="h-4 w-4" />Worked example</p>
+                  <h3 className="mt-2 font-display text-lg font-semibold">{body.example.title}</h3>
+                  <div className="text-[15px] text-foreground/90"><Prose text={body.example.body} /></div>
+                </section>
+              )}
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <section className="rounded-2xl border border-border bg-card p-5">
-                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"><Lightbulb className="h-4 w-4 text-warning" />Remember</p>
-                  <ul className="mt-3 space-y-2">
-                    {body.key_points.map((k, i) => <li key={i} className="flex gap-2 text-sm"><Check className="mt-0.5 h-4 w-4 flex-none text-mastery" />{k}</li>)}
-                  </ul>
-                </section>
-                <section className="rounded-2xl border border-border bg-card p-5">
-                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"><PenLine className="h-4 w-4 text-mastery" />Try it (10–15 min)</p>
-                  <div className="text-sm"><Prose text={body.try_it} /></div>
-                </section>
+              <div className={`mt-6 grid gap-4 ${body.try_it ? "sm:grid-cols-2" : ""}`}>
+                {body.key_points?.length > 0 && (
+                  <section className="rounded-2xl border border-border bg-card p-5">
+                    <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"><Lightbulb className="h-4 w-4 text-warning" />Remember</p>
+                    <ul className="mt-3 space-y-2">
+                      {body.key_points.map((k, i) => <li key={i} className="flex gap-2 text-sm"><Check className="mt-0.5 h-4 w-4 flex-none text-mastery" />{k}</li>)}
+                    </ul>
+                  </section>
+                )}
+                {body.try_it && (
+                  <section className="rounded-2xl border border-border bg-card p-5">
+                    <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground"><PenLine className="h-4 w-4 text-mastery" />Try it (10–15 min)</p>
+                    <div className="text-sm"><Prose text={body.try_it} /></div>
+                  </section>
+                )}
               </div>
 
               {/* Knowledge check */}

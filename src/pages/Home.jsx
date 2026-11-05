@@ -50,7 +50,7 @@ export default function Home() {
       <Seo
         canonical="/"
         title="Learn job skills, prove them, get hired"
-        description="Free courses for real jobs. Every lesson ends in a graded check, and your certificate shows as verified skill proof on Talfirms."
+        description="Learn job skills from real experts, with free AI-taught basics. Every lesson ends in a graded check, and expert-taught certificates show as verified proof on Talfirms."
         jsonLd={{
           "@context": "https://schema.org",
           "@graph": [
@@ -74,7 +74,7 @@ export default function Home() {
               Learn the job. <span className="italic text-mastery">Prove it.</span> Get hired.
             </motion.h1>
             <motion.p variants={fadeUp} className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
-              Free courses built for real jobs. Every lesson ends in a graded check, and your certificate shows on your Talfirms profile as verified proof that employers can see.
+              Courses taught by people who do the job, plus free AI-taught basics. Every lesson ends in a graded check, and what an expert signs off shows on your Talfirms profile as verified proof employers can see.
             </motion.p>
             <motion.form variants={fadeUp} onSubmit={(e) => { e.preventDefault(); navigate(q.trim() ? `/courses?q=${encodeURIComponent(q.trim())}` : "/courses"); }}
               className="mt-8 flex max-w-xl items-center gap-2 rounded-full border border-border bg-background p-1.5 pl-5 shadow-soft focus-within:ring-2 focus-within:ring-ring/20">
@@ -166,7 +166,7 @@ export default function Home() {
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
             {[
               { icon: ListChecks, t: "Graded, not clicked through", d: "You can't finish a course by pressing Next. Each lesson ends in a check you have to pass." },
-              { icon: ShieldCheck, t: "Proof employers see", d: "Pass a course and its skills show as verified on your Talfirms profile. You can turn this off at any time." },
+              { icon: ShieldCheck, t: "Proof employers see", d: "Expert-taught courses and expert-reviewed Missions show as verified on your Talfirms profile; AI-taught basics show as basics. You can turn this off at any time." },
               { icon: Briefcase, t: "Learn for a real opening", d: "Each course shows the open Talfirms jobs that ask for its skills, and how your fit changes." },
             ].map((s) => (
               <div key={s.t}>

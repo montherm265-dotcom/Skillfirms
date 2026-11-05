@@ -57,7 +57,7 @@ export const LEVELS = ["beginner", "intermediate", "advanced"];
 export async function loadCatalog() {
   const { data, error } = await supabase
     .from("skillfirms_courses")
-    .select("id, slug, title, description, level, duration_hours, rating_avg, rating_count, enrollment_count, created_at, skillfirms_course_modules(id, duration_minutes), skillfirms_course_skills(coverage, skillfirms_skills(slug, name))")
+    .select("id, slug, title, description, level, duration_hours, rating_avg, rating_count, enrollment_count, created_at, price_cents, taught_by, skillfirms_experts(display_name, headline, profile_id), skillfirms_course_modules(id, duration_minutes), skillfirms_course_skills(coverage, skillfirms_skills(slug, name))")
     .eq("status", "published");
   if (error) throw error;
   return (data ?? []).map(shapeCourse);
@@ -79,6 +79,16 @@ export function shapeCourse(c) {
   out.total_minutes = totalMinutes(out);
   return out;
 }
+
+// Who teaches it: a real, approved expert, or the AI basics.
+export function teacherOf(course) {
+  if (course?.taught_by === "expert" && course.skillfirms_experts?.profile_id) {
+    return { kind: "expert", name: course.skillfirms_experts.display_name, headline: course.skillfirms_experts.headline };
+  }
+  return { kind: "ai", name: "AI-taught basics" };
+}
+
+export const priceLabel = (cents) => (cents ? `$${(cents / 100).toFixed(cents % 100 ? 2 : 0)}` : "Free");
 
 export function searchCourses(courses, q) {
   const words = String(q ?? "").toLowerCase().split(/\s+/).filter(Boolean);
@@ -168,7 +178,7 @@ export async function loadCourseJobs(courseId) {
 export async function loadMyLearning(userId) {
   const { data, error } = await supabase
     .from("skillfirms_enrollments")
-    .select("id, course_id, progress_percent, enrolled_at, completed_at, skillfirms_courses(id, slug, title, description, level, duration_hours, rating_avg, rating_count, enrollment_count, skillfirms_course_modules(id, order_index, duration_minutes), skillfirms_course_skills(coverage, skillfirms_skills(slug, name)))")
+    .select("id, course_id, progress_percent, enrolled_at, completed_at, skillfirms_courses(id, slug, title, description, level, duration_hours, rating_avg, rating_count, enrollment_count, price_cents, taught_by, skillfirms_experts(display_name, headline, profile_id), skillfirms_course_modules(id, order_index, duration_minutes), skillfirms_course_skills(coverage, skillfirms_skills(slug, name)))")
     .eq("user_id", userId);
   if (error) throw error;
   const enrollIds = (data ?? []).map((e) => e.id);
