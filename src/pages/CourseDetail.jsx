@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -12,6 +12,8 @@ import { enroll } from "@/lib/courses";
 import { formatHours, loadCatalog, loadCourseHiring, loadCourseJobs, loadReviews, priceLabel, saveReview, shapeCourse } from "@/lib/catalog";
 import { buyCourse, loadMyPurchase } from "@/lib/studio";
 import HiringBanner from "@/components/course/HiringBanner";
+import JobGoalBanner from "@/components/course/JobGoalBanner";
+import { jobGoalFromParams, rememberJobGoal } from "@/lib/jobGoal";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { crossAppClick } from "@/lib/crossApp";
 import CourseCover from "@/components/course/CourseCover";
@@ -28,7 +30,9 @@ const ease = [0.22, 1, 0.36, 1];
 
 export default function CourseDetail() {
   const { slug } = useParams();
+  const [params] = useSearchParams();
   const { user } = useAuth();
+  useEffect(() => { rememberJobGoal(jobGoalFromParams(params)); }, [params]);
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [modules, setModules] = useState([]);
@@ -267,6 +271,7 @@ export default function CourseDetail() {
         </aside>
 
         <main className="min-w-0 pt-8 lg:pt-10">
+          <JobGoalBanner className="mb-6" />
           <HiringBanner hiring={hiring} user={user} hasCertificate={Boolean(credential)} lessons={modules.length} onSent={() => loadCourseHiring(course.id).then(setHiring)} />
           {learn.length > 0 && (
             <section className="rounded-2xl border border-border p-5 sm:p-6">

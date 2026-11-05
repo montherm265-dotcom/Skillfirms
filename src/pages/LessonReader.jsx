@@ -11,6 +11,7 @@ import VideoPlayer from "@/components/course/VideoPlayer";
 import Seo from "@/components/seo/Seo";
 import LessonNotes from "@/components/course/LessonNotes";
 import TutorPanel from "@/components/course/TutorPanel";
+import JobGoalBanner from "@/components/course/JobGoalBanner";
 import { loadCourseHiring } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -310,6 +311,7 @@ export default function LessonReader() {
                   </div>
                 </motion.section>
               )}
+              {credentialCode && pct >= 100 && <JobGoalBanner finished className="mt-4" />}
 
               {user && <LessonNotes userId={user.id} moduleId={mod.id} />}
 

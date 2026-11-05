@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, BookOpen, Clock, Target } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { matchSkill } from "@/lib/skillMatch";
+import { jobGoalFromParams, rememberJobGoal } from "@/lib/jobGoal";
+import JobGoalBanner from "@/components/course/JobGoalBanner";
 import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,6 +27,7 @@ export default function Learn() {
   const fromTalfirms = params.get("from") === "talfirms";
 
   const [data, setData] = useState(null);
+  useEffect(() => { rememberJobGoal(jobGoalFromParams(params)); }, [params]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -67,6 +70,7 @@ export default function Learn() {
       <Seo title="Learn the skills a job needs" description="Courses and missions for exactly the skills a job is asking for." canonical="/learn" />
       <div className="mx-auto max-w-3xl">
         {fromTalfirms && <Badge variant="outline" className="mb-3">From Talfirms · Skill Bridge</Badge>}
+        <JobGoalBanner className="mb-5" />
         {labels.length === 0 ? (
           <>
             <h1 className="font-display text-2xl font-bold">Learn a skill</h1>
@@ -119,7 +123,7 @@ export default function Learn() {
               </ul>
             )}
             <p className="mt-6 text-xs text-muted-foreground">
-              Skills you prove on Skillfirms can show on your Talfirms profile. Turn it on in <Link to="/settings" className="font-medium text-primary hover:underline">Settings</Link>.
+              Skills you prove on Skillfirms show on your Talfirms profile. You can turn that off in <Link to="/settings" className="font-medium text-primary hover:underline">Settings</Link>.
             </p>
           </>
         )}

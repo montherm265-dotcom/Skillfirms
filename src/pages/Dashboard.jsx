@@ -7,6 +7,7 @@ import { runDiagnosis, takePendingGoal } from "@/lib/diagnosis";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { signedLinkClick } from "@/lib/crossApp";
 import DiagnosisResult from "@/components/DiagnosisResult";
+import JobGoalBanner from "@/components/course/JobGoalBanner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -71,6 +72,7 @@ export default function Dashboard() {
         <h1 className="font-display text-2xl font-bold">Welcome{profile?.display_name ? `, ${profile.display_name}` : ""}</h1>
 
         {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
+        <JobGoalBanner className="mt-6" />
 
         {diagnosisResult ? (
           <div className="mt-6"><DiagnosisResult result={diagnosisResult} /></div>

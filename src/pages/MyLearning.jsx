@@ -8,6 +8,7 @@ import { loadCatalog, loadMyLearning } from "@/lib/catalog";
 import { loadMyAssignments } from "@/lib/team";
 import CourseCard from "@/components/course/CourseCard";
 import CourseCover from "@/components/course/CourseCover";
+import JobGoalBanner from "@/components/course/JobGoalBanner";
 import useSaved from "@/components/course/useSaved";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,8 @@ export default function MyLearning() {
           </dl>
         )}
       </div>
+
+      <JobGoalBanner className="mt-8" />
 
       {resume && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-8 grid overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-[18rem_minmax(0,1fr)]">
