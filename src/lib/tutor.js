@@ -1,16 +1,13 @@
 import { supabase } from "@/lib/supabaseClient";
 
-// The lesson tutor runs on the shared Talfirms AI service (feature
-// "skillfirms_tutor"), so it uses the same plans and limits as Talfirms:
-// each question is one "quick AI help" (Free 10 a day within the free
-// monthly allowance, Pro 50, Ultra 120). The lesson itself is loaded on the
-// server; we only send which lesson, the question and recent turns.
+// The lesson tutor (Edge Function skillfirms-tutor) uses the same plans and
+// limits as every Talfirms AI feature: each question is one "quick AI help"
+// (Free 10 a day within the free monthly allowance, Pro 50, Ultra 120). The
+// lesson itself is loaded on the server; we only send which lesson, the
+// question and recent turns.
 export async function askTutor({ moduleId, question, history, mode = "ask", job }) {
-  const { data, error } = await supabase.functions.invoke("ai", {
-    body: {
-      feature: "skillfirms_tutor",
-      input: { moduleId, question, mode, job, history: history.slice(-6).map((m) => ({ role: m.role, text: m.text })) },
-    },
+  const { data, error } = await supabase.functions.invoke("skillfirms-tutor", {
+    body: { moduleId, question, mode, job, history: history.slice(-6).map((m) => ({ role: m.role, text: m.text })) },
   });
   if (error) {
     const status = error.context?.status;
