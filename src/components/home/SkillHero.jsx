@@ -1,8 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
-import { Award, CheckCircle2, ChevronRight, Search, ShieldCheck, Sparkles } from "lucide-react";
-import Mascot from "@/components/Mascot";
+import { Award, Briefcase, CheckCircle2, ChevronRight, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 
 const ease = [0.22, 1, 0.36, 1];
@@ -22,8 +21,8 @@ function Float({ children, className, depth = 1, scrollY, px, py, delay }) {
   );
 }
 
-// Skillfirms' first screen: one big sentence, a search for any skill, and Tal
-// studying with the moments that matter floating around him.
+// Skillfirms' first screen: one big sentence, a search for any skill, and a
+// real graded lesson with the moments that matter floating around it.
 export default function SkillHero({ totals }) {
   const ref = useRef(null);
   const navigate = useNavigate();
@@ -90,23 +89,37 @@ export default function SkillHero({ totals }) {
         )}
       </motion.div>
 
-      <div className="relative mx-auto mt-10 h-[400px] max-w-5xl sm:h-[480px]">
+      <div className="relative mx-auto mt-10 h-[420px] max-w-5xl sm:h-[440px]">
         <div aria-hidden className="absolute bottom-0 left-1/2 h-40 w-[34rem] -translate-x-1/2 rounded-[50%] bg-[#1f4189]/10 blur-2xl" />
-        <Mascot pose="laptop" className="absolute bottom-0 left-1/2 aspect-[365/437] h-[340px] -translate-x-1/2 sm:h-[420px]" delay={0.5} />
+        <div className="absolute left-1/2 top-[20%] w-[330px] -translate-x-1/2 sm:top-[6%] sm:w-[380px]">
+          <motion.div initial={{ opacity: 0, y: 40, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 1, delay: 0.5, ease }}
+            className="rounded-[1.75rem] border border-white/70 bg-white/90 p-5 text-left shadow-[0_40px_90px_-30px_rgba(10,20,51,0.55)] backdrop-blur-xl">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Data Analysis with SQL · Lesson 4 of 12</p>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#1f4189]/10"><motion.div className="h-full rounded-full bg-[#1f4189]" initial={{ width: "0%" }} animate={{ width: "33%" }} transition={{ duration: 1.2, delay: 0.9, ease }} /></div>
+            <p className="mt-4 font-bold leading-snug text-[#00041d]">Which JOIN keeps every store, even the ones with no sales?</p>
+            {["INNER JOIN", "LEFT JOIN", "CROSS JOIN"].map((o, k) => (
+              <motion.div key={o} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1 + k * 0.1, ease }}
+                className={`mt-2 flex items-center justify-between rounded-xl border px-3 py-2 font-mono text-sm ${k === 1 ? "border-[#1f4189] bg-[#1f4189]/[0.06] text-[#00041d]" : "border-border text-muted-foreground"}`}>
+                {o}{k === 1 && <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.6, type: "spring", stiffness: 400, damping: 15 }}><CheckCircle2 className="h-4 w-4 text-[#1f4189]" /></motion.span>}
+              </motion.div>
+            ))}
+            <p className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs"><span className="font-semibold text-[#1f4189]">Correct · 3 of 3 right</span><span className="text-muted-foreground">No copy-paste</span></p>
+          </motion.div>
+        </div>
 
-        <Float scrollY={scrollY} px={px} py={py} depth={1.2} delay={0.9} className="left-[2%] top-[8%] sm:left-[8%] sm:top-[12%]">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-[#00041d]"><CheckCircle2 className="h-4 w-4 text-[#1f4189]" />Lesson 4 check passed</p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">3 of 3 right</p>
+        <Float scrollY={scrollY} px={px} py={py} depth={1.2} delay={0.9} className="left-[2%] top-0 sm:left-[4%] sm:top-[10%]">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-[#00041d]"><Briefcase className="h-4 w-4 text-[#1f4189]" />14 open jobs need SQL</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">On Talfirms right now</p>
         </Float>
-        <Float scrollY={scrollY} px={px} py={py} depth={0.8} delay={1.05} className="hidden sm:block sm:left-[5%] sm:top-[56%]">
+        <Float scrollY={scrollY} px={px} py={py} depth={0.8} delay={1.05} className="hidden sm:block sm:left-[2%] sm:top-[58%]">
           <p className="flex items-center gap-1.5 text-xs font-semibold text-[#1f4189]"><Sparkles className="h-4 w-4" />AI tutor</p>
           <p className="mt-0.5 max-w-[13rem] text-sm text-[#00041d]">“OQ proves it works as specified. PQ proves it keeps working in real use.”</p>
         </Float>
-        <Float scrollY={scrollY} px={px} py={py} depth={1.4} delay={1.2} className="right-[2%] top-[4%] sm:right-[9%] sm:top-[8%]">
+        <Float scrollY={scrollY} px={px} py={py} depth={1.4} delay={1.2} className="hidden sm:block sm:right-[4%] sm:top-[4%]">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-[#00041d]"><Award className="h-4 w-4 text-[#1f4189]" />Certificate earned</p>
           <p className="mt-0.5 text-[11px] text-muted-foreground">Anyone can check it online</p>
         </Float>
-        <Float scrollY={scrollY} px={px} py={py} depth={0.9} delay={1.35} className="right-[3%] top-[58%] sm:right-[6%] sm:top-[52%]">
+        <Float scrollY={scrollY} px={px} py={py} depth={0.9} delay={1.35} className="hidden sm:block sm:right-[3%] sm:top-[56%]">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-[#00041d]"><ShieldCheck className="h-4 w-4 text-[#1f4189]" />Verified on Talfirms</p>
           <div className="mt-1.5 flex gap-1">{[1, 2, 3].map((k) => <span key={k} className={`h-1.5 w-7 rounded-full ${k === 1 ? "bg-[#1f4189]" : "bg-[#1f4189]/15"}`} />)}</div>
           <p className="mt-1 text-[11px] text-muted-foreground">Tier 1 · job fit 64% → 82%</p>

@@ -8,7 +8,6 @@ import JobGoalBanner from "@/components/course/JobGoalBanner";
 import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import Mascot from "@/components/Mascot";
 import { CATEGORIES } from "@/lib/catalog";
 
 const POPULAR = ["SQL", "Python", "CQV", "GMP", "Agile", "Excel", "Machine learning", "Project scheduling"];
@@ -20,8 +19,7 @@ function PickSkill() {
   const go = (skill) => { if (skill.trim()) setParams({ skills: skill.trim() }); };
   return (
     <div className="text-center">
-      <Mascot pose="reading" className="mx-auto h-44 w-32" />
-      <h1 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">What do you want to <span className="mark">learn?</span></h1>
+      <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">What do you want to <span className="mark">learn?</span></h1>
       <p className="mt-2 text-muted-foreground">Name a skill and we'll line up the courses for it, shortest path first.</p>
       <form onSubmit={(e) => { e.preventDefault(); go(q); }} className="mx-auto mt-6 flex max-w-lg gap-2 rounded-full border border-border bg-card p-1.5 shadow-sm">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. SQL, URS, Agile" className="min-w-0 flex-1 bg-transparent px-4 text-sm outline-none" aria-label="Skill" />

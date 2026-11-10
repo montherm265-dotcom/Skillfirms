@@ -18,7 +18,6 @@ import { Textarea } from "@/components/ui/textarea";
 import Seo from "@/components/seo/Seo";
 import SkillHero from "@/components/home/SkillHero";
 import LearnStory from "@/components/home/LearnStory";
-import Mascot from "@/components/Mascot";
 
 const ICONS = { FlaskConical, Cog, KanbanSquare, BarChart3, BrainCircuit, Compass };
 const ease = [0.22, 1, 0.36, 1];
@@ -125,10 +124,9 @@ export default function Home() {
       <section className="mx-auto mt-20 max-w-8xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-[2rem] bg-[#050b24] p-6 text-white sm:p-12">
           <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full blur-3xl" style={{ background: "radial-gradient(circle, rgba(59,108,230,0.45), transparent 65%)" }} />
-          <Mascot pose="relax" shadow={false} className="pointer-events-none absolute -bottom-2 right-6 hidden aspect-[490/540] h-64 lg:block" />
           <p className="eyebrow text-[hsl(var(--mastery))]">Not just another course site</p>
           <h2 className="relative mt-2 max-w-2xl text-3xl font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-5xl">A certificate that counts for something, because the jobs are next door.</h2>
-          <div className="relative mt-8 grid gap-6 sm:grid-cols-3 lg:max-w-[70%]">
+          <div className="relative mt-8 grid gap-6 sm:grid-cols-3">
             {[
               { icon: ListChecks, t: "Graded, not clicked through", d: "You can't finish a course by pressing Next. Each lesson ends in a check you have to pass." },
               { icon: ShieldCheck, t: "Proof employers see", d: "Every course you pass shows as verified on your Talfirms profile, labelled taught by an expert or taught by AI, so employers know exactly what it means. You can turn this off at any time." },
