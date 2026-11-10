@@ -3,12 +3,12 @@ import { supabase } from "@/lib/supabaseClient";
 // Course categories. Known courses are mapped by slug; new ones fall back
 // to keywords in the title so they still land somewhere sensible.
 export const CATEGORIES = [
-  { id: "pharma", label: "Pharma & Validation", icon: "FlaskConical", hue: 189, blurb: "GMP, CQV, URS, change control, cleanrooms" },
-  { id: "engineering", label: "Engineering", icon: "Cog", hue: 24, blurb: "Mechanical principles, Python, documentation" },
-  { id: "projects", label: "Project Management", icon: "KanbanSquare", hue: 262, blurb: "Scope, schedule, budget, stakeholders, Agile" },
+  { id: "pharma", label: "Pharma & Validation", icon: "FlaskConical", hue: 200, blurb: "GMP, CQV, URS, change control, cleanrooms" },
+  { id: "engineering", label: "Engineering", icon: "Cog", hue: 222, blurb: "Mechanical principles, Python, documentation" },
+  { id: "projects", label: "Project Management", icon: "KanbanSquare", hue: 240, blurb: "Scope, schedule, budget, stakeholders, Agile" },
   { id: "data", label: "Data & Analytics", icon: "BarChart3", hue: 212, blurb: "SQL, statistics, Python, visual storytelling" },
-  { id: "ai", label: "AI & Software", icon: "BrainCircuit", hue: 330, blurb: "Machine learning, deep learning, MLOps, algorithms" },
-  { id: "product", label: "Product", icon: "Compass", hue: 152, blurb: "Strategy, user research, roadmaps" },
+  { id: "ai", label: "AI & Software", icon: "BrainCircuit", hue: 232, blurb: "Machine learning, deep learning, MLOps, algorithms" },
+  { id: "product", label: "Product", icon: "Compass", hue: 192, blurb: "Strategy, user research, roadmaps" },
 ];
 
 const BY_SLUG = {

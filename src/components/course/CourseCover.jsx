@@ -15,13 +15,13 @@ export default function CourseCover({ course, className = "", size = "md" }) {
   const hue = cat?.hue ?? 210;
   const Icon = ICONS[cat?.icon] ?? Cog;
   const rnd = seed(course.slug);
-  const shift = Math.round(rnd() * 40) - 20;
+  const shift = Math.round(rnd() * 16) - 8;
   const shapes = Array.from({ length: 6 }, (_, i) => ({
     cx: Math.round(rnd() * 320), cy: Math.round(rnd() * 180), r: 18 + Math.round(rnd() * 70), o: 0.08 + rnd() * 0.14, i,
   }));
   const lines = Array.from({ length: 5 }, () => Math.round(rnd() * 180));
   return (
-    <div className={`relative overflow-hidden ${className}`} style={{ background: `linear-gradient(135deg, hsl(${hue + shift} 70% 22%), hsl(${hue - shift} 75% 38%) 60%, hsl(${hue + 30} 80% 55%))` }}>
+    <div className={`relative overflow-hidden ${className}`} style={{ background: `linear-gradient(135deg, hsl(${hue + shift} 75% 12%), hsl(${hue - shift} 62% 30%) 58%, hsl(${hue + 6} 78% 58%))` }}>
       <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden="true">
         {shapes.map((s) => <circle key={s.i} cx={s.cx} cy={s.cy} r={s.r} fill="white" opacity={s.o} />)}
         {lines.map((y, i) => <line key={i} x1="0" x2="320" y1={y} y2={y + 40 - i * 20} stroke="white" strokeOpacity="0.08" strokeWidth="1" />)}

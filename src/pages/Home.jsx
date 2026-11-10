@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  ArrowRight, Award, BarChart3, BrainCircuit, Briefcase, CheckCircle2, Cog, Compass, FlaskConical, KanbanSquare,
-  ListChecks, Search, ShieldCheck, Sparkles,
+  ArrowRight, BarChart3, BrainCircuit, Briefcase, Cog, Compass, FlaskConical, KanbanSquare,
+  ListChecks, ShieldCheck, Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { runDiagnosis, stashPendingGoal } from "@/lib/diagnosis";
@@ -16,18 +16,18 @@ import useHiring from "@/components/course/useHiring";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import Seo from "@/components/seo/Seo";
+import SkillHero from "@/components/home/SkillHero";
+import LearnStory from "@/components/home/LearnStory";
+import Mascot from "@/components/Mascot";
 
 const ICONS = { FlaskConical, Cog, KanbanSquare, BarChart3, BrainCircuit, Compass };
 const ease = [0.22, 1, 0.36, 1];
 const EXAMPLE = "I'm a mechanical engineer with 1 year of experience and I want to work in pharmaceutical CQV within 12 months.";
-const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } } };
 
 export default function Home() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [courses, setCourses] = useState(null);
   const [mine, setMine] = useState([]);
-  const [q, setQ] = useState("");
   const { saved, toggle } = useSaved();
   const hiring = useHiring();
 
@@ -60,51 +60,14 @@ export default function Home() {
         }}
       />
 
-      {/* Hero */}
-      <section className="relative isolate overflow-hidden border-b border-border">
-        <div className="bg-grid absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)]" />
-        <div className="absolute -left-40 top-10 -z-10 h-[28rem] w-[28rem] rounded-full bg-mastery/20 blur-3xl" />
-        <div className="mx-auto grid max-w-8xl grid-cols-[minmax(0,1fr)] items-center gap-12 px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-24">
-          <motion.div className="min-w-0" initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.08 } } }}>
-            <motion.p variants={fadeUp} className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-              <motion.span className="h-px w-8 origin-left bg-mastery" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.6, ease, delay: 0.2 }} />
-              The Skill Bridge for Talfirms
-            </motion.p>
-            <motion.h1 variants={fadeUp} className="mt-5 max-w-xl font-display text-[2.6rem] font-semibold leading-[1.05] tracking-tight sm:text-6xl">
-              Learn the job. <span className="italic text-mastery">Prove it.</span> Get hired.
-            </motion.h1>
-            <motion.p variants={fadeUp} className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
-              Paid courses taught by people who do the job, plus free AI-taught basics. Every lesson ends in a graded check, and every certificate shows on your Talfirms profile as verified proof, saying who taught you.
-            </motion.p>
-            <motion.form variants={fadeUp} onSubmit={(e) => { e.preventDefault(); navigate(q.trim() ? `/courses?q=${encodeURIComponent(q.trim())}` : "/courses"); }}
-              className="mt-8 flex max-w-xl items-center gap-2 rounded-full border border-border bg-background p-1.5 pl-5 shadow-soft focus-within:ring-2 focus-within:ring-ring/20">
-              <Search className="h-5 w-5 flex-none text-muted-foreground" />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="What do you want to learn?" aria-label="Search courses" className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground" />
-              <Button type="submit" className="h-11 rounded-full px-6">Search</Button>
-            </motion.form>
-            <motion.div variants={fadeUp} className="mt-4 flex flex-wrap gap-2 text-sm">
-              {["CQV", "GMP", "SQL", "Agile", "Machine learning"].map((t) => (
-                <Link key={t} to={`/courses?q=${encodeURIComponent(t)}`} className="rounded-full border border-border bg-card px-3 py-1 text-muted-foreground transition hover:-translate-y-px hover:border-foreground/20 hover:text-foreground">{t}</Link>
-              ))}
-            </motion.div>
-            <motion.dl variants={fadeUp} className="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-border pt-6">
-              {[["Courses", totals.courses], ["Lessons", totals.lessons], ["Graded questions", totals.questions]].map(([label, value]) => (
-                <div key={label}>
-                  <dt className="text-xs text-muted-foreground">{label}</dt>
-                  <dd className="mt-1 font-display text-3xl font-semibold tabular-nums">{courses ? value : "–"}</dd>
-                </div>
-              ))}
-            </motion.dl>
-          </motion.div>
-          <ProofStory courses={courses} />
-        </div>
-      </section>
+      <SkillHero totals={courses ? totals : null} />
+      <LearnStory />
 
       {/* Continue learning */}
       {mine.length > 0 && (
         <section className="mx-auto max-w-8xl px-4 pt-12 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4">
-            <h2 className="font-display text-2xl font-semibold">Continue learning</h2>
+            <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Continue learning</h2>
             <Link to="/my-learning" className="group inline-flex items-center gap-1.5 text-sm font-semibold">My learning<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></Link>
           </div>
           <div className="no-scrollbar -mx-4 mt-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
@@ -124,7 +87,7 @@ export default function Home() {
 
       {/* Categories */}
       <section className="mx-auto max-w-8xl px-4 pt-14 sm:px-6 lg:px-8">
-        <h2 className="font-display text-2xl font-semibold sm:text-3xl">Explore by career</h2>
+        <h2 className="text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Explore by career</h2>
         <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {CATEGORIES.map((c, i) => {
             const Icon = ICONS[c.icon];
@@ -149,7 +112,7 @@ export default function Home() {
       {rows.map(({ cat, list }) => (
         <section key={cat.id} className="mx-auto max-w-8xl px-4 pt-14 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4">
-            <h2 className="font-display text-2xl font-semibold">{cat.label}</h2>
+            <h2 className="text-2xl font-extrabold tracking-[-0.03em]">{cat.label}</h2>
             <Link to={`/courses?category=${cat.id}`} className="group inline-flex flex-none items-center gap-1.5 text-sm font-semibold">See all<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></Link>
           </div>
           <div className="no-scrollbar -mx-4 mt-4 flex snap-x gap-5 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
@@ -160,10 +123,12 @@ export default function Home() {
 
       {/* Why different */}
       <section className="mx-auto mt-20 max-w-8xl px-4 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-3xl bg-[hsl(222_38%_8%)] p-6 text-white sm:p-10">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[#050b24] p-6 text-white sm:p-12">
+          <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full blur-3xl" style={{ background: "radial-gradient(circle, rgba(59,108,230,0.45), transparent 65%)" }} />
+          <Mascot pose="relax" shadow={false} className="pointer-events-none absolute -bottom-2 right-6 hidden aspect-[490/540] h-64 lg:block" />
           <p className="eyebrow text-[hsl(var(--mastery))]">Not just another course site</p>
-          <h2 className="mt-2 max-w-2xl font-display text-3xl font-semibold leading-tight sm:text-4xl">A certificate that counts for something, because the jobs are next door.</h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+          <h2 className="relative mt-2 max-w-2xl text-3xl font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-5xl">A certificate that counts for something, because the jobs are next door.</h2>
+          <div className="relative mt-8 grid gap-6 sm:grid-cols-3 lg:max-w-[70%]">
             {[
               { icon: ListChecks, t: "Graded, not clicked through", d: "You can't finish a course by pressing Next. Each lesson ends in a check you have to pass." },
               { icon: ShieldCheck, t: "Proof employers see", d: "Every course you pass shows as verified on your Talfirms profile, labelled taught by an expert or taught by AI, so employers know exactly what it means. You can turn this off at any time." },
@@ -185,50 +150,6 @@ export default function Home() {
 }
 
 // An example (clearly labelled) of the path from a lesson to a job.
-function ProofStory({ courses }) {
-  const [step, setStep] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setStep((s) => (s + 1) % 3), 2600);
-    return () => clearInterval(t);
-  }, []);
-  const course = courses?.find((c) => c.slug === "cqv-bootcamp") ?? courses?.[0];
-  return (
-    <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease, delay: 0.2 }} className="relative mx-auto w-full max-w-md">
-      <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-mastery/25 via-transparent to-warning/20 blur-2xl" />
-      <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-[0_40px_80px_-40px_hsl(var(--foreground)/0.5)]">
-        {course ? <CourseCover course={course} size="lg" className="aspect-[16/8]" /> : <div className="aspect-[16/8] bg-secondary" />}
-        <div className="p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Example</p>
-          <p className="mt-1 font-display text-xl font-semibold">{course?.title ?? "Your course"}</p>
-          <ol className="mt-4 space-y-2.5">
-            {[
-              { icon: CheckCircle2, t: "Lesson 4 check passed", d: "3 of 3 correct" },
-              { icon: Award, t: "Certificate earned", d: "Every lesson passed" },
-              { icon: Sparkles, t: "Verified on Talfirms", d: "Fit for a matching job rises from 64% to 82%" },
-            ].map((s, i) => (
-              <motion.li key={s.t} animate={{ opacity: step >= i ? 1 : 0.35, x: step >= i ? 0 : -4 }} transition={{ duration: 0.4, ease }}
-                className={`flex items-center gap-3 rounded-xl border p-3 ${step >= i ? "border-mastery/40 bg-mastery/5" : "border-border"}`}>
-                <s.icon className={`h-5 w-5 flex-none ${step >= i ? "text-mastery" : "text-muted-foreground"}`} />
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold">{s.t}</span>
-                  <span className="block text-xs text-muted-foreground">{s.d}</span>
-                </span>
-              </motion.li>
-            ))}
-          </ol>
-          <AnimatePresence mode="wait">
-            <motion.div key={step} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}
-              className="mt-4 flex items-center justify-between rounded-xl bg-secondary px-3 py-2 text-xs">
-              <span className="text-muted-foreground">Job fit</span>
-              <span className="font-display text-lg font-semibold tabular-nums">{step === 2 ? "82%" : "64%"}</span>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
 function GoalBox({ user }) {
   const navigate = useNavigate();
   const [goalText, setGoalText] = useState("");

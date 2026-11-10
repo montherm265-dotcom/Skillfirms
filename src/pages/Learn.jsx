@@ -8,6 +8,40 @@ import JobGoalBanner from "@/components/course/JobGoalBanner";
 import Seo from "@/components/seo/Seo";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import Mascot from "@/components/Mascot";
+import { CATEGORIES } from "@/lib/catalog";
+
+const POPULAR = ["SQL", "Python", "CQV", "GMP", "Agile", "Excel", "Machine learning", "Project scheduling"];
+
+// No skill in the link: ask for one instead of leaving a dead end.
+function PickSkill() {
+  const [, setParams] = useSearchParams();
+  const [q, setQ] = useState("");
+  const go = (skill) => { if (skill.trim()) setParams({ skills: skill.trim() }); };
+  return (
+    <div className="text-center">
+      <Mascot pose="reading" className="mx-auto h-44 w-32" />
+      <h1 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">What do you want to <span className="mark">learn?</span></h1>
+      <p className="mt-2 text-muted-foreground">Name a skill and we'll line up the courses for it, shortest path first.</p>
+      <form onSubmit={(e) => { e.preventDefault(); go(q); }} className="mx-auto mt-6 flex max-w-lg gap-2 rounded-full border border-border bg-card p-1.5 shadow-sm">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. SQL, URS, Agile" className="min-w-0 flex-1 bg-transparent px-4 text-sm outline-none" aria-label="Skill" />
+        <button type="submit" className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">Find courses</button>
+      </form>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {POPULAR.map((p) => <button key={p} type="button" onClick={() => go(p)} className="rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:border-mastery hover:text-mastery">{p}</button>)}
+      </div>
+      <p className="mt-10 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">Or browse by area</p>
+      <div className="mt-3 grid gap-3 text-left sm:grid-cols-2">
+        {CATEGORIES.map((c) => (
+          <Link key={c.id} to={`/courses?category=${c.id}`} className="group rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
+            <p className="flex items-center justify-between font-semibold">{c.label}<ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" /></p>
+            <p className="mt-0.5 text-sm text-muted-foreground">{c.blurb}</p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // Skill Bridge landing page. Talfirms sends job seekers here with the
 // skills a job needs that they're missing ("learn A and B to reach 82%
@@ -67,11 +101,7 @@ export default function Learn() {
         {fromTalfirms && <Badge variant="outline" className="mb-3">From Talfirms · Skill Bridge</Badge>}
         <JobGoalBanner className="mb-5" />
         {labels.length === 0 ? (
-          <>
-            <h1 className="font-display text-2xl font-bold">Learn a skill</h1>
-            <p className="mt-2 text-sm text-muted-foreground">No skill was picked. Tell us where you want to go and we'll build your path.</p>
-            <Link to="/" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline">Find my path <ArrowRight className="h-4 w-4" /></Link>
-          </>
+          <PickSkill />
         ) : (
           <>
             <h1 className="font-display text-2xl font-bold">Learn {joinLabels(labels)}</h1>

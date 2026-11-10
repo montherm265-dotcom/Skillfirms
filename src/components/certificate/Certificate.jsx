@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { format } from "date-fns";
 
-// Skillfirms' real brand only: near-black navy ink + the teal mastery
+// Skillfirms' brand: navy ink + royal blue mastery
 // accent, on a warm cream field -- no gold, no other accent color. See
 // src/index.css for the HSL tokens these hex values are converted from
 // (SVG export/print can't read CSS custom properties reliably).
-const NAVY = "#0F141F";
-const NAVY_SOFT = "#2A3242";
-const TEAL = "#1D90A5";
-const TEAL_DEEP = "#146573";
-const CREAM = "#F7F3E9";
+const NAVY = "#00041D";
+const NAVY_SOFT = "#1C2752";
+const TEAL = "#1F4189";
+const TEAL_DEEP = "#14306B";
+const CREAM = "#F6F7FF";
 const MUTED = "#5B6472";
 const SLATE = "#7A8290";
 
