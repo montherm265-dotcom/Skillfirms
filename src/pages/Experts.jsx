@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { BadgeCheck, CheckCircle2, Hourglass, Laptop, PencilRuler, Video, Wallet } from "lucide-react";
+import { BadgeCheck, CheckCircle2, GraduationCap, Hourglass, Laptop, PencilRuler, Video, Wallet } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { applyAsExpert, loadExpertStatus } from "@/lib/missions";
+import PageHero, { HeroGlass } from "@/components/page/PageHero";
 import Seo from "@/components/seo/Seo";
 import { EXPERT_SHARE, UDEMY_SHARE } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
@@ -53,19 +54,23 @@ export default function Experts() {
   return (
     <div>
       <Seo title="Become a Skillfirms expert" description="Teach your own courses at your own price and keep 70% (97% through your own link)." canonical="/experts" />
-      <section className="relative overflow-hidden bg-[hsl(222_38%_8%)] text-white">
-        <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]" />
-        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }} className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6">
-          <p className="eyebrow text-[hsl(var(--mastery))]">Skillfirms experts</p>
-          <h1 className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Know the work? Teach it and get paid.</h1>
-          <p className="mt-4 max-w-xl text-lg text-white/75">Build your own courses, with video, at the price you choose, and change it whenever you like. People who pass your course get proof on Talfirms that says you taught them.</p>
-          <dl className="mt-8 grid max-w-xl grid-cols-3 gap-6 border-t border-white/15 pt-6">
-            <div><dt className="text-xs text-white/60">You keep per sale</dt><dd className="mt-1 font-display text-2xl font-semibold">70–97%</dd></div>
-            <div><dt className="text-xs text-white/60">Your price</dt><dd className="mt-1 font-display text-2xl font-semibold">$9–$199</dd></div>
-            <div><dt className="text-xs text-white/60">Experts so far</dt><dd className="mt-1 font-display text-2xl font-semibold">{status ? status.experts_total : "–"}</dd></div>
-          </dl>
-        </motion.div>
-      </section>
+      <PageHero eyebrow="Skillfirms experts" icon={GraduationCap} title="Know the work?" accent="Teach it and get paid."
+        sub="Build your own courses, with video, at the price you choose, and change it whenever you like. People who pass your course get proof on Talfirms that says you taught them."
+        aside={<HeroGlass className="mx-auto max-w-sm">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#9db7ff]">Your course · example</p>
+          <p className="mt-2 text-lg font-bold">Risk-Based Change Control</p>
+          <p className="text-xs text-white/55">Taught by an expert · 6 lessons · $49</p>
+          <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+            {[["70%", "found by us"], ["97%", "your link"], ["50%", "team pool"]].map(([v, l]) => <div key={l} className="rounded-xl bg-white/[0.06] p-2.5"><p className="text-xl font-extrabold">{v}</p><p className="text-[10px] text-white/55">{l}</p></div>)}
+          </div>
+          <p className="mt-4 text-xs text-white/55">The share you keep of each sale</p>
+        </HeroGlass>}>
+        <dl className="grid max-w-xl grid-cols-3 gap-6 border-t border-white/15 pt-6">
+          <div><dt className="text-xs text-white/60">You keep per sale</dt><dd className="mt-1 whitespace-nowrap text-2xl font-extrabold tracking-tight sm:text-3xl">70–97%</dd></div>
+          <div><dt className="text-xs text-white/60">Your price</dt><dd className="mt-1 whitespace-nowrap text-2xl font-extrabold tracking-tight sm:text-3xl">$9–$199</dd></div>
+          <div><dt className="text-xs text-white/60">Experts so far</dt><dd className="mt-1 whitespace-nowrap text-2xl font-extrabold tracking-tight sm:text-3xl">{status ? status.experts_total : "–"}</dd></div>
+        </dl>
+      </PageHero>
 
       <section className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
         <h2 className="font-display text-2xl font-semibold">Teach a course: you keep more than anywhere else</h2>

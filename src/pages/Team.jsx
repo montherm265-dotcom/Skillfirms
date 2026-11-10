@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { leaveTeam, loadMyTeams } from "@/lib/team";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { crossAppClick } from "@/lib/crossApp";
+import PageHero, { HeroGlass } from "@/components/page/PageHero";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 
@@ -36,14 +37,18 @@ export default function Team() {
   return (
     <div>
       <Seo title="Team training" description="Train your people on job skills, assign courses with due dates, and keep a training record you can export for audits." canonical="/team" />
-      <section className="relative overflow-hidden bg-[hsl(222_38%_8%)] text-white">
-        <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_70%)]" />
-        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }} className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6">
-          <p className="eyebrow text-[hsl(var(--mastery))]">Skillfirms for teams</p>
-          <h1 className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Train your team. Keep the record.</h1>
-          <p className="mt-4 max-w-xl text-lg text-white/75">Assign courses with due dates, see who has passed every graded check, and export a training record with certificates anyone can verify. Try it free with 3 people; then ${(price / 100).toFixed(0)} per person a month.</p>
-        </motion.div>
-      </section>
+      <PageHero eyebrow="Skillfirms for teams" icon={Users} title="Train your team." accent="Keep the record."
+        sub={`Assign courses with due dates, see who has passed every graded check, and export a training record with certificates anyone can verify. Try it free with 3 people; then $${(price / 100).toFixed(0)} per person a month.`}
+        aside={<HeroGlass className="mx-auto max-w-sm">
+          <p className="flex items-center justify-between text-xs text-white/60"><span>GMP Basics · due Friday</span><span>Example</span></p>
+          {[["Aisha K.", 100], ["Daniel R.", 75], ["Mei L.", 40]].map(([n, v], k) => (
+            <div key={n} className="mt-4">
+              <p className="flex justify-between text-sm"><span>{n}</span><span className="tabular-nums text-white/60">{v === 100 ? "Passed" : `${v}%`}</span></p>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/10"><motion.div className="h-full rounded-full bg-[#6b8cff]" initial={{ width: 0 }} animate={{ width: `${v}%` }} transition={{ delay: 0.8 + k * 0.15, duration: 1, ease }} /></div>
+            </div>
+          ))}
+          <p className="mt-5 border-t border-white/10 pt-3 text-xs text-white/55">Export the record · every certificate checkable</p>
+        </HeroGlass>} />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         {user && managed.length > 0 && (

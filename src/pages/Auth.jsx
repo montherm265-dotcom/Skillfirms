@@ -76,12 +76,12 @@ export default function Auth() {
         )}
         <form onSubmit={handleSubmit} className="space-y-3">
           {mode === "signup" && (
-            <Input placeholder="Your name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required maxLength={60} />
+            <Input placeholder="Your name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required maxLength={60} className="h-12 rounded-2xl text-base" />
           )}
-          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+          <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-12 rounded-2xl text-base" />
+          <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="h-12 rounded-2xl text-base" />
           {error && <p className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={submitting} className="w-full">{submitting ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}</Button>
+          <Button type="submit" disabled={submitting} className="h-12 w-full rounded-2xl text-base">{submitting ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}</Button>
         </form>
       </AuthLayout>
     </div>

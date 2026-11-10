@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-do
 import { Menu, Search, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
+import SiteFooter from "@/components/SiteFooter";
 import { openCrossApp } from "@/lib/crossApp";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { Button } from "@/components/ui/button";
@@ -135,40 +136,7 @@ export default function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <footer className="border-t border-border bg-card/50">
-        <div className="mx-auto grid max-w-8xl gap-8 px-4 py-12 text-sm sm:grid-cols-4 sm:px-6 lg:px-8">
-          <div>
-            <Link to="/" className="flex items-center gap-2"><Logo /><span className="font-display text-lg font-semibold">Skillfirms</span></Link>
-            <p className="mt-3 text-xs text-muted-foreground">Learn job skills, prove them, and take the proof to Talfirms.</p>
-          </div>
-          <div>
-            <p className="font-semibold">Learn</p>
-            <ul className="mt-3 space-y-2 text-muted-foreground">
-              <li><Link to="/courses" className="hover:text-foreground">All courses</Link></li>
-              <li><Link to="/roles" className="hover:text-foreground">Career paths</Link></li>
-              <li><Link to="/pro" className="hover:text-foreground">Pricing</Link></li>
-              <li><Link to="/experts" className="hover:text-foreground">Teach or review as an expert</Link></li>
-              <li><Link to="/team" className="hover:text-foreground">For teams</Link></li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-semibold">Prove</p>
-            <ul className="mt-3 space-y-2 text-muted-foreground">
-              <li><Link to="/credentials" className="hover:text-foreground">My certificates</Link></li>
-              <li><Link to="/passport" className="hover:text-foreground">Skill Passport</Link></li>
-              <li><a href={TALFIRMS_URL} onClick={(e) => { e.preventDefault(); openCrossApp(TALFIRMS_URL, "/"); }} className="hover:text-foreground">Talfirms ↗</a></li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-semibold">Skillfirms</p>
-            <ul className="mt-3 space-y-2 text-muted-foreground">
-              <li><Link to="/privacy" className="hover:text-foreground">Privacy</Link></li>
-              <li><Link to="/terms" className="hover:text-foreground">Terms</Link></li>
-            </ul>
-          </div>
-        </div>
-        <p className="border-t border-border py-5 text-center text-xs text-muted-foreground">Skillfirms · part of Talfirms</p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

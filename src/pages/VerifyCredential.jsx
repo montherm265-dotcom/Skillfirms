@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ShieldCheck, ShieldOff, ShieldAlert } from "lucide-react";
+import { SearchX, ShieldCheck, ShieldOff, ShieldAlert } from "lucide-react";
+import EmptyState from "@/components/EmptyState";
 import { verifyCredential, verifyUrlFor } from "@/lib/certificates";
 import Certificate from "@/components/certificate/Certificate";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -27,12 +28,9 @@ export default function VerifyCredential() {
     return (
       <div className="section-pad">
         <Seo title="Credential not found" noindex />
-        <div className="mx-auto max-w-lg text-center">
-          <h1 className="font-display text-2xl font-bold">Credential not found</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            <span className="font-mono">{code}</span> doesn't match any credential Skillfirms has issued. If you scanned a QR code or followed a link, double-check it was copied correctly.
-          </p>
-        </div>
+        <EmptyState icon={SearchX} title="We couldn't find that certificate"
+          description={<><span className="rounded-md bg-secondary px-1.5 py-0.5 font-mono text-foreground">{code}</span> doesn't match any certificate Skillfirms has issued. If you scanned a QR code or followed a link, check it was copied correctly.</>}
+          action={<Link to="/courses" className="inline-flex items-center rounded-full bg-[#00041d] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1f4189]">Browse courses</Link>} />
       </div>
     );
   }

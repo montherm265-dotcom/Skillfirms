@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { BookOpen, Search, SlidersHorizontal, X } from "lucide-react";
 import { CATEGORIES, LEVELS, loadCatalog, searchCourses, teacherOf } from "@/lib/catalog";
 import CourseCard from "@/components/course/CourseCard";
 import useSaved from "@/components/course/useSaved";
 import useHiring from "@/components/course/useHiring";
+import PageHero from "@/components/page/PageHero";
 import Seo from "@/components/seo/Seo";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -62,22 +63,26 @@ export default function Courses() {
   return (
     <div>
       <Seo title={activeCat ? `${activeCat.label} courses` : "All courses"} description="Paid courses taught by real experts, plus free AI-taught basics. A graded check on every lesson and a certificate that shows on Talfirms as verified." canonical="/courses" />
-      <section className="border-b border-border bg-card/60">
-        <div className="mx-auto max-w-8xl px-4 pb-6 pt-10 sm:px-6 lg:px-8">
-          <p className="eyebrow">{activeCat ? "Category" : "Explore"}</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{activeCat ? activeCat.label : "All courses"}</h1>
-          <p className="mt-2 max-w-2xl text-muted-foreground">{activeCat ? activeCat.blurb : "Expert courses are paid and taught by people who do the job. AI-taught basics are free. Every lesson ends in a graded check, and passing them all earns a certificate that shows on Talfirms as verified."}</p>
-          <form onSubmit={(e) => { e.preventDefault(); set("q", text.trim()); }} className="mt-6 flex max-w-2xl items-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 shadow-soft focus-within:ring-2 focus-within:ring-ring/20">
-            <Search className="h-4 w-4 flex-none text-muted-foreground" />
-            <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Search courses or skills — e.g. URS, SQL, Agile" aria-label="Search courses" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
-            {text && <button type="button" onClick={() => { setText(""); set("q", ""); }} aria-label="Clear search" className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>}
-          </form>
-          <div className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
-            <Chip on={!cat} onClick={() => set("category", "")}>All</Chip>
-            {CATEGORIES.map((c) => <Chip key={c.id} on={cat === c.id} onClick={() => set("category", cat === c.id ? "" : c.id)}>{c.label}{courses ? <span className="ml-1 opacity-60">{counts[c.id]}</span> : null}</Chip>)}
-          </div>
+      <PageHero eyebrow={activeCat ? "Category" : "Explore"} icon={BookOpen} title={activeCat ? activeCat.label : "Every course."} accent={activeCat ? null : "One graded check per lesson."}
+        sub={activeCat ? activeCat.blurb : "Expert courses are paid and taught by people who do the job. AI-taught basics are free. Pass every lesson's check and the certificate shows on Talfirms as verified."}>
+        <form onSubmit={(e) => { e.preventDefault(); set("q", text.trim()); }} className="flex max-w-2xl items-center gap-2 rounded-full bg-white p-1.5 pl-5 text-foreground shadow-[0_20px_50px_-20px_rgba(0,0,0,0.7)] focus-within:ring-2 focus-within:ring-[#6b8cff]/60">
+          <Search className="h-5 w-5 flex-none text-muted-foreground" />
+          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="Search courses or skills — e.g. URS, SQL, Agile" aria-label="Search courses" className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground" />
+          {text && <button type="button" onClick={() => { setText(""); set("q", ""); }} aria-label="Clear search" className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>}
+          <button type="submit" className="h-10 rounded-full bg-[#00041d] px-5 text-sm font-semibold text-white hover:bg-[#1f4189]">Search</button>
+        </form>
+        <div className="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+          {[{ id: "", label: "All" }, ...CATEGORIES].map((c) => {
+            const on = c.id ? cat === c.id : !cat;
+            return (
+              <button key={c.id || "all"} type="button" aria-pressed={on} onClick={() => set("category", c.id && cat !== c.id ? c.id : "")}
+                className={`flex-none rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${on ? "bg-white text-[#050b24]" : "border border-white/15 bg-white/[0.05] text-white/75 hover:text-white"}`}>
+                {c.label}{c.id && courses ? <span className="ml-1.5 opacity-60">{counts[c.id]}</span> : null}
+              </button>
+            );
+          })}
         </div>
-      </section>
+      </PageHero>
 
       <div className="mx-auto max-w-8xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center gap-2">
@@ -108,15 +113,6 @@ export default function Courses() {
         )}
       </div>
     </div>
-  );
-}
-
-function Chip({ on, onClick, children }) {
-  return (
-    <button type="button" onClick={onClick} aria-pressed={on}
-      className={`flex-none rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${on ? "border-foreground bg-foreground text-background" : "border-border bg-background hover:border-foreground/30"}`}>
-      {children}
-    </button>
   );
 }
 

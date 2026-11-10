@@ -176,20 +176,23 @@ function GoalBox({ user }) {
 
   return (
     <section className="mx-auto max-w-8xl px-4 py-20 sm:px-6 lg:px-8">
+      <div className="relative isolate overflow-hidden rounded-[2rem] border border-[#1f4189]/15 bg-[radial-gradient(120%_100%_at_50%_0%,#eef1ff_0%,#ffffff_65%)] px-5 py-14 sm:px-12 dark:bg-none">
+      <div aria-hidden className="absolute inset-0 -z-10 opacity-60" style={{ backgroundImage: "linear-gradient(rgba(31,65,137,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(31,65,137,0.06) 1px, transparent 1px)", backgroundSize: "48px 48px", maskImage: "radial-gradient(ellipse 60% 70% at 50% 0%, black, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse 60% 70% at 50% 0%, black, transparent 75%)" }} />
       <div className="mx-auto max-w-2xl text-center">
-        <p className="eyebrow">Not sure where to start?</p>
-        <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Tell us where you want to go</h2>
-        <p className="mt-3 text-muted-foreground">We match your goal to a real role, show which skills you're missing, and build the path of courses to close the gap.</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#1f4189]">Not sure where to start?</p>
+        <h2 className="mt-3 text-4xl font-extrabold tracking-[-0.04em] sm:text-5xl">Tell us where you <span className="mark">want to go.</span></h2>
+        <p className="mt-4 text-lg text-muted-foreground">We match your goal to a real role, show which skills you're missing, and build the path of courses to close the gap.</p>
       </div>
       <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-xl">
-        <Textarea value={goalText} onChange={(e) => setGoalText(e.target.value)} placeholder={EXAMPLE} className="min-h-28 text-base" maxLength={2000} aria-label="Your career goal" />
+        <Textarea value={goalText} onChange={(e) => setGoalText(e.target.value)} placeholder={EXAMPLE} className="min-h-32 rounded-2xl bg-card text-base shadow-[0_20px_50px_-30px_rgba(10,20,51,0.45)]" maxLength={2000} aria-label="Your career goal" />
         <div className="mt-3 flex items-center justify-between gap-3">
           <button type="button" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setGoalText(EXAMPLE)}>Try the example</button>
-          <Button type="submit" disabled={busy || !goalText.trim()}><Sparkles className="h-4 w-4" />{busy ? "Thinking…" : "Build my path"}</Button>
+          <Button type="submit" disabled={busy || !goalText.trim()} className="h-11 rounded-full px-6"><Sparkles className="h-4 w-4" />{busy ? "Thinking…" : "Build my path"}</Button>
         </div>
         {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
       </form>
       {result && <div className="mx-auto mt-8 max-w-xl"><DiagnosisResult result={result} /></div>}
+      </div>
     </section>
   );
 }
