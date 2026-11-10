@@ -54,12 +54,12 @@ export default function ExpertReview() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="eyebrow">Skillfirms expert</p>
-            <h1 className="mt-1 font-display text-3xl font-semibold">Review queue</h1>
+            <h1 className="mt-1 text-3xl font-extrabold tracking-[-0.03em]">Review queue</h1>
             <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><EyeOff className="h-4 w-4" />Reviews are blind: you see the work, never the name.</p>
           </div>
           <dl className="flex gap-6">
-            <div><dt className="text-xs text-muted-foreground">Reviews done</dt><dd className="font-display text-2xl font-semibold">{e.reviews ?? 0}</dd></div>
-            <div><dt className="flex items-center gap-1 text-xs text-muted-foreground"><Wallet className="h-3.5 w-3.5" />Earned</dt><dd className="font-display text-2xl font-semibold">{money(e.earned_cents ?? 0)}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">Reviews done</dt><dd className="text-2xl font-extrabold tracking-[-0.03em]">{e.reviews ?? 0}</dd></div>
+            <div><dt className="flex items-center gap-1 text-xs text-muted-foreground"><Wallet className="h-3.5 w-3.5" />Earned</dt><dd className="text-2xl font-extrabold tracking-[-0.03em]">{money(e.earned_cents ?? 0)}</dd></div>
           </dl>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">You earn {Math.round(Number(e.share ?? 0.6) * 100)}% of each review. Payouts start when payments open.</p>

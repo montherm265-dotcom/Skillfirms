@@ -37,7 +37,7 @@ export default function JoinTeam() {
       <Seo title={`Join ${info.company}'s training`} canonical="/team" />
       <div className="mx-auto max-w-md rounded-2xl border border-border bg-card p-6 text-center">
         {info.logo_url ? <img src={info.logo_url} alt="" className="mx-auto h-14 w-14 rounded-xl object-cover" /> : <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-primary font-display text-2xl text-primary-foreground">{info.company.slice(0, 1)}</span>}
-        <h1 className="mt-4 font-display text-2xl font-semibold">Join {info.company}'s training</h1>
+        <h1 className="mt-4 text-2xl font-extrabold tracking-[-0.03em]">Join {info.company}'s training</h1>
         <p className="mt-1 text-sm text-muted-foreground">{info.courses ? `${info.courses} course${info.courses === 1 ? "" : "s"} assigned so far.` : "Your manager will assign courses."} It's free for you.</p>
         <ul className="mt-5 space-y-2 text-left text-sm">
           <li className="flex gap-2"><Users className="mt-0.5 h-4 w-4 flex-none text-mastery" /><span>{info.company} will see your progress and certificates <b>in the courses they assign you</b>.</span></li>

@@ -39,7 +39,7 @@ export default function SkillPassport() {
   return (
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-2xl font-bold">Skill Passport</h1>
+        <h1 className="text-2xl font-extrabold tracking-[-0.03em]">Skill Passport</h1>
         <p className="mt-1 text-sm text-muted-foreground">Every skill, with where the number actually came from — never one opaque score.</p>
 
         {categories.length === 0 ? (

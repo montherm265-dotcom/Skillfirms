@@ -11,7 +11,7 @@ export default function DiagnosisResult({ result }) {
   return (
     <div className="card-soft p-6">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Your goal</p>
-      <h3 className="mt-1 font-display text-2xl font-bold">{matchedRole.title}</h3>
+      <h3 className="mt-1 text-2xl font-extrabold tracking-[-0.03em]">{matchedRole.title}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{CONFIDENCE_LABEL[confidence]}</p>
 
       <p className="mt-4 text-sm text-foreground/90">{currentPositionSummary}</p>

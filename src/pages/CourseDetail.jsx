@@ -176,17 +176,18 @@ export default function CourseDetail() {
       />
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[hsl(222_38%_8%)] text-white">
-        <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]" />
-        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full blur-3xl" style={{ background: `hsl(${course.category?.hue ?? 189} 80% 45% / 0.35)` }} />
+      <section className="relative overflow-hidden bg-[#050b24] text-white">
+        <div aria-hidden className="absolute -left-40 -top-56 h-[32rem] w-[32rem] rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(59,108,230,0.42), transparent)" }} />
+        <div aria-hidden className="absolute -bottom-56 right-[-6rem] h-[30rem] w-[30rem] rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(107,140,255,0.24), transparent)", animation: "tf-drift 22s ease-in-out infinite" }} />
+        <div aria-hidden className="absolute inset-0 opacity-70" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)", backgroundSize: "56px 56px", maskImage: "radial-gradient(ellipse 70% 80% at 30% 20%, black, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse 70% 80% at 30% 20%, black, transparent 80%)" }} />
         <div className="relative mx-auto grid max-w-8xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-8 lg:py-14">
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
             <p className="flex flex-wrap items-center gap-2 text-sm text-white/70">
               <Link to="/courses" className="hover:text-white">Courses</Link><span>›</span>
-              <Link to={`/courses?category=${course.category?.id}`} className="font-medium text-[hsl(var(--mastery))] hover:underline">{course.category?.label}</Link>
+              <Link to={`/courses?category=${course.category?.id}`} className="font-medium text-[#9db7ff] hover:underline">{course.category?.label}</Link>
             </p>
-            <h1 className="mt-3 max-w-3xl font-display text-3xl font-semibold leading-tight tracking-tight sm:text-[2.6rem]">{course.title}</h1>
-            {course.description && <p className="mt-3 max-w-2xl text-lg text-white/80">{course.description}</p>}
+            <h1 className="mt-4 max-w-3xl text-[2.3rem] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">{course.title}</h1>
+            {course.description && <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/70">{course.description}</p>}
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
               {hiring.length > 0 && <a href="#hiring" className="rounded-md bg-warning px-2 py-0.5 text-xs font-bold text-black">Hiring now</a>}
               {course.rating_count ? <RatingLine course={course} className="[&_.text-muted-foreground]:text-white/60" /> : <span className="rounded-md bg-mastery px-2 py-0.5 text-xs font-bold text-mastery-foreground">New course</span>}
@@ -227,7 +228,7 @@ export default function CourseDetail() {
                 </span>
               </button>
               <div className="p-5">
-                <p className="font-display text-3xl font-semibold">{access && paid ? "You have access" : priceLabel(course.price_cents)}</p>
+                <p className="text-3xl font-extrabold tracking-[-0.03em]">{access && paid ? "You have access" : priceLabel(course.price_cents)}</p>
                 <p className="text-xs text-muted-foreground">{paid ? "One payment: every lesson, the graded checks and the certificate. Lesson 1 is a free preview." : "Learning, graded checks and the certificate are all free."}</p>
                 {locked && <Link to={`/courses/${slug}/lessons/1`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-mastery hover:underline"><PlayCircle className="h-4 w-4" />Watch lesson 1 free</Link>}
                 {locked && purchase?.status === "waitlist" && <p className="mt-2 rounded-lg bg-secondary p-2 text-xs">You're on the list. Nothing has been charged; we'll let you know when buying opens.</p>}
@@ -278,7 +279,7 @@ export default function CourseDetail() {
           <HiringBanner hiring={hiring} user={user} hasCertificate={Boolean(credential)} lessons={modules.length} onSent={() => loadCourseHiring(course.id).then(setHiring)} />
           {learn.length > 0 && (
             <section className="rounded-2xl border border-border p-5 sm:p-6">
-              <h2 className="font-display text-2xl font-semibold">What you'll learn</h2>
+              <h2 className="text-2xl font-extrabold tracking-[-0.03em]">What you'll learn</h2>
               <ul className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
                 {learn.map((p, i) => <li key={i} className="flex gap-2.5 text-sm"><Check className="mt-0.5 h-4 w-4 flex-none text-mastery" />{p}</li>)}
               </ul>
@@ -288,7 +289,7 @@ export default function CourseDetail() {
           {/* Curriculum */}
           <section className="mt-10">
             <div className="flex flex-wrap items-end justify-between gap-2">
-              <h2 className="font-display text-2xl font-semibold">Course content</h2>
+              <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Course content</h2>
               <p className="text-sm text-muted-foreground">{modules.length} lessons · {formatHours(course)} · {questions} graded questions</p>
             </div>
             <div className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border">
@@ -353,7 +354,7 @@ export default function CourseDetail() {
 
           {related.length > 0 && (
             <section className="mt-12">
-              <h2 className="font-display text-2xl font-semibold">More in {course.category?.label}</h2>
+              <h2 className="text-2xl font-extrabold tracking-[-0.03em]">More in {course.category?.label}</h2>
               <div className="mt-4 grid gap-5 sm:grid-cols-2">
                 {related.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} compact />)}
               </div>
@@ -378,7 +379,7 @@ function JobsUnlocked({ jobs, course }) {
     <section className="mt-10 overflow-hidden rounded-2xl border border-mastery/30 bg-gradient-to-br from-mastery/10 via-card to-card">
       <div className="p-5 sm:p-6">
         <p className="eyebrow text-mastery">Skill Bridge</p>
-        <h2 className="mt-1 font-display text-2xl font-semibold">{jobs.jobs_total} open job{jobs.jobs_total === 1 ? "" : "s"} on Talfirms ask for these skills</h2>
+        <h2 className="mt-1 text-2xl font-extrabold tracking-[-0.03em]">{jobs.jobs_total} open job{jobs.jobs_total === 1 ? "" : "s"} on Talfirms ask for these skills</h2>
         {jobs.gap_jobs > 0 && <p className="mt-1 text-sm">You're missing them on <span className="font-semibold">{jobs.gap_jobs}</span>. This course fills that gap.</p>}
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {jobs.jobs.map((j) => {
@@ -443,7 +444,7 @@ function Reviews({ course, reviews, onSaved }) {
 
   return (
     <section className="mt-12">
-      <h2 className="font-display text-2xl font-semibold">Learner reviews</h2>
+      <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Learner reviews</h2>
       {total === 0 ? (
         <p className="mt-2 text-sm text-muted-foreground">No reviews yet. Only people who have passed at least one lesson can review, so every review comes from someone who did the work.</p>
       ) : (
@@ -510,7 +511,7 @@ function Reviews({ course, reviews, onSaved }) {
 function DetailSkeleton() {
   return (
     <div>
-      <div className="bg-[hsl(222_38%_8%)]"><div className="mx-auto max-w-8xl space-y-3 px-4 py-14 sm:px-6 lg:px-8"><Skeleton className="h-4 w-40 bg-white/10" /><Skeleton className="h-10 w-2/3 bg-white/10" /><Skeleton className="h-5 w-1/2 bg-white/10" /></div></div>
+      <div className="bg-[#050b24]"><div className="mx-auto max-w-8xl space-y-3 px-4 py-14 sm:px-6 lg:px-8"><Skeleton className="h-4 w-40 bg-white/10" /><Skeleton className="h-10 w-2/3 bg-white/10" /><Skeleton className="h-5 w-1/2 bg-white/10" /></div></div>
       <div className="mx-auto max-w-8xl space-y-3 px-4 py-10 sm:px-6 lg:px-8"><Skeleton className="h-40 w-full max-w-3xl" /><Skeleton className="h-64 w-full max-w-3xl" /></div>
     </div>
   );

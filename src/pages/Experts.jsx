@@ -73,7 +73,7 @@ export default function Experts() {
       </PageHero>
 
       <section className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
-        <h2 className="font-display text-2xl font-semibold">Teach a course: you keep more than anywhere else</h2>
+        <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Teach a course: you keep more than anywhere else</h2>
         <p className="mt-1 text-sm text-muted-foreground">You set your price ($9 to $199) and can change it any time. Expert courses are always paid; the free courses on Skillfirms are AI-taught basics. Skillfirms checks every course before it goes live.</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
@@ -94,7 +94,7 @@ export default function Experts() {
 
       <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_22rem]">
         <section>
-          <h2 className="font-display text-2xl font-semibold">How teaching works</h2>
+          <h2 className="text-2xl font-extrabold tracking-[-0.03em]">How teaching works</h2>
           <ol className="mt-4 space-y-4">
             {[
               { icon: PencilRuler, t: "Build it in the studio", d: "Write lessons, add your own videos, and write at least 3 graded questions per lesson. You can put a time limit on each check." },

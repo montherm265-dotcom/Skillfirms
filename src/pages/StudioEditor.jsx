@@ -102,7 +102,7 @@ export default function StudioEditor() {
           {course.review_state === "changes_requested" && course.review_note && <p className="rounded-xl bg-destructive/10 p-3 text-sm"><b>Changes requested:</b> {course.review_note}</p>}
 
           <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
-            <input value={course.title} onChange={(e) => set({ title: e.target.value })} maxLength={120} placeholder="Course title" aria-label="Course title" className="w-full bg-transparent font-display text-3xl font-semibold outline-none placeholder:text-muted-foreground/50" />
+            <input value={course.title} onChange={(e) => set({ title: e.target.value })} maxLength={120} placeholder="Course title" aria-label="Course title" className="w-full bg-transparent text-3xl font-extrabold tracking-[-0.03em] outline-none placeholder:text-muted-foreground/50" />
             <Textarea value={course.description ?? ""} onChange={(e) => set({ description: e.target.value })} maxLength={4000} placeholder="What will people be able to do after this course? Who is it for?" className="min-h-24" />
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="text-sm font-medium">Level
@@ -141,7 +141,7 @@ export default function StudioEditor() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="font-display text-2xl font-semibold">Lessons</h2>
+            <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Lessons</h2>
             {course.lessons.map((l, i) => {
               const isOpen = open === i;
               const embed = l.video_url.trim() ? videoEmbed(l.video_url.trim()) : null;

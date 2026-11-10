@@ -65,7 +65,7 @@ export default function MyLearning() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="eyebrow">My learning</p>
-          <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{profile?.display_name ? `Keep going, ${profile.display_name.split(" ")[0]}` : "Keep going"}</h1>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{profile?.display_name ? `Keep going, ${profile.display_name.split(" ")[0]}` : "Keep going"}</h1>
         </div>
         {stats && (
           <dl className="flex gap-6">
@@ -83,7 +83,7 @@ export default function MyLearning() {
           <CourseCover course={resume.course} className="aspect-[16/9] sm:aspect-auto sm:h-full" />
           <div className="p-5 sm:p-6">
             <p className="eyebrow text-mastery">Pick up where you left off</p>
-            <h2 className="mt-1 font-display text-2xl font-semibold">{resume.course.title}</h2>
+            <h2 className="mt-1 text-2xl font-extrabold tracking-[-0.03em]">{resume.course.title}</h2>
             <p className="mt-1 text-sm text-muted-foreground">Lesson {resume.next} of {resume.course.lessons} · {resume.done} passed</p>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-mastery" style={{ width: `${Math.max(3, resume.progress_percent)}%` }} /></div>
             <Link to={`/courses/${resume.course.slug}/lessons/${resume.next}`}><Button className="mt-5">Continue lesson {resume.next}<ArrowRight className="h-4 w-4" /></Button></Link>
@@ -140,7 +140,7 @@ export default function MyLearning() {
 
       {suggestions.length > 0 && (
         <section className="mt-14">
-          <h2 className="font-display text-2xl font-semibold">{resume ? `More in ${resume.course.category?.label}` : "Start here"}</h2>
+          <h2 className="text-2xl font-extrabold tracking-[-0.03em]">{resume ? `More in ${resume.course.category?.label}` : "Start here"}</h2>
           <div className="mt-4"><Grid>{suggestions.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} />)}</Grid></div>
         </section>
       )}
@@ -166,7 +166,7 @@ function Stat({ icon: Icon, label, value }) {
   return (
     <div>
       <dt className="flex items-center gap-1 text-xs text-muted-foreground"><Icon className="h-3.5 w-3.5" />{label}</dt>
-      <dd className="mt-0.5 font-display text-2xl font-semibold tabular-nums">{value}</dd>
+      <dd className="mt-0.5 text-2xl font-extrabold tracking-[-0.03em] tabular-nums">{value}</dd>
     </div>
   );
 }

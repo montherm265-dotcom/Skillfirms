@@ -9,7 +9,7 @@ export default function Privacy() {
         canonical="/privacy"
       />
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-3xl font-bold">Privacy Policy</h1>
+        <h1 className="text-3xl font-extrabold tracking-[-0.03em]">Privacy Policy</h1>
         <p className="mt-2 text-sm text-muted-foreground">Last updated: October 2026</p>
 
         <div className="mt-8 space-y-8 text-foreground/90">

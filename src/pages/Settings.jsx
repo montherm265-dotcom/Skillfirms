@@ -50,7 +50,7 @@ export default function Settings() {
   return (
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-2xl font-bold">Settings</h1>
+        <h1 className="text-2xl font-extrabold tracking-[-0.03em]">Settings</h1>
 
         <div className="mt-6 card-soft p-5">
           <div className="flex items-start justify-between gap-4">

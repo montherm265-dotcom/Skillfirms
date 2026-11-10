@@ -76,14 +76,14 @@ export default function CareerRoleDetail() {
       />
       <div className="mx-auto max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{role.industry}</p>
-        <h1 className="mt-1 font-display text-3xl font-bold">{role.title}</h1>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-[-0.03em]">{role.title}</h1>
         {role.description && <p className="mt-2 text-muted-foreground">{role.description}</p>}
 
         {readiness && (
           <div className="mt-6 card-soft p-5">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Your readiness</span>
-              <span className="font-display text-2xl font-bold text-mastery">{readiness.percent}%</span>
+              <span className="text-2xl font-extrabold tracking-[-0.03em] text-mastery">{readiness.percent}%</span>
             </div>
             <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-secondary">
               <div className="h-full rounded-full bg-mastery" style={{ width: `${readiness.percent}%` }} />

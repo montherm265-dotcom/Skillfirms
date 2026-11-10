@@ -53,7 +53,7 @@ export default function Team() {
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         {user && managed.length > 0 && (
           <section>
-            <h2 className="font-display text-2xl font-semibold">Your companies</h2>
+            <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Your companies</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {managed.map((t) => (
                 <Link key={t.id} to={`/team/${t.slug}`} className="hover-lift flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">
@@ -70,7 +70,7 @@ export default function Team() {
 
         {user && joined.length > 0 && (
           <section className="mt-8">
-            <h2 className="font-display text-2xl font-semibold">Teams you're in</h2>
+            <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Teams you're in</h2>
             <ul className="mt-3 space-y-2">
               {joined.map((t) => (
                 <li key={t.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4">

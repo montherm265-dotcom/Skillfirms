@@ -158,7 +158,7 @@ export default function MissionDetail() {
           <Badge variant="outline" className="capitalize">{mission.difficulty}</Badge>
           <p className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3.5 w-3.5" />{mission.estimated_hours}h estimated</p>
         </div>
-        <h1 className="mt-2 font-display text-3xl font-bold">{mission.title}</h1>
+        <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">{mission.title}</h1>
         <p className="mt-3 text-muted-foreground">{mission.brief}</p>
         <div className="mt-4 rounded-lg border border-border bg-secondary/30 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">What to deliver</p>

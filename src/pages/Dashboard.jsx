@@ -69,7 +69,7 @@ export default function Dashboard() {
   return (
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
-        <h1 className="font-display text-2xl font-bold">Welcome{profile?.display_name ? `, ${profile.display_name}` : ""}</h1>
+        <h1 className="text-2xl font-extrabold tracking-[-0.03em]">Welcome{profile?.display_name ? `, ${profile.display_name}` : ""}</h1>
 
         {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
         <JobGoalBanner className="mt-6" />

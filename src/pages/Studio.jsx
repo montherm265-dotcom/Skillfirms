@@ -51,7 +51,7 @@ export default function Studio() {
   if (!expertId) {
     return (
       <div className="section-pad text-center">
-        <p className="font-display text-2xl font-semibold">Teach on Skillfirms</p>
+        <p className="text-2xl font-extrabold tracking-[-0.03em]">Teach on Skillfirms</p>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Approved experts build their own courses, with video, set their own price, and keep 70% of every sale (97% through their own link). Apply first; we check every application by hand.</p>
         <Link to="/experts"><Button className="mt-4">Apply to become an expert</Button></Link>
       </div>
@@ -66,11 +66,11 @@ export default function Studio() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="eyebrow">Course studio</p>
-            <h1 className="mt-1 font-display text-3xl font-semibold">Your courses</h1>
+            <h1 className="mt-1 text-3xl font-extrabold tracking-[-0.03em]">Your courses</h1>
             <p className="mt-1 text-sm text-muted-foreground">You set the price and can change it any time. Every course is checked by Skillfirms before it goes live.</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-right"><p className="flex items-center gap-1 text-xs text-muted-foreground"><Wallet className="h-3.5 w-3.5" />Earned</p><p className="font-display text-2xl font-semibold">{money(earned) === "Free" ? "$0" : money(earned)}</p></div>
+            <div className="text-right"><p className="flex items-center gap-1 text-xs text-muted-foreground"><Wallet className="h-3.5 w-3.5" />Earned</p><p className="text-2xl font-extrabold tracking-[-0.03em]">{money(earned) === "Free" ? "$0" : money(earned)}</p></div>
             <Link to="/teach/new"><Button><Plus className="h-4 w-4" />New course</Button></Link>
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function Studio() {
           ].map(([label, ours, udemy, note], i) => (
             <motion.div key={label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="rounded-2xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="mt-1 font-display text-3xl font-semibold text-mastery">{ours}%</p>
+              <p className="mt-1 text-3xl font-extrabold tracking-[-0.03em] text-mastery">{ours}%</p>
               <p className="text-xs text-muted-foreground">you keep {note}. Udemy: {udemy}%</p>
             </motion.div>
           ))}

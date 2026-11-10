@@ -76,12 +76,12 @@ export default function TeamDashboard() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Link to="/team" className="text-sm text-muted-foreground hover:text-foreground">← Teams</Link>
-            <h1 className="mt-1 font-display text-3xl font-semibold">{data.company.name} training</h1>
+            <h1 className="mt-1 text-3xl font-extrabold tracking-[-0.03em]">{data.company.name} training</h1>
           </div>
           <dl className="flex gap-6 text-right">
-            <div><dt className="text-xs text-muted-foreground">People</dt><dd className="font-display text-2xl font-semibold">{used}<span className="text-base text-muted-foreground">/{limit}</span></dd></div>
-            <div><dt className="text-xs text-muted-foreground">Certificates</dt><dd className="font-display text-2xl font-semibold">{stats.done}<span className="text-base text-muted-foreground">/{stats.assigned}</span></dd></div>
-            <div><dt className="text-xs text-muted-foreground">Overdue</dt><dd className={`font-display text-2xl font-semibold ${stats.overdue ? "text-destructive" : ""}`}>{stats.overdue}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">People</dt><dd className="text-2xl font-extrabold tracking-[-0.03em]">{used}<span className="text-base text-muted-foreground">/{limit}</span></dd></div>
+            <div><dt className="text-xs text-muted-foreground">Certificates</dt><dd className="text-2xl font-extrabold tracking-[-0.03em]">{stats.done}<span className="text-base text-muted-foreground">/{stats.assigned}</span></dd></div>
+            <div><dt className="text-xs text-muted-foreground">Overdue</dt><dd className={`text-2xl font-extrabold tracking-[-0.03em] ${stats.overdue ? "text-destructive" : ""}`}>{stats.overdue}</dd></div>
           </dl>
         </div>
 
@@ -129,7 +129,7 @@ export default function TeamDashboard() {
 
         <section className="mt-8">
           <div className="flex flex-wrap items-end justify-between gap-2">
-            <h2 className="font-display text-2xl font-semibold">Training record</h2>
+            <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Training record</h2>
             <Button variant="outline" size="sm" onClick={exportCsv} disabled={!stats.assigned}><Download className="h-4 w-4" />Export (CSV)</Button>
           </div>
           {data.members.length === 0 ? (

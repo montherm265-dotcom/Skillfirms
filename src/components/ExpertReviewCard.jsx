@@ -41,7 +41,7 @@ export default function ExpertReviewCard({ mission, submission, onChange }) {
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-mastery"><UserCheck className="h-4 w-4" />Expert review</p>
           <p className="mt-1 font-display text-xl font-semibold">Get this checked by a real expert</p>
         </div>
-        <p className="font-display text-2xl font-semibold">{money(offer.price_cents)}</p>
+        <p className="text-2xl font-extrabold tracking-[-0.03em]">{money(offer.price_cents)}</p>
       </div>
       <ul className="mt-3 grid gap-1.5 text-sm sm:grid-cols-2">
         <li className="flex gap-2"><BadgeCheck className="mt-0.5 h-4 w-4 flex-none text-mastery" /><span>A score for each skill, plus written feedback</span></li>

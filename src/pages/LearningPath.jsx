@@ -68,7 +68,7 @@ export default function LearningPath() {
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Your learning path{roleTitle ? ` — toward ${roleTitle}` : ""}</p>
-        <h1 className="mt-1 font-display text-2xl font-bold">Your path, assembled — not a course catalog</h1>
+        <h1 className="mt-1 text-2xl font-extrabold tracking-[-0.03em]">Your path, assembled — not a course catalog</h1>
         <p className="mt-2 text-sm text-muted-foreground">Each course below was picked because it closes a specific gap between where you are now and what this role actually requires.</p>
 
         {items.length === 0 ? (

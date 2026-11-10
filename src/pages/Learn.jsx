@@ -102,7 +102,7 @@ export default function Learn() {
           <PickSkill />
         ) : (
           <>
-            <h1 className="font-display text-2xl font-bold">Learn {joinLabels(labels)}</h1>
+            <h1 className="text-2xl font-extrabold tracking-[-0.03em]">Learn {joinLabels(labels)}</h1>
             {goal && <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground"><Target className="h-4 w-4 flex-none" /><span>{goal}.</span></p>}
 
             {error ? (

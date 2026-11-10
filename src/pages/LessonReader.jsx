@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
-import { ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, Circle, Clock, Lightbulb, ListChecks, Lock, PenLine, Sparkles, Target, Timer, XCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, Clock, Lightbulb, ListChecks, Lock, PenLine, Sparkles, Target, Timer, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll, submitQuiz } from "@/lib/courses";
@@ -205,9 +205,9 @@ export default function LessonReader() {
 
   return (
     <div className="section-pad">
-      <motion.div aria-hidden="true" style={{ scaleX: readBar }} className="fixed inset-x-0 top-0 z-50 h-1 origin-left bg-mastery" />
+      <motion.div aria-hidden="true" style={{ scaleX: readBar }} className="fixed inset-x-0 top-0 z-50 h-1 origin-left bg-gradient-to-r from-[#1f4189] via-[#3b6ce6] to-[#6b8cff]" />
       <Seo title={`${mod.title} — ${course.title}`} description={body?.summary ?? mod.description ?? course.title} canonical={`/courses/${slug}/lessons/${index + 1}`} />
-      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[17rem_minmax(0,1fr)]">
         {/* Lesson list */}
         <aside className="hidden lg:block">
           <div className="sticky top-24">
@@ -218,14 +218,14 @@ export default function LessonReader() {
                 <Progress value={pct} className="mt-1.5 h-1.5" />
               </div>
             )}
-            <ol className="mt-5 space-y-1">
+            <ol className="mt-6 space-y-1">
               {modules.map((m, i) => {
                 const isDone = progress[m.id]?.completed_at;
                 return (
                   <li key={m.id}>
-                    <Link to={`/courses/${slug}/lessons/${i + 1}`} className={`flex items-start gap-2 rounded-lg px-2 py-1.5 text-sm ${i === index ? "bg-secondary font-medium" : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"}`}>
-                      {isDone ? <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-mastery" /> : <Circle className="mt-0.5 h-4 w-4 flex-none" />}
-                      <span>{i + 1}. {m.title}</span>
+                    <Link to={`/courses/${slug}/lessons/${i + 1}`} className={`flex items-center gap-3 rounded-2xl px-2.5 py-2 text-sm transition-colors ${i === index ? "bg-[#00041d] font-semibold text-white shadow-[0_12px_24px_-14px_rgba(0,4,29,0.8)]" : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground"}`}>
+                      <span className={`grid h-7 w-7 flex-none place-items-center rounded-full text-xs font-bold ${isDone ? "bg-[#1f4189] text-white" : i === index ? "bg-white/15 text-white" : "border border-border"}`}>{isDone ? <Check className="h-3.5 w-3.5" /> : i + 1}</span>
+                      <span className="leading-snug">{m.title}</span>
                     </Link>
                   </li>
                 );
@@ -234,10 +234,10 @@ export default function LessonReader() {
           </div>
         </aside>
 
-        <article className="min-w-0">
+        <article className="min-w-0 max-w-[46rem]">
           <Link to={`/courses/${slug}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground lg:hidden"><ArrowLeft className="h-4 w-4" />{course.title}</Link>
-          <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-mastery lg:mt-0">Lesson {index + 1} of {modules.length}</p>
-          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">{mod.title}</h1>
+          <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#1f4189]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#1f4189] lg:mt-0">Lesson {index + 1} of {modules.length}</p>
+          <h1 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-[-0.04em] sm:text-[3.2rem]">{mod.title}</h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{minutes ?? mod.duration_minutes} min read</span>
             {thisDone && <span className="inline-flex items-center gap-1 text-mastery"><Check className="h-3.5 w-3.5" />Passed</span>}
@@ -251,9 +251,9 @@ export default function LessonReader() {
             </div>
           )}
           {lesson === null && locked && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 overflow-hidden rounded-2xl bg-[hsl(222_38%_8%)] p-8 text-center text-white">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 overflow-hidden rounded-2xl bg-[#050b24] p-8 text-center text-white">
               <Lock className="mx-auto h-8 w-8 text-[hsl(var(--mastery))]" />
-              <p className="mt-3 font-display text-2xl font-semibold">This lesson is part of the full course</p>
+              <p className="mt-3 text-2xl font-extrabold tracking-[-0.03em]">This lesson is part of the full course</p>
               <p className="mx-auto mt-1 max-w-md text-sm text-white/70">Lesson 1 is a free preview. Get every lesson, the graded checks and the certificate for {priceLabel(course.price_cents)}.</p>
               <Link to={`/courses/${slug}`}><Button className="mt-5 bg-mastery text-mastery-foreground hover:bg-mastery/90">See the course</Button></Link>
             </motion.div>
@@ -275,21 +275,21 @@ export default function LessonReader() {
           {body && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease }}>
               {body.video_url && <div className="mt-6"><VideoPlayer url={body.video_url} title={mod.title} /></div>}
-              {body.summary && <p className="mt-6 text-lg leading-relaxed text-foreground/90">{body.summary}</p>}
+              {body.summary && <p className="mt-6 text-xl leading-relaxed text-foreground/85">{body.summary}</p>}
               <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-[11px] text-muted-foreground">
                 <Sparkles className="h-3 w-3" />
                 {lesson.source === "expert_written" ? `Taught by ${course.skillfirms_experts?.display_name ?? "an expert"}` : lesson.reviewed_at ? "AI-taught basics · reviewed by an expert" : "AI-taught basics · drafted with AI, not yet reviewed by an expert"}
               </p>
 
               {body.sections.map((s, i) => (
-                <section key={i} className="mt-9">
-                  <h2 className="font-display text-xl font-semibold tracking-tight">{s.heading}</h2>
-                  <div className="text-[15.5px] text-foreground/90"><Prose text={s.body} /></div>
+                <section key={i} className="mt-12">
+                  <h2 className="flex items-baseline gap-3 text-2xl font-extrabold tracking-[-0.03em]"><span className="text-sm font-bold tabular-nums text-[#3b6ce6]">{String(i + 1).padStart(2, "0")}</span>{s.heading}</h2>
+                  <div className="text-[17px] leading-[1.75] text-foreground/85"><Prose text={s.body} /></div>
                 </section>
               ))}
 
               {body.example?.body && (
-                <section className="mt-10 rounded-2xl border border-mastery/30 bg-mastery/5 p-5 sm:p-6">
+                <section className="mt-12 rounded-3xl border border-[#1f4189]/15 bg-[radial-gradient(120%_120%_at_0%_0%,#eef1ff,transparent_70%)] p-6 sm:p-8 dark:bg-none">
                   <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-mastery"><BookOpen className="h-4 w-4" />Worked example</p>
                   <h3 className="mt-2 font-display text-lg font-semibold">{body.example.title}</h3>
                   <div className="text-[15px] text-foreground/90"><Prose text={body.example.body} /></div>
@@ -388,7 +388,7 @@ export default function LessonReader() {
                 <motion.section initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, ease }}
                   className="mt-8 overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground">
                   <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-mastery"><Award className="h-4 w-4" />Course complete</p>
-                  <p className="mt-2 font-display text-2xl font-bold">You've earned your {course.title} certificate</p>
+                  <p className="mt-2 text-2xl font-extrabold tracking-[-0.03em]">You've earned your {course.title} certificate</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Button className="bg-mastery text-mastery-foreground hover:bg-mastery/90" onClick={() => navigate(`/credentials/${credentialCode}`)}>See your certificate</Button>
                     {hiring.some((h) => !h.sent) && (

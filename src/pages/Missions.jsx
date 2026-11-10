@@ -29,7 +29,7 @@ export default function Missions() {
         canonical="/missions"
       />
       <div className="mx-auto max-w-4xl">
-        <h1 className="font-display text-2xl font-bold">Missions</h1>
+        <h1 className="text-2xl font-extrabold tracking-[-0.03em]">Missions</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Real-world work, not a quiz. Submit real output, get AI feedback immediately, and request a human expert review for proof that goes further than an estimate.
         </p>
