@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query-client';
 import { AuthProvider } from '@/context/AuthContext';
@@ -28,14 +28,11 @@ const StudioEditor = lazy(() => import('@/pages/StudioEditor'));
 const Team = lazy(() => import('@/pages/Team'));
 const TeamDashboard = lazy(() => import('@/pages/TeamDashboard'));
 const JoinTeam = lazy(() => import('@/pages/JoinTeam'));
-const Missions = lazy(() => import('@/pages/Missions'));
 const Learn = lazy(() => import('@/pages/Learn'));
-const MissionDetail = lazy(() => import('@/pages/MissionDetail'));
 const MyCredentials = lazy(() => import('@/pages/MyCredentials'));
 const CredentialDetail = lazy(() => import('@/pages/CredentialDetail'));
 const VerifyCredential = lazy(() => import('@/pages/VerifyCredential'));
 const Settings = lazy(() => import('@/pages/Settings'));
-const ExpertReview = lazy(() => import('@/pages/ExpertReview'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
 const Terms = lazy(() => import('@/pages/Terms'));
 const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
@@ -73,15 +70,15 @@ export default function App() {
                 <Route path="/courses/:slug/lessons/:n" element={<LessonReader />} />
                 <Route path="/path/:goalId" element={<RequireAuth><LearningPath /></RequireAuth>} />
                 <Route path="/learn" element={<Learn />} />
-                <Route path="/missions" element={<Missions />} />
-                <Route path="/missions/:slug" element={<MissionDetail />} />
+                <Route path="/missions" element={<Navigate to="/courses" replace />} />
+                <Route path="/missions/:slug" element={<Navigate to="/courses" replace />} />
                 <Route path="/credentials" element={<RequireAuth><MyCredentials /></RequireAuth>} />
                 <Route path="/credentials/:code" element={<RequireAuth><CredentialDetail /></RequireAuth>} />
                 <Route path="/verify/:code" element={<VerifyCredential />} />
                 <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
                 <Route path="/passport" element={<RequireAuth><SkillPassport /></RequireAuth>} />
                 <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
-                <Route path="/expert" element={<RequireAuth><ExpertReview /></RequireAuth>} />
+                <Route path="/expert" element={<Navigate to="/teach" replace />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="*" element={<PageNotFound />} />

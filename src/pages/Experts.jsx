@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { BadgeCheck, CheckCircle2, EyeOff, Hourglass, Laptop, Search, Wallet } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Hourglass, Laptop, PencilRuler, Video, Wallet } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { applyAsExpert, loadExpertStatus } from "@/lib/missions";
@@ -13,15 +13,13 @@ import { Textarea } from "@/components/ui/textarea";
 
 const ease = [0.22, 1, 0.36, 1];
 
-// Become a Skillfirms expert: real people who know the work review Mission
-// submissions and earn 60% of each review. Every application is checked by
-// Skillfirms before anyone can review.
+// Become a Skillfirms expert: real people who know the work build paid
+// courses at their own price. Every application is checked by Skillfirms.
 export default function Experts() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState(null);
   const [skills, setSkills] = useState([]);
-  const [prices, setPrices] = useState([]);
   const [form, setForm] = useState({ headline: "", experience: "", years: 5, links: "" });
   const [picked, setPicked] = useState([]);
   const [filter, setFilter] = useState("");
@@ -29,14 +27,10 @@ export default function Experts() {
 
   useEffect(() => {
     supabase.from("skillfirms_skills").select("id, name").order("name").then(({ data }) => setSkills(data ?? []));
-    supabase.from("skillfirms_missions").select("review_price_cents").eq("status", "published").then(({ data }) => setPrices((data ?? []).map((m) => m.review_price_cents)));
   }, []);
   useEffect(() => { if (user) loadExpertStatus().then(setStatus); }, [user]);
 
   const shown = useMemo(() => skills.filter((s) => s.name.toLowerCase().includes(filter.toLowerCase())), [skills, filter]);
-  const lo = prices.length ? Math.min(...prices) : 2900;
-  const hi = prices.length ? Math.max(...prices) : 4900;
-  const earn = (c) => `$${Math.round((c * 0.6) / 100)}`;
 
   async function submit(e) {
     e.preventDefault();
@@ -58,16 +52,16 @@ export default function Experts() {
 
   return (
     <div>
-      <Seo title="Become a Skillfirms expert" description="Teach your own courses at your own price and keep 70% (97% through your own link), or review real work for 60% of every review." canonical="/experts" />
+      <Seo title="Become a Skillfirms expert" description="Teach your own courses at your own price and keep 70% (97% through your own link)." canonical="/experts" />
       <section className="relative overflow-hidden bg-[hsl(222_38%_8%)] text-white">
         <div className="bg-grid absolute inset-0 opacity-40 [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]" />
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }} className="relative mx-auto max-w-5xl px-4 py-14 sm:px-6">
           <p className="eyebrow text-[hsl(var(--mastery))]">Skillfirms experts</p>
-          <h1 className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Know the work? Teach it, judge it, get paid.</h1>
-          <p className="mt-4 max-w-xl text-lg text-white/75">Build your own courses, with video, at the price you choose, and change it whenever you like. Or review real Mission submissions from people learning your field. One expert account does both.</p>
+          <h1 className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">Know the work? Teach it and get paid.</h1>
+          <p className="mt-4 max-w-xl text-lg text-white/75">Build your own courses, with video, at the price you choose, and change it whenever you like. People who pass your course get proof on Talfirms that says you taught them.</p>
           <dl className="mt-8 grid max-w-xl grid-cols-3 gap-6 border-t border-white/15 pt-6">
-            <div><dt className="text-xs text-white/60">You earn per review</dt><dd className="mt-1 font-display text-2xl font-semibold">{earn(lo)}–{earn(hi)}</dd></div>
-            <div><dt className="text-xs text-white/60">Time per review</dt><dd className="mt-1 font-display text-2xl font-semibold">20–40 min</dd></div>
+            <div><dt className="text-xs text-white/60">You keep per sale</dt><dd className="mt-1 font-display text-2xl font-semibold">70–97%</dd></div>
+            <div><dt className="text-xs text-white/60">Your price</dt><dd className="mt-1 font-display text-2xl font-semibold">$9–$199</dd></div>
             <div><dt className="text-xs text-white/60">Experts so far</dt><dd className="mt-1 font-display text-2xl font-semibold">{status ? status.experts_total : "–"}</dd></div>
           </dl>
         </motion.div>
@@ -95,14 +89,14 @@ export default function Experts() {
 
       <div className="mx-auto grid max-w-5xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_22rem]">
         <section>
-          <h2 className="font-display text-2xl font-semibold">Reviewing work: how it works</h2>
+          <h2 className="font-display text-2xl font-semibold">How teaching works</h2>
           <ol className="mt-4 space-y-4">
             {[
-              { icon: Search, t: "Pick work in your skills", d: "You only see paid reviews for missions that match the skills you were approved for. Take one, and you have 3 days." },
-              { icon: EyeOff, t: "Judge it blind", d: "You see the work, never the person's name. Score every skill, write feedback they can act on, and decide pass or not yet." },
-              { icon: BadgeCheck, t: "Your pass means something", d: "A pass gives them an \"Expert verified\" certificate that shows as verified proof on Talfirms, where employers look." },
-              { icon: Wallet, t: "Earn 60%", d: "Every finished review adds to your earnings, shown in your review queue. Payouts start when payments open." },
-              { icon: Laptop, t: "From anywhere, when you like", d: "No schedule and no minimum. Review when you have time." },
+              { icon: PencilRuler, t: "Build it in the studio", d: "Write lessons, add your own videos, and write at least 3 graded questions per lesson. You can put a time limit on each check." },
+              { icon: BadgeCheck, t: "We check it, then it's live", d: "Skillfirms reviews every course before it goes live, so learners can trust it." },
+              { icon: Video, t: "Lesson 1 is a free preview", d: "Learners try your teaching first, then buy the course at the price you set." },
+              { icon: Wallet, t: "Keep 70% to 97%", d: "70% when Skillfirms finds the learner, 97% through your own link, and a share of company team-training money." },
+              { icon: Laptop, t: "Proof with your name on it", d: "People who pass show it on Talfirms as \"taught by an expert\", with your name." },
             ].map((s) => (
               <li key={s.t} className="flex gap-3">
                 <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-mastery/10 text-mastery"><s.icon className="h-5 w-5" /></span>
@@ -110,7 +104,7 @@ export default function Experts() {
               </li>
             ))}
           </ol>
-          <p className="mt-6 text-sm text-muted-foreground">We check every application by hand. You can't review your own work, and you can't review outside your approved skills.</p>
+          <p className="mt-6 text-sm text-muted-foreground">We check every application by hand.</p>
         </section>
 
         <aside>
@@ -118,8 +112,8 @@ export default function Experts() {
             {status?.expert ? (
               <div>
                 <p className="flex items-center gap-2 font-display text-xl font-semibold"><CheckCircle2 className="h-5 w-5 text-mastery" />You're an expert</p>
-                <p className="mt-1 text-sm text-muted-foreground">Open your queue to pick up reviews.</p>
-                <Link to="/expert"><Button className="mt-4 w-full">Open my review queue</Button></Link>
+                <p className="mt-1 text-sm text-muted-foreground">Build a course or check how your courses are doing.</p>
+                <Link to="/teach"><Button className="mt-4 w-full">Open my course studio</Button></Link>
               </div>
             ) : app?.status === "pending" ? (
               <div>
@@ -140,7 +134,7 @@ export default function Experts() {
                   <Textarea value={form.experience} onChange={(e) => setForm({ ...form, experience: e.target.value })} maxLength={3000} placeholder="Roles, projects, what you've reviewed or signed off before (at least 50 characters)" className="mt-1 min-h-28" />
                 </label>
                 <div>
-                  <p className="text-sm font-medium">Skills you can judge <span className="font-normal text-muted-foreground">({picked.length}/10)</span></p>
+                  <p className="text-sm font-medium">Skills you can teach <span className="font-normal text-muted-foreground">({picked.length}/10)</span></p>
                   <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter skills" className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-1.5 text-sm" />
                   <div className="mt-2 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto">
                     {shown.map((s) => {

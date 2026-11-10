@@ -69,7 +69,7 @@ export default function MyCredentials() {
         <p className="mt-1 text-sm text-muted-foreground">Every Skillfirms Verified credential you've earned, with a permanent record even if one is later superseded by a newer version.</p>
 
         {credentials.length === 0 ? (
-          <EmptyState icon={Award} title="No credentials yet" description="Pass a course assessment or get a mission expert-reviewed to earn your first one." />
+          <EmptyState icon={Award} title="No credentials yet" description="Pass every graded check in a course to earn your first one. It shows on Talfirms as proof." />
         ) : (
           <div className="mt-6 space-y-3">
             {credentials.map((c) => (

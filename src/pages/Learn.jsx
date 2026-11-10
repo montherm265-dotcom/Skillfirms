@@ -35,12 +35,11 @@ export default function Learn() {
     Promise.all([
       supabase.from("skillfirms_skills").select("id, name"),
       supabase.from("skillfirms_course_skills").select("skill_id, coverage, skillfirms_courses(slug, title, level, duration_hours, status, rating_avg)"),
-      supabase.from("skillfirms_mission_skills").select("skill_id, skillfirms_missions(slug, title, difficulty, estimated_hours, status)"),
-    ]).then(([skillsRes, coursesRes, missionsRes]) => {
+    ]).then(([skillsRes, coursesRes]) => {
       if (!active) return;
-      const firstError = skillsRes.error || coursesRes.error || missionsRes.error;
+      const firstError = skillsRes.error || coursesRes.error;
       if (firstError) { setError("Couldn't load courses right now. Try again in a moment."); return; }
-      setData({ skills: skillsRes.data ?? [], courseLinks: coursesRes.data ?? [], missionLinks: missionsRes.data ?? [] });
+      setData({ skills: skillsRes.data ?? [], courseLinks: coursesRes.data ?? [] });
     });
     return () => { active = false; };
   }, []);
@@ -49,17 +48,13 @@ export default function Learn() {
     if (!data) return [];
     return labels.map((label) => {
       const skill = matchSkill(label, data.skills);
-      if (!skill) return { label, skill: null, courses: [], missions: [] };
+      if (!skill) return { label, skill: null, courses: [] };
       const courses = data.courseLinks
         .filter((l) => l.skill_id === skill.id && l.skillfirms_courses?.status === "published")
         .sort((a, b) => (b.coverage ?? 0) - (a.coverage ?? 0) || (b.skillfirms_courses.rating_avg ?? 0) - (a.skillfirms_courses.rating_avg ?? 0))
         .slice(0, 2)
         .map((l) => l.skillfirms_courses);
-      const missions = data.missionLinks
-        .filter((l) => l.skill_id === skill.id && l.skillfirms_missions?.status === "published")
-        .slice(0, 1)
-        .map((l) => l.skillfirms_missions);
-      return { label, skill, courses, missions };
+      return { label, skill, courses };
     });
   }, [data, labels]);
 
@@ -67,7 +62,7 @@ export default function Learn() {
 
   return (
     <div className="section-pad">
-      <Seo title="Learn the skills a job needs" description="Courses and missions for exactly the skills a job is asking for." canonical="/learn" />
+      <Seo title="Learn the skills a job needs" description="Courses for exactly the skills a job is asking for." canonical="/learn" />
       <div className="mx-auto max-w-3xl">
         {fromTalfirms && <Badge variant="outline" className="mb-3">From Talfirms · Skill Bridge</Badge>}
         <JobGoalBanner className="mb-5" />
@@ -91,7 +86,7 @@ export default function Learn() {
                 {rows.map((row) => (
                   <li key={row.label} className="card-soft p-4">
                     <p className="font-display font-semibold">{row.label}</p>
-                    {row.courses.length === 0 && row.missions.length === 0 ? (
+                    {row.courses.length === 0 ? (
                       <p className="mt-1 text-sm text-muted-foreground">
                         No Skillfirms course for this yet. <Link to="/roles" className="font-medium text-primary hover:underline">Browse career paths</Link>
                       </p>
@@ -108,12 +103,6 @@ export default function Learn() {
                               {c.duration_hours ? <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{Math.round(Number(c.duration_hours) * 10) / 10}h</span> : null}
                               <span className="font-medium text-primary">Start</span>
                             </span>
-                          </Link>
-                        ))}
-                        {row.missions.map((m) => (
-                          <Link key={m.slug} to={`/missions/${m.slug}`} className="flex items-center justify-between gap-3 rounded-lg bg-secondary/50 px-3 py-2 text-sm hover:bg-secondary">
-                            <span className="min-w-0">Prove it: <span className="font-medium">{m.title}</span></span>
-                            <span className="flex-none text-xs text-muted-foreground">Mission{m.estimated_hours ? ` · ${m.estimated_hours}h` : ""}</span>
                           </Link>
                         ))}
                       </div>

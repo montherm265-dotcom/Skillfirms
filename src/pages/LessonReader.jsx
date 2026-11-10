@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { enroll, submitQuiz } from "@/lib/courses";
 import { loadLesson, openLesson, readingMinutes, toBlocks } from "@/lib/lessons";
 import { priceLabel } from "@/lib/catalog";
+import { openCrossApp } from "@/lib/crossApp";
+import { TALFIRMS_URL } from "@/lib/externalLinks";
 import VideoPlayer from "@/components/course/VideoPlayer";
 import Seo from "@/components/seo/Seo";
 import LessonNotes from "@/components/course/LessonNotes";
@@ -392,7 +394,7 @@ export default function LessonReader() {
                     {hiring.some((h) => !h.sent) && (
                       <Button className="bg-warning text-black hover:bg-warning/90" onClick={() => navigate(`/courses/${slug}#hiring`)}>Send it to {hiring.find((h) => !h.sent).company} (hiring)</Button>
                     )}
-                    <Button variant="outline" className="border-white/30 bg-transparent text-primary-foreground hover:bg-white/10" onClick={() => navigate("/missions")}><Target className="h-4 w-4" />Prove it in a Mission</Button>
+                    <Button variant="outline" className="border-white/30 bg-transparent text-primary-foreground hover:bg-white/10" onClick={() => openCrossApp(TALFIRMS_URL, "/career")}><Target className="h-4 w-4" />Prove it on Talfirms</Button>
                   </div>
                 </motion.section>
               )}

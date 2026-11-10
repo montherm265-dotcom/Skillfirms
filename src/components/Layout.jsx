@@ -35,7 +35,6 @@ export default function Layout() {
 
   const links = [
     { to: "/courses", label: "Courses" },
-    { to: "/missions", label: "Missions" },
     { to: "/roles", label: "Careers" },
     ...(user ? [{ to: "/my-learning", label: "My learning" }] : []),
     { to: "/pro", label: "Pricing" },
@@ -45,7 +44,7 @@ export default function Layout() {
     { to: "/passport", label: "Skill Passport" },
     { to: "/credentials", label: "Certificates" },
     { to: "/team", label: "Team training" },
-    ...(expertId ? [{ to: "/teach", label: "Teach: my courses" }, { to: "/expert", label: "Review queue" }] : []),
+    ...(expertId ? [{ to: "/teach", label: "Teach: my courses" }] : []),
     { to: "/settings", label: "Settings" },
   ];
   const initial = (profile?.display_name || user?.email || "?").slice(0, 1).toUpperCase();
@@ -146,7 +145,6 @@ export default function Layout() {
             <p className="font-semibold">Learn</p>
             <ul className="mt-3 space-y-2 text-muted-foreground">
               <li><Link to="/courses" className="hover:text-foreground">All courses</Link></li>
-              <li><Link to="/missions" className="hover:text-foreground">Missions</Link></li>
               <li><Link to="/roles" className="hover:text-foreground">Career paths</Link></li>
               <li><Link to="/pro" className="hover:text-foreground">Pricing</Link></li>
               <li><Link to="/experts" className="hover:text-foreground">Teach or review as an expert</Link></li>

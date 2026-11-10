@@ -260,7 +260,7 @@ function GoalBox({ user }) {
       <div className="mx-auto max-w-2xl text-center">
         <p className="eyebrow">Not sure where to start?</p>
         <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Tell us where you want to go</h2>
-        <p className="mt-3 text-muted-foreground">We match your goal to a real role, show which skills you're missing, and build the path of courses and missions to close the gap.</p>
+        <p className="mt-3 text-muted-foreground">We match your goal to a real role, show which skills you're missing, and build the path of courses to close the gap.</p>
       </div>
       <form onSubmit={handleSubmit} className="mx-auto mt-8 max-w-xl">
         <Textarea value={goalText} onChange={(e) => setGoalText(e.target.value)} placeholder={EXAMPLE} className="min-h-28 text-base" maxLength={2000} aria-label="Your career goal" />
