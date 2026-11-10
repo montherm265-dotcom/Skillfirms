@@ -20,7 +20,9 @@ export function AuthProvider({ children }) {
       setProfile(null);
       return;
     }
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+    // get_my_profile() returns the owner's own row; a raw select('*') is
+    // refused because profiles only grants the public columns to clients.
+    const { data } = await supabase.rpc('get_my_profile');
     setProfile(data ?? null);
   }, []);
 
