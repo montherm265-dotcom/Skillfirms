@@ -15,8 +15,47 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="/logo.png" />
     <title>Skillfirms — AI Career Intelligence</title>
+    <style>#shell{display:none}html.shell #shell{display:block}html.shell #root{display:none}</style>
+    <script src="/boot.js"></script>
   </head>
   <body>
+    <!-- The top of the homepage, shown at once to a first-time visitor while
+         the app loads (boot.js decides; src/lib/shell.js hands over). Keep it
+         in step with Layout's signed-out header and home/SkillHero. -->
+    <div id="shell">
+      <header class="sticky top-0 z-40 border-b border-border bg-background/90">
+        <div class="mx-auto flex max-w-8xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+          <a href="/" class="flex items-center gap-2">
+            <svg viewBox="0 0 32 32" fill="none" class="h-7 w-7" aria-hidden="true"><rect width="32" height="32" rx="7" class="fill-primary" /><path d="M9 11.5C9 9.567 10.567 8 12.5 8H21.5L19.8 11.2H12.8C12.2 11.2 11.7 11.7 11.7 12.3C11.7 12.9 12.2 13.4 12.8 13.4H17.2C19.4 13.4 21.2 15.2 21.2 17.4C21.2 19.6 19.4 21.4 17.2 21.4H9.5L11.2 18.2H17.1C17.7 18.2 18.2 17.7 18.2 17.1C18.2 16.5 17.7 16 17.1 16H13.3C10.9 16 9 14.1 9 11.5Z" class="fill-primary-foreground" /></svg>
+            <span class="font-display text-lg font-semibold tracking-tight">Skillfirms</span>
+          </a>
+          <nav class="hidden items-center gap-1 lg:flex">
+            <a href="/courses" class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground">Courses</a>
+            <a href="/roles" class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground">Careers</a>
+            <a href="/pro" class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground">Pricing</a>
+          </nav>
+          <div class="hidden items-center gap-2 lg:flex">
+            <a href="/auth" class="inline-flex h-8 items-center rounded-md px-3 text-xs font-medium">Sign in</a>
+            <a href="/auth?mode=signup" class="inline-flex h-8 items-center rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground">Join free</a>
+          </div>
+          <span class="h-9 w-9 lg:hidden"></span>
+        </div>
+      </header>
+      <section class="relative isolate overflow-hidden">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#f3f3ff_0%,#ffffff_70%)]"></div>
+        <div class="mx-auto max-w-5xl px-4 pt-14 text-center sm:pt-20">
+          <div><span class="inline-flex items-center gap-2 rounded-full border border-[#1f4189]/15 bg-white/80 py-1 pl-1 pr-3 text-sm shadow-sm"><span class="rounded-full bg-[#1f4189] px-2 py-0.5 text-xs font-semibold text-white">Talfirms</span><span class="text-foreground/80"><span class="sm:hidden">Certificates show on Talfirms</span><span class="hidden sm:inline">Every certificate shows on your Talfirms profile</span></span><span class="h-4 w-4"></span></span></div>
+          <h1 class="mx-auto mt-7 max-w-4xl text-[2.9rem] font-extrabold leading-[1.02] tracking-[-0.045em] text-[#00041d] sm:text-7xl lg:text-[5.4rem]"><span class="inline-block pr-[0.22em]">Learn</span><span class="inline-block pr-[0.22em]">the</span><span class="inline-block pr-[0.22em]">job.</span><span class="mark inline-block pr-[0.22em]">Prove it.</span><br /><span class="inline-block pr-[0.22em]">Get</span><span class="inline-block pr-[0.22em]">hired.</span></h1>
+          <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">Courses taught by people who do the job, plus free AI-taught basics. A graded check in every lesson, an AI tutor beside you, and a certificate employers can check.</p>
+          <form action="/courses" class="mx-auto mt-8 flex max-w-xl items-center gap-2 rounded-full border border-[#1f4189]/15 bg-white/90 p-1.5 pl-5 shadow-[0_12px_40px_-16px_rgba(10,20,51,0.4)]">
+            <span class="h-5 w-5 flex-none"></span>
+            <input name="q" placeholder="What do you want to learn?" aria-label="Search courses" class="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground" />
+            <button type="submit" class="h-11 rounded-full bg-[#00041d] px-6 text-sm font-semibold text-white">Search</button>
+          </form>
+        </div>
+        <div style="height:60vh"></div>
+      </section>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -17,7 +17,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import Seo from "@/components/seo/Seo";
 import SkillHero from "@/components/home/SkillHero";
-import LearnStory from "@/components/home/LearnStory";
+
+// Below the first screen: loads on its own.
+const LearnStory = lazy(() => import("@/components/home/LearnStory"));
 
 const ICONS = { FlaskConical, Cog, KanbanSquare, BarChart3, BrainCircuit, Compass };
 const ease = [0.22, 1, 0.36, 1];
@@ -60,7 +62,7 @@ export default function Home() {
       />
 
       <SkillHero totals={courses ? totals : null} />
-      <LearnStory />
+      <Suspense fallback={<div className="min-h-screen" />}><LearnStory /></Suspense>
 
       {/* Continue learning */}
       {mine.length > 0 && (

@@ -1,3 +1,4 @@
+import { dropShell } from '@/lib/shell';
 import "@fontsource-variable/inter/wght.css";
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -35,3 +36,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </React.StrictMode>,
 );
+
+// Safety net: never leave the built-in top section up if the homepage didn't take over.
+setTimeout(dropShell, 12000);

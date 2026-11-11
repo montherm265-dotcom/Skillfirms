@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { dropShell, shellShown } from "@/lib/shell";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import { Award, Briefcase, CheckCircle2, ChevronRight, Search, ShieldCheck, Sparkles } from "lucide-react";
@@ -25,6 +26,10 @@ function Float({ children, className, depth = 1, scrollY, px, py, delay }) {
 // real graded lesson with the moments that matter floating around it.
 export default function SkillHero({ totals }) {
   const ref = useRef(null);
+  // When index.html already showed this top section, take over without
+  // replaying the entrance animation, then remove the built-in copy.
+  const instant = useRef(shellShown()).current;
+  useLayoutEffect(() => { dropShell(); }, []);
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const { scrollY } = useScroll();
@@ -46,7 +51,7 @@ export default function SkillHero({ totals }) {
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-60" style={{ backgroundImage: "linear-gradient(rgba(31,65,137,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(31,65,137,0.06) 1px, transparent 1px)", backgroundSize: "56px 56px", maskImage: "radial-gradient(ellipse 60% 55% at 50% 30%, black, transparent 75%)", WebkitMaskImage: "radial-gradient(ellipse 60% 55% at 50% 30%, black, transparent 75%)" }} />
 
       <motion.div style={{ opacity: fade, scale }} className="mx-auto max-w-5xl px-4 pt-14 text-center sm:pt-20">
-        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }}>
+        <motion.div initial={instant ? false : { opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }}>
           <a href={TALFIRMS_URL} className="group inline-flex items-center gap-2 rounded-full border border-[#1f4189]/15 bg-white/80 py-1 pl-1 pr-3 text-sm shadow-sm backdrop-blur">
             <span className="rounded-full bg-[#1f4189] px-2 py-0.5 text-xs font-semibold text-white">Talfirms</span>
             <span className="text-foreground/80"><span className="sm:hidden">Certificates show on Talfirms</span><span className="hidden sm:inline">Every certificate shows on your Talfirms profile</span></span>
@@ -56,34 +61,34 @@ export default function SkillHero({ totals }) {
 
         <h1 className="mx-auto mt-7 max-w-4xl text-[2.9rem] font-extrabold leading-[1.02] tracking-[-0.045em] text-[#00041d] sm:text-7xl lg:text-[5.4rem] dark:text-white">
           {["Learn", "the", "job."].map((w, i) => (
-            <motion.span key={i} className="inline-block pr-[0.22em]" initial={{ opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.8, delay: 0.1 + i * 0.07, ease }}>{w}</motion.span>
+            <motion.span key={i} className="inline-block pr-[0.22em]" initial={instant ? false : { opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.8, delay: 0.1 + i * 0.07, ease }}>{w}</motion.span>
           ))}
-          <motion.span className="mark inline-block pr-[0.22em]" initial={{ opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.9, delay: 0.35, ease }}>Prove it.</motion.span>
+          <motion.span className="mark inline-block pr-[0.22em]" initial={instant ? false : { opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.9, delay: 0.35, ease }}>Prove it.</motion.span>
           <br />
           {["Get", "hired."].map((w, i) => (
-            <motion.span key={w} className="inline-block pr-[0.22em]" initial={{ opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.8, delay: 0.5 + i * 0.07, ease }}>{w}</motion.span>
+            <motion.span key={w} className="inline-block pr-[0.22em]" initial={instant ? false : { opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.8, delay: 0.5 + i * 0.07, ease }}>{w}</motion.span>
           ))}
         </h1>
 
-        <motion.p initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.7, ease }}
+        <motion.p initial={instant ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.7, ease }}
           className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
           Courses taught by people who do the job, plus free AI-taught basics. A graded check in every lesson, an AI tutor beside you, and a certificate employers can check.
         </motion.p>
 
-        <motion.form initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.85, ease }}
+        <motion.form initial={instant ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.85, ease }}
           onSubmit={(e) => { e.preventDefault(); navigate(q.trim() ? `/courses?q=${encodeURIComponent(q.trim())}` : "/courses"); }}
           className="mx-auto mt-8 flex max-w-xl items-center gap-2 rounded-full border border-[#1f4189]/15 bg-white/90 p-1.5 pl-5 shadow-[0_12px_40px_-16px_rgba(10,20,51,0.4)] backdrop-blur focus-within:ring-2 focus-within:ring-[#1f4189]/30">
           <Search className="h-5 w-5 flex-none text-muted-foreground" />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="What do you want to learn?" aria-label="Search courses" className="min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground" />
           <button type="submit" className="h-11 rounded-full bg-[#00041d] px-6 text-sm font-semibold text-white transition-colors hover:bg-[#1f4189]">Search</button>
         </motion.form>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-4 flex flex-wrap justify-center gap-2 text-sm">
+        <motion.div initial={instant ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="mt-4 flex flex-wrap justify-center gap-2 text-sm">
           {["CQV", "GMP", "SQL", "Agile", "Machine learning"].map((t) => (
             <Link key={t} to={`/courses?q=${encodeURIComponent(t)}`} className="rounded-full border border-border bg-white/70 px-3 py-1 text-muted-foreground transition hover:-translate-y-px hover:border-[#1f4189]/40 hover:text-foreground">{t}</Link>
           ))}
         </motion.div>
         {totals?.courses > 0 && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }} className="mt-5 text-sm text-muted-foreground">
+          <motion.p initial={instant ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }} className="mt-5 text-sm text-muted-foreground">
             <b className="tabular-nums text-foreground">{totals.courses}</b> courses · <b className="tabular-nums text-foreground">{totals.lessons}</b> lessons · <b className="tabular-nums text-foreground">{totals.questions}</b> graded questions
           </motion.p>
         )}

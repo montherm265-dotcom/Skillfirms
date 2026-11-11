@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Menu, Search, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
-import SiteFooter from "@/components/SiteFooter";
 import { openCrossApp } from "@/lib/crossApp";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 const navLinkClass = ({ isActive }) =>
   `rounded-lg px-3 py-2 text-sm font-medium ${isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"}`;
+
+const SiteFooter = lazy(() => import("@/components/SiteFooter"));
 
 export default function Layout() {
   const { user, profile, expertId, signOut } = useAuth();
@@ -137,7 +138,7 @@ export default function Layout() {
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
         <Outlet />
       </main>
-      <SiteFooter />
+      <Suspense fallback={null}><SiteFooter /></Suspense>
     </div>
   );
 }
