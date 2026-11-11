@@ -221,7 +221,7 @@ export default function CourseDetail() {
           <div className="lg:sticky lg:top-20">
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease, delay: 0.1 }}
               className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_60px_-30px_hsl(var(--foreground)/0.45)]">
-              <button type="button" onClick={start} className="group relative block w-full" aria-label={cta}>
+              <button type="button" onClick={start} className="group relative block w-full" aria-label={`${course.category?.label ?? "Course"}: ${cta}`}>
                 <CourseCover course={course} size="lg" className="aspect-[16/9] w-full" />
                 <span className="absolute inset-0 flex items-center justify-center bg-black/0 transition group-hover:bg-black/20">
                   <PlayCircle className="h-14 w-14 text-white opacity-90 drop-shadow-lg transition group-hover:scale-110" strokeWidth={1.25} />

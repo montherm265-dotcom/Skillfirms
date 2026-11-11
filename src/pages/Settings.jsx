@@ -1,3 +1,4 @@
+import YourData from "@/components/privacy/YourData";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -66,6 +67,7 @@ export default function Settings() {
             <label className="relative inline-flex flex-shrink-0 cursor-pointer items-center">
               <input
                 type="checkbox"
+                aria-label="Share verified credentials with Talfirms"
                 className="peer sr-only"
                 checked={shareCredentials}
                 disabled={saving}
@@ -76,6 +78,7 @@ export default function Settings() {
             </label>
           </div>
         </div>
+        <div className="mt-6"><YourData product="Skillfirms" /></div>
       </div>
     </div>
   );

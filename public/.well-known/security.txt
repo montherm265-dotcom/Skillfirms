@@ -1,0 +1,6 @@
+# Found a security problem on Skillfirms? Thank you: please tell us before anyone else.
+Contact: https://skillfirms.montherm265.workers.dev/trust#report
+Expires: 2027-11-11T00:00:00.000Z
+Preferred-Languages: en
+Policy: https://skillfirms.montherm265.workers.dev/trust
+Canonical: https://skillfirms.montherm265.workers.dev/.well-known/security.txt

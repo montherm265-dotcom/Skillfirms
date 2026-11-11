@@ -252,7 +252,7 @@ export default function LessonReader() {
           )}
           {lesson === null && locked && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 overflow-hidden rounded-2xl bg-[#050b24] p-8 text-center text-white">
-              <Lock className="mx-auto h-8 w-8 text-[hsl(var(--mastery))]" />
+              <Lock className="mx-auto h-8 w-8 text-[#9db7ff]" />
               <p className="mt-3 text-2xl font-extrabold tracking-[-0.03em]">This lesson is part of the full course</p>
               <p className="mx-auto mt-1 max-w-md text-sm text-white/70">Lesson 1 is a free preview. Get every lesson, the graded checks and the certificate for {priceLabel(course.price_cents)}.</p>
               <Link to={`/courses/${slug}`}><Button className="mt-5 bg-mastery text-mastery-foreground hover:bg-mastery/90">See the course</Button></Link>

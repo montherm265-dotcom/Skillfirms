@@ -124,7 +124,7 @@ export default function Home() {
       <section className="mx-auto mt-20 max-w-8xl px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-[2rem] bg-[#050b24] p-6 text-white sm:p-12">
           <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full blur-3xl" style={{ background: "radial-gradient(circle, rgba(59,108,230,0.45), transparent 65%)" }} />
-          <p className="eyebrow text-[hsl(var(--mastery))]">Not just another course site</p>
+          <p className="eyebrow text-[#9db7ff]">Not just another course site</p>
           <h2 className="relative mt-2 max-w-2xl text-3xl font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-5xl">A certificate that counts for something, because the jobs are next door.</h2>
           <div className="relative mt-8 grid gap-6 sm:grid-cols-3">
             {[
@@ -133,7 +133,7 @@ export default function Home() {
               { icon: Briefcase, t: "Learn for a real opening", d: "Each course shows the open Talfirms jobs that ask for its skills, and how your fit changes." },
             ].map((s) => (
               <div key={s.t}>
-                <s.icon className="h-6 w-6 text-[hsl(var(--mastery))]" />
+                <s.icon className="h-6 w-6 text-[#9db7ff]" />
                 <p className="mt-3 font-display text-xl font-semibold">{s.t}</p>
                 <p className="mt-1 text-sm text-white/70">{s.d}</p>
               </div>

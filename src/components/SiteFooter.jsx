@@ -7,7 +7,7 @@ const COLS = [
   ["Learn", [["All courses", "/courses"], ["Learn a skill", "/learn"], ["Career paths", "/roles"], ["Pricing", "/pro"]]],
   ["Prove", [["My certificates", "/credentials"], ["Skill Passport", "/passport"], ["My learning", "/my-learning"]]],
   ["Work with us", [["Teach as an expert", "/experts"], ["Train your team", "/team"]]],
-  ["Skillfirms", [["Privacy", "/privacy"], ["Terms", "/terms"]]],
+  ["Skillfirms", [["Security", "/trust"], ["Privacy", "/privacy"], ["Terms", "/terms"]]],
 ];
 
 function Mark() {
@@ -39,7 +39,7 @@ export default function SiteFooter() {
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {COLS.map(([h, links]) => (
               <div key={h}>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">{h}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">{h}</p>
                 <ul className="mt-4 space-y-2.5 text-sm">
                   {links.map(([t, to]) => <li key={to}><Link to={to} className="text-white/70 transition-colors hover:text-white">{t}</Link></li>)}
                 </ul>
@@ -47,7 +47,7 @@ export default function SiteFooter() {
             ))}
           </div>
         </div>
-        <div className="mt-14 flex flex-col gap-2 border-t border-white/10 py-6 text-xs text-white/40 sm:flex-row sm:justify-between">
+        <div className="mt-14 flex flex-col gap-2 border-t border-white/10 py-6 text-xs text-white/60 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} Skillfirms · part of Talfirms</p>
           <p>Every certificate has its own page anyone can check.</p>
         </div>

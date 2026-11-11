@@ -34,6 +34,7 @@ const CredentialDetail = lazy(() => import('@/pages/CredentialDetail'));
 const VerifyCredential = lazy(() => import('@/pages/VerifyCredential'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
+const Trust = lazy(() => import('@/pages/Trust'));
 const Terms = lazy(() => import('@/pages/Terms'));
 const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
 
@@ -80,6 +81,7 @@ export default function App() {
                 <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
                 <Route path="/expert" element={<Navigate to="/teach" replace />} />
                 <Route path="/privacy" element={<Privacy />} />
+                <Route path="/trust" element={<Trust />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="*" element={<PageNotFound />} />
               </Route>
