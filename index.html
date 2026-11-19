@@ -23,24 +23,7 @@
          the app loads (boot.js decides; src/lib/shell.js hands over). Keep it
          in step with Layout's signed-out header and home/SkillHero. -->
     <div id="shell">
-      <header class="sticky top-0 z-40 border-b border-border bg-background/90">
-        <div class="mx-auto flex max-w-8xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <a href="/" class="flex items-center gap-2">
-            <svg viewBox="0 0 32 32" fill="none" class="h-7 w-7" aria-hidden="true"><rect width="32" height="32" rx="7" class="fill-primary" /><path d="M9 11.5C9 9.567 10.567 8 12.5 8H21.5L19.8 11.2H12.8C12.2 11.2 11.7 11.7 11.7 12.3C11.7 12.9 12.2 13.4 12.8 13.4H17.2C19.4 13.4 21.2 15.2 21.2 17.4C21.2 19.6 19.4 21.4 17.2 21.4H9.5L11.2 18.2H17.1C17.7 18.2 18.2 17.7 18.2 17.1C18.2 16.5 17.7 16 17.1 16H13.3C10.9 16 9 14.1 9 11.5Z" class="fill-primary-foreground" /></svg>
-            <span class="font-display text-lg font-semibold tracking-tight">Skillfirms</span>
-          </a>
-          <nav class="hidden items-center gap-1 lg:flex">
-            <a href="/courses" class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground">Courses</a>
-            <a href="/roles" class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground">Careers</a>
-            <a href="/pro" class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground">Pricing</a>
-          </nav>
-          <div class="hidden items-center gap-2 lg:flex">
-            <a href="/auth" class="inline-flex h-8 items-center rounded-md px-3 text-xs font-medium">Sign in</a>
-            <a href="/auth?mode=signup" class="inline-flex h-8 items-center rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground">Join free</a>
-          </div>
-          <span class="h-9 w-9 lg:hidden"></span>
-        </div>
-      </header>
+      <header class="sticky top-0 z-40 border-b border-border bg-background/90"><div class="mx-auto flex max-w-8xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8"><a class="flex items-center gap-2" href="/"><svg viewBox="0 0 32 32" fill="none" class="h-7 w-7" aria-hidden="true"><rect width="32" height="32" rx="7" class="fill-primary"/><path d="M9 11.5C9 9.567 10.567 8 12.5 8H21.5L19.8 11.2H12.8C12.2 11.2 11.7 11.7 11.7 12.3C11.7 12.9 12.2 13.4 12.8 13.4H17.2C19.4 13.4 21.2 15.2 21.2 17.4C21.2 19.6 19.4 21.4 17.2 21.4H9.5L11.2 18.2H17.1C17.7 18.2 18.2 17.7 18.2 17.1C18.2 16.5 17.7 16 17.1 16H13.3C10.9 16 9 14.1 9 11.5Z" class="fill-primary-foreground"/></svg><span class="font-display text-lg font-semibold tracking-tight">Skillfirms</span></a><nav class="hidden items-center gap-1 lg:flex"><a class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground" href="/courses">Courses</a><a class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground" href="/roles">Careers</a><a class="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground" href="/pro">Pricing</a></nav><div class="hidden items-center gap-2 lg:flex"><a href="/auth"><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs">Sign in</button></a><a href="/auth?mode=signup"><button class="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 rounded-md px-3 text-xs">Join free</button></a></div><button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg text-foreground lg:hidden" aria-label="Open menu" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="menu h-5 w-5"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg></button></div></header>
       <section class="relative isolate overflow-hidden">
         <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,#f3f3ff_0%,#ffffff_70%)]"></div>
         <div class="mx-auto max-w-5xl px-4 pt-14 text-center sm:pt-20">
