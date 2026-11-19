@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import { dropShell, shellShown } from "@/lib/shell";
+import { dropShellAfterPaint, shellShown } from "@/lib/shell";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import { Award, Briefcase, CheckCircle2, ChevronRight, Search, ShieldCheck, Sparkles } from "lucide-react";
@@ -29,7 +29,7 @@ export default function SkillHero({ totals }) {
   // When index.html already showed this top section, take over without
   // replaying the entrance animation, then remove the built-in copy.
   const instant = useRef(shellShown()).current;
-  useLayoutEffect(() => { dropShell(); }, []);
+  useLayoutEffect(() => { dropShellAfterPaint(); }, []);
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const { scrollY } = useScroll();

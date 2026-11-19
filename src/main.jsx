@@ -1,4 +1,4 @@
-import { dropShell } from '@/lib/shell';
+import { appStylesReady, dropShell, shellShown } from '@/lib/shell';
 import "@fontsource-variable/inter/wght.css";
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -29,13 +29,16 @@ if (document.readyState === 'complete') {
   window.addEventListener('load', startMonitoringWhenIdle, { once: true });
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+// Not the first-visit homepage: the built-in top section is never shown.
+if (!shellShown()) dropShell()
+
+appStylesReady().then(() => ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <App />
     </ErrorBoundary>
   </React.StrictMode>,
-);
+));
 
 // Safety net: never leave the built-in top section up if the homepage didn't take over.
 setTimeout(dropShell, 12000);
