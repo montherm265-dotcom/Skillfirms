@@ -30,13 +30,14 @@ export default function StudioEditor() {
   const [busy, setBusy] = useState(null);
   const [skillFilter, setSkillFilter] = useState("");
   const [checkMinutes, setCheckMinutesState] = useState("");
+  const [firstDiscount, setFirstDiscount] = useState(true);
   const [priceText, setPriceText] = useState(null);
 
   useEffect(() => {
     supabase.from("skillfirms_skills").select("id, name").order("name").then(({ data }) => setSkills(data ?? []));
     if (!isNew) loadStudioCourse(id).then((c) => setCourse({ ...c, lessons: c.lessons.length ? c.lessons.map((l) => ({ ...l, video_url: l.video_url ?? "", key_points: l.key_points.length ? l.key_points : [""], sections: l.sections.length ? l.sections : [{ heading: "", body: "" }] })) : [blankLesson()] })).catch((e) => { toast.error(e.message); navigate("/teach"); });
-    if (!isNew) supabase.from("skillfirms_courses").select("check_minutes").eq("id", id).maybeSingle()
-      .then(({ data, error }) => { if (!error) setCheckMinutesState(data?.check_minutes ? String(data.check_minutes) : ""); });
+    if (!isNew) supabase.from("skillfirms_courses").select("check_minutes, first_course_discount").eq("id", id).maybeSingle()
+      .then(({ data, error }) => { if (!error) { setCheckMinutesState(data?.check_minutes ? String(data.check_minutes) : ""); setFirstDiscount(data?.first_course_discount !== false); } });
   }, [id, isNew, navigate]);
 
   const set = (patch) => setCourse((c) => ({ ...c, ...patch }));
@@ -77,6 +78,7 @@ export default function StudioEditor() {
     try {
       const newId = await saveStudioCourse(isNew ? null : id, payload());
       await setCheckMinutes(newId, Number(checkMinutes) || null);
+      await supabase.rpc("skillfirms_studio_set_first_discount", { p_course_id: newId, p_on: firstDiscount });
       if (thenSubmit) { await submitStudioCourse(newId); toast.success("Sent for review. We'll check it soon."); navigate("/teach"); return; }
       toast.success("Saved");
       if (isNew) navigate(`/teach/${newId}`, { replace: true });
@@ -118,6 +120,12 @@ export default function StudioEditor() {
                   if (c == null) return <span className="mt-1 block text-xs font-normal text-destructive">Expert courses are paid: $9 to $199. You can change it any time.</span>;
                   return <span className="mt-1 block text-xs font-normal text-muted-foreground">You keep {dollars(Math.round(c * EXPERT_SHARE.marketplace / 100))} ({EXPERT_SHARE.marketplace}%) when Skillfirms finds the learner, {dollars(Math.round(c * EXPERT_SHARE.expert_link / 100))} ({EXPERT_SHARE.expert_link}%) through your own link.</span>;
                 })()}
+              </label>
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 text-sm font-medium sm:col-span-2">
+                <input type="checkbox" checked={firstDiscount} onChange={(e) => setFirstDiscount(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#1f4189]" />
+                <span>20% off for learners buying their first course
+                  <span className="mt-0.5 block text-xs font-normal text-muted-foreground">New learners see it on your course page. You keep your usual share of what they pay, and they're far more likely to buy, then come back for your next course at full price.</span>
+                </span>
               </label>
               <label className="text-sm font-medium sm:col-span-2">Time limit for each lesson's check
                 <select value={checkMinutes} onChange={(e) => setCheckMinutesState(e.target.value)} className={`mt-1 ${input}`}>

@@ -49,7 +49,7 @@ export async function buyCourse(courseId, ref = null) {
 
 export async function loadMyPurchase(userId, courseId) {
   if (!userId) return null;
-  const { data } = await supabase.from("skillfirms_course_purchases").select("status, payment_status").eq("user_id", userId).eq("course_id", courseId).maybeSingle();
+  const { data } = await supabase.from("skillfirms_course_purchases").select("status, payment_status, price_cents, list_price_cents, discount_kind").eq("user_id", userId).eq("course_id", courseId).maybeSingle();
   return data ?? null;
 }
 

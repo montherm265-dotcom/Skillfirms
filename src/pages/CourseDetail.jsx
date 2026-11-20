@@ -52,6 +52,7 @@ export default function CourseDetail() {
   const [busy, setBusy] = useState(false);
   const [access, setAccess] = useState(false);
   const [purchase, setPurchase] = useState(null);
+  const [offer, setOffer] = useState(false);
   const { saved, toggle } = useSaved();
   const userId = user?.id;
 
@@ -83,6 +84,8 @@ export default function CourseDetail() {
     if (Number(c.price_cents) > 0) {
       supabase.rpc("skillfirms_can_open_course", { p_course: c.id }).then(({ data }) => setAccess(Boolean(data)));
       loadMyPurchase(userId, c.id).then(setPurchase);
+      if (c.first_course_discount !== false) supabase.rpc("skillfirms_first_course_offer", { p_course_id: c.id }).then(({ data }) => setOffer(Boolean(data)));
+      else setOffer(false);
     } else {
       setAccess(true);
     }
@@ -150,8 +153,12 @@ export default function CourseDetail() {
   if (!course) return <DetailSkeleton />;
 
   const isSaved = saved.has(course.id);
+  // 20% off a learner's first paid course (shown, then held on their purchase).
+  const held = purchase && !["paid", "credit"].includes(purchase.payment_status) ? purchase : null;
+  const discounted = held ? held.discount_kind === "first_course" : paid && offer && course.first_course_discount !== false;
+  const payPrice = held ? held.price_cents : discounted ? Math.round(course.price_cents * 0.8) : course.price_cents;
   const cta = locked
-    ? (purchase?.status === "waitlist" ? "You're on the list" : `Buy · ${priceLabel(course.price_cents)}`)
+    ? (purchase?.status === "waitlist" ? "You're on the list" : `Buy · ${priceLabel(payPrice)}`)
     : !enrollment ? (paid ? "Start learning" : "Start learning — free") : credential ? "Review the course" : passed > 0 ? `Continue: lesson ${nextIndex + 1}` : "Start lesson 1";
 
   return (
@@ -208,11 +215,20 @@ export default function CourseDetail() {
               <Button variant="ghost" className="h-12 rounded-lg" onClick={share}><Link2 className="h-4 w-4" />Share</Button>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              {paid ? `${priceLabel(course.price_cents)} once: every lesson, the graded checks and the certificate. Lesson 1 is a free preview.` : "Free: learning, graded checks and the certificate."}
+              {paid ? (discounted && locked
+                ? <><s>{priceLabel(course.price_cents)}</s> <b className="text-foreground">{priceLabel(payPrice)}</b> once: every lesson, the graded checks and the certificate. Lesson 1 is a free preview.</>
+                : `${priceLabel(course.price_cents)} once: every lesson, the graded checks and the certificate. Lesson 1 is a free preview.`) : "Free: learning, graded checks and the certificate."}
               {course.enrollment_count > 0 && <> · <b className="text-foreground">{course.enrollment_count.toLocaleString()}</b> already enrolled</>}
             </p>
             {locked && <Link to={`/courses/${slug}/lessons/1`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-[#1f4189] hover:underline"><PlayCircle className="h-4 w-4" />Try lesson 1 free</Link>}
-            {locked && purchase?.status === "waitlist" && <p className="mt-2 max-w-md rounded-lg bg-secondary p-2 text-xs">You're on the list. Nothing has been charged; we'll let you know when buying opens.</p>}
+            {locked && discounted && !held && (
+              <div className="mt-3">
+                <p className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#1f4189] to-[#3b6ce6] px-3 py-1.5 text-xs font-semibold text-white shadow-sm">
+                  <Sparkles className="h-3.5 w-3.5" />20% off your first course · applied automatically
+                </p>
+              </div>
+            )}
+            {locked && purchase?.status === "waitlist" && <p className="mt-2 max-w-md rounded-lg bg-secondary p-2 text-xs">You're on the list. Nothing has been charged; we'll let you know when buying opens.{held?.discount_kind === "first_course" ? " Your 20% first-course discount is saved." : ""}</p>}
             {enrollment && (
               <div className="mt-4 max-w-md">
                 <div className="flex justify-between text-xs"><span className="font-medium">{passed} of {modules.length} lessons passed</span><span className="tabular-nums">{Math.round(enrollment.progress_percent)}%</span></div>
