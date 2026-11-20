@@ -1,3 +1,4 @@
+import { SF_MARK_PATH } from "@/components/brand/sfMark";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { format } from "date-fns";
@@ -103,7 +104,7 @@ export default function Certificate({
         <rect x="48" y="48" width="1504" height="1034" fill="url(#sf-guilloche)" />
         {/* Faint SF watermark */}
         <g transform="translate(800,565) rotate(-10) scale(9)" opacity="0.045">
-          <path d="M9 11.5C9 9.567 10.567 8 12.5 8H21.5L19.8 11.2H12.8C12.2 11.2 11.7 11.7 11.7 12.3C11.7 12.9 12.2 13.4 12.8 13.4H17.2C19.4 13.4 21.2 15.2 21.2 17.4C21.2 19.6 19.4 21.4 17.2 21.4H9.5L11.2 18.2H17.1C17.7 18.2 18.2 17.7 18.2 17.1C18.2 16.5 17.7 16 17.1 16H13.3C10.9 16 9 14.1 9 11.5Z" fill={NAVY} transform="translate(-15,-15)" />
+          <path d={SF_MARK_PATH} fill={NAVY} transform="scale(0.176) translate(-85,-55.5)" />
         </g>
       </g>
       <rect x="66" y="66" width="1468" height="998" rx="10" fill="none" stroke={NAVY} strokeWidth="1.5" opacity="0.22" />
@@ -126,7 +127,7 @@ export default function Certificate({
       <g transform="translate(800,150)" textAnchor="middle">
         <g transform="translate(-170,-14)">
           <rect x="0" y="0" width="38" height="38" rx="9" fill={NAVY} />
-          <path d="M9 11.5C9 9.567 10.567 8 12.5 8H21.5L19.8 11.2H12.8C12.2 11.2 11.7 11.7 11.7 12.3C11.7 12.9 12.2 13.4 12.8 13.4H17.2C19.4 13.4 21.2 15.2 21.2 17.4C21.2 19.6 19.4 21.4 17.2 21.4H9.5L11.2 18.2H17.1C17.7 18.2 18.2 17.7 18.2 17.1C18.2 16.5 17.7 16 17.1 16H13.3C10.9 16 9 14.1 9 11.5Z" fill={CREAM} transform="scale(0.85) translate(3,3)" />
+          <path d={SF_MARK_PATH} fill={CREAM} transform="translate(6,10.5) scale(0.153)" />
         </g>
         <text x="10" y="13" fontSize="34" fontWeight="700" letterSpacing="1" fill={NAVY} fontFamily="Outfit, sans-serif">SKILLFIRMS</text>
       </g>
@@ -183,7 +184,7 @@ export default function Certificate({
       <g transform="translate(230,845)">
         <circle r="62" fill={NAVY} />
         <circle r="62" fill="none" stroke={TEAL} strokeWidth="3" />
-        <path d="M9 11.5C9 9.567 10.567 8 12.5 8H21.5L19.8 11.2H12.8C12.2 11.2 11.7 11.7 11.7 12.3C11.7 12.9 12.2 13.4 12.8 13.4H17.2C19.4 13.4 21.2 15.2 21.2 17.4C21.2 19.6 19.4 21.4 17.2 21.4H9.5L11.2 18.2H17.1C17.7 18.2 18.2 17.7 18.2 17.1C18.2 16.5 17.7 16 17.1 16H13.3C10.9 16 9 14.1 9 11.5Z" fill={CREAM} transform="scale(2.6) translate(-14.7,-14.7)" />
+        <path d={SF_MARK_PATH} fill={CREAM} transform="translate(-40,-26) scale(0.47)" />
       </g>
       <text fontSize="10.5" letterSpacing="3" fill={TEAL_DEEP} textAnchor="middle">
         <textPath href="#sf-seal-ring" startOffset="2%">{"SKILLFIRMS • VERIFIED CREDENTIAL • SKILLFIRMS • VERIFIED CREDENTIAL •"}</textPath>
