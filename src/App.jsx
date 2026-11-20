@@ -16,6 +16,7 @@ const LessonReader = lazy(() => import('@/pages/LessonReader'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const SkillPassport = lazy(() => import('@/pages/SkillPassport'));
 const CareerRoles = lazy(() => import('@/pages/CareerRoles'));
+const TargetJobs = lazy(() => import('@/pages/TargetJobs'));
 const CareerRoleDetail = lazy(() => import('@/pages/CareerRoleDetail'));
 const LearningPath = lazy(() => import('@/pages/LearningPath'));
 const CourseDetail = lazy(() => import('@/pages/CourseDetail'));
@@ -55,6 +56,7 @@ export default function App() {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/sso" element={<Sso />} />
                 <Route path="/roles" element={<CareerRoles />} />
+                <Route path="/targets" element={<TargetJobs />} />
                 <Route path="/roles/:slug" element={<CareerRoleDetail />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/courses/:slug" element={<CourseDetail />} />

@@ -1,6 +1,7 @@
 import { Suspense, lazy, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Search, X } from "lucide-react";
+import { BookOpen, Crosshair, GraduationCap, Menu, Search, Tag, X } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/context/AuthContext";
 import Logo from "@/components/Logo";
 import { openCrossApp } from "@/lib/crossApp";
@@ -36,10 +37,10 @@ export default function Layout() {
   }
 
   const links = [
-    { to: "/courses", label: "Courses" },
-    { to: "/roles", label: "Careers" },
-    ...(user ? [{ to: "/my-learning", label: "My learning" }] : []),
-    { to: "/pro", label: "Pricing" },
+    { to: "/courses", label: "Courses", icon: BookOpen },
+    { to: "/targets", label: "Target jobs", icon: Crosshair },
+    ...(user ? [{ to: "/my-learning", label: "My learning", icon: GraduationCap }] : []),
+    { to: "/pro", label: "Pricing", icon: Tag },
   ];
   const accountLinks = [
     { to: "/dashboard", label: "My goal & path" },
@@ -67,7 +68,22 @@ export default function Layout() {
             </form>
           )}
           <nav className="hidden items-center gap-1 lg:flex">
-            {links.map((l) => <NavLink key={l.to} to={l.to} className={navLinkClass}>{l.label}</NavLink>)}
+            {/* Icons, with the name on hover (the phone menu keeps the words). */}
+            <TooltipProvider delayDuration={150}>
+              {links.map((l) => {
+                const isActive = location.pathname === l.to || location.pathname.startsWith(`${l.to}/`);
+                return (
+                <Tooltip key={l.to}>
+                  <TooltipTrigger asChild>
+                    <Link to={l.to} aria-label={l.label} aria-current={isActive ? "page" : undefined} className={`flex h-9 w-11 items-center justify-center rounded-full transition-colors ${isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}>
+                      <l.icon className="h-5 w-5" strokeWidth={isActive ? 2.4 : 1.9} aria-hidden="true" />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{l.label}</TooltipContent>
+                </Tooltip>
+                );
+              })}
+            </TooltipProvider>
           </nav>
           <div className="hidden items-center gap-2 lg:flex">
             {user ? (
