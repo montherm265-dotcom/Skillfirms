@@ -12,6 +12,8 @@ import { TALFIRMS_URL } from "@/lib/externalLinks";
 import VideoPlayer from "@/components/course/VideoPlayer";
 import Seo from "@/components/seo/Seo";
 import LessonNotes from "@/components/course/LessonNotes";
+import LessonQA from "@/components/course/LessonQA";
+import Transcript from "@/components/course/Transcript";
 import TutorPanel from "@/components/course/TutorPanel";
 import JobGoalBanner from "@/components/course/JobGoalBanner";
 import ProtectedCheck, { shuffledChoices } from "@/components/course/ProtectedCheck";
@@ -93,6 +95,8 @@ export default function LessonReader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, user?.id]);
   useEffect(() => { loadCourse(); }, [loadCourse]);
+  // Counts toward the weekly learning goal (one row a day, at most).
+  useEffect(() => { if (user?.id && mod?.id) supabase.rpc("skillfirms_log_learning_day").then(() => {}, () => {}); }, [user?.id, mod?.id]);
   useEffect(() => { if (course?.id) loadCourseHiring(course.id).then(setHiring); }, [course?.id]);
 
   useEffect(() => {
@@ -274,7 +278,7 @@ export default function LessonReader() {
 
           {body && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease }}>
-              {body.video_url && <div className="mt-6"><VideoPlayer url={body.video_url} title={mod.title} /></div>}
+              {body.video_url && <div className="mt-6"><VideoPlayer url={body.video_url} title={mod.title} />{body.transcript && <Transcript text={body.transcript} />}</div>}
               {body.summary && <p className="mt-6 text-xl leading-relaxed text-foreground/85">{body.summary}</p>}
               <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-[11px] text-muted-foreground">
                 <Sparkles className="h-3 w-3" />
@@ -401,6 +405,8 @@ export default function LessonReader() {
               {credentialCode && pct >= 100 && <JobGoalBanner finished className="mt-4" />}
 
               {user && <LessonNotes userId={user.id} moduleId={mod.id} />}
+
+              <LessonQA moduleId={mod.id} user={user} />
 
               <nav className="mt-10 flex items-center justify-between gap-3 border-t border-border pt-6">
                 {prev ? <Link to={`/courses/${slug}/lessons/${index}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" />{prev.title}</Link> : <span />}

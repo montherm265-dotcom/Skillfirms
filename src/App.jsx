@@ -24,6 +24,7 @@ const Courses = lazy(() => import('@/pages/Courses'));
 const MyLearning = lazy(() => import('@/pages/MyLearning'));
 const Pro = lazy(() => import('@/pages/Pro'));
 const Experts = lazy(() => import('@/pages/Experts'));
+const Instructor = lazy(() => import('@/pages/Instructor'));
 const Studio = lazy(() => import('@/pages/Studio'));
 const StudioEditor = lazy(() => import('@/pages/StudioEditor'));
 const Team = lazy(() => import('@/pages/Team'));
@@ -64,6 +65,7 @@ export default function App() {
                 <Route path="/plans" element={<Pro />} />
                 <Route path="/pricing" element={<Pro />} />
                 <Route path="/experts" element={<Experts />} />
+                <Route path="/instructors/:id" element={<Instructor />} />
                 <Route path="/teach" element={<RequireAuth><Studio /></RequireAuth>} />
                 <Route path="/teach/:id" element={<RequireAuth><StudioEditor /></RequireAuth>} />
                 <Route path="/team" element={<Team />} />

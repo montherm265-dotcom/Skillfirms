@@ -8,6 +8,7 @@ import { ProviderLine } from "@/components/course/CourseCard";
 import CourseCover from "@/components/course/CourseCover";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import Seo from "@/components/seo/Seo";
+import PathProject from "@/components/course/PathProject";
 import { Button } from "@/components/ui/button";
 
 const hours = (m) => (m < 60 ? `${m} min` : `${Math.round(m / 6) / 10} hours`);
@@ -170,7 +171,7 @@ export default function CareerRoleDetail() {
                   <span className="flex flex-col items-center"><Award className={`h-6 w-6 ${!nextStep ? "text-success" : "text-muted-foreground"}`} /></span>
                   <div className="mb-1 flex-1 rounded-xl border border-dashed border-border p-4 text-sm">
                     <p className="font-semibold">{!nextStep ? "Path complete" : "Finish line"}</p>
-                    <p className="mt-0.5 text-muted-foreground">Pass every course and each certificate shows on your Talfirms profile as verified, ready for {role.title} jobs.</p>
+                    <p className="mt-0.5 text-muted-foreground">Pass every course and the capstone project below; each certificate shows on your Talfirms profile as verified, ready for {role.title} jobs.</p>
                   </div>
                 </li>
               </ol>
@@ -180,6 +181,7 @@ export default function CareerRoleDetail() {
                 <b className="text-foreground">Not covered by a course yet:</b> {uncovered.map((s) => s.name).join(", ")}. We're looking for experts who teach these.
               </p>
             )}
+            <PathProject roleId={role.id} user={user} />
           </section>
 
           <aside className="space-y-6">

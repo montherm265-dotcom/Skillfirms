@@ -58,7 +58,7 @@ export default function CourseDetail() {
   const load = useCallback(async () => {
     const { data: c, error: e } = await supabase
       .from("skillfirms_courses")
-      .select("*, skillfirms_experts(display_name, headline, profile_id), skillfirms_course_modules(id, duration_minutes), skillfirms_course_skills(coverage, skillfirms_skills(slug, name))")
+      .select("*, skillfirms_experts(id, display_name, headline, profile_id), skillfirms_course_modules(id, duration_minutes), skillfirms_course_skills(coverage, skillfirms_skills(slug, name))")
       .eq("slug", slug).maybeSingle();
     if (e || !c) { setError("Course not found"); return; }
     const shaped = shapeCourse(c);
@@ -188,7 +188,7 @@ export default function CourseDetail() {
             {realExpert ? (
               <p className="mt-4 flex items-center gap-2 text-sm">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1f4189] text-xs font-semibold text-white">{realExpert.display_name.slice(0, 1)}</span>
-                <span>Instructor: <b>{realExpert.display_name}</b>{realExpert.headline ? <span className="text-muted-foreground"> · {realExpert.headline}</span> : null}</span>
+                <span>Instructor: <Link to={`/instructors/${realExpert.id}`} className="font-semibold text-[#1f4189] hover:underline">{realExpert.display_name}</Link>{realExpert.headline ? <span className="text-muted-foreground"> · {realExpert.headline}</span> : null}</span>
               </p>
             ) : (
               <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">

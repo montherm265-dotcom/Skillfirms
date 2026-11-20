@@ -10,6 +10,7 @@ import CourseCover from "@/components/course/CourseCover";
 import useSaved from "@/components/course/useSaved";
 import useHiring from "@/components/course/useHiring";
 import { Skeleton } from "@/components/ui/skeleton";
+import WeeklyGoal from "@/components/home/WeeklyGoal";
 
 const ICONS = { FlaskConical, Cog, KanbanSquare, BarChart3, BrainCircuit, Compass };
 
@@ -98,6 +99,8 @@ export default function LearnerHome() {
                 <span className="mt-4 inline-flex h-9 w-fit items-center gap-1.5 rounded-full bg-[#00041d] px-5 text-sm font-semibold text-white group-hover:bg-[#1f4189]"><Play className="h-3.5 w-3.5" />Resume</span>
               </div>
             </Link>
+            <div className="space-y-4">
+            <WeeklyGoal userId={user?.id} />
             {inProgress.length > 1 && (
               <ul className="divide-y divide-border rounded-xl border border-border bg-card">
                 {inProgress.slice(1, 5).map((e) => (
@@ -114,6 +117,7 @@ export default function LearnerHome() {
                 <li><Link to="/my-learning" className="block p-3 text-center text-sm font-semibold text-[#1f4189] hover:underline">All my learning</Link></li>
               </ul>
             )}
+            </div>
           </div>
         </section>
       ) : (
@@ -122,6 +126,7 @@ export default function LearnerHome() {
           <p className="mt-1 text-sm text-muted-foreground">Pick a subject below, or search for the skill a job asks for. Every lesson ends in a graded check.</p>
         </section>
       )}
+      {mine != null && !lead && <div className="mt-4"><WeeklyGoal userId={user?.id} /></div>}
 
       {/* Target jobs: one quiet line, it's an extra. */}
       {targets?.length > 0 && (

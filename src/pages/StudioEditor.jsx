@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 
 const blankQuestion = () => ({ question: "", choices: ["", "", "", ""], answer_index: 0 });
-const blankLesson = () => ({ title: "", duration_minutes: 15, video_url: "", summary: "", sections: [{ heading: "", body: "" }], key_points: [""], questions: [blankQuestion(), blankQuestion(), blankQuestion()] });
+const blankLesson = () => ({ title: "", duration_minutes: 15, video_url: "", transcript: "", summary: "", sections: [{ heading: "", body: "" }], key_points: [""], questions: [blankQuestion(), blankQuestion(), blankQuestion()] });
 const input = "w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring/20";
 
 // Build or edit an expert course: details, skills, price, lessons (video,
@@ -172,6 +172,11 @@ export default function StudioEditor() {
                             </div>
                             {l.video_url.trim() && !embed && <p className="mt-1 text-xs text-destructive">That link can't be played. Use YouTube, Vimeo, Loom or an upload.</p>}
                             {embed && <div className="mt-3"><VideoPlayer url={l.video_url.trim()} title={l.title} /></div>}
+                            {l.video_url.trim() && (
+                              <Textarea value={l.transcript ?? ""} onChange={(e) => setLesson(i, { transcript: e.target.value.slice(0, 60000) })}
+                                placeholder="Transcript (recommended): paste what you say in the video. Learners can read and search it, and it makes the lesson accessible."
+                                className="mt-3 min-h-24 text-sm" />
+                            )}
                           </div>
                           <Textarea value={l.summary} onChange={(e) => setLesson(i, { summary: e.target.value })} maxLength={500} placeholder="One or two sentences: what this lesson teaches" className="min-h-16" />
                           {l.sections.map((s, k) => (
