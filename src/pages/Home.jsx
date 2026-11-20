@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import Seo from "@/components/seo/Seo";
 import SkillHero from "@/components/home/SkillHero";
+import LearnerHome from "@/components/home/LearnerHome";
 
 // Below the first screen: loads on its own.
 const LearnStory = lazy(() => import("@/components/home/LearnStory"));
@@ -45,6 +46,9 @@ export default function Home() {
   }, [courses]);
 
   const rows = useMemo(() => CATEGORIES.map((cat) => ({ cat, list: (courses ?? []).filter((c) => c.category?.id === cat.id) })).filter((r) => r.list.length), [courses]);
+
+  // Signed in: a learner's home (continue learning, what's next), not the pitch.
+  if (user) return (<><Seo canonical="/" title="Home" /><LearnerHome /></>);
 
   return (
     <div>

@@ -3,8 +3,8 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import {
-  ArrowRight, Award, Bookmark, BookmarkCheck, Bot, Briefcase, Check, CheckCircle2, ChevronDown, Circle, Clock, ExternalLink,
-  Link2, ListChecks, Lock, MapPin, PlayCircle, ShieldCheck, Smartphone, Sparkles, Target, Users,
+  ArrowRight, Award, Bookmark, BookmarkCheck, Bot, Briefcase, Check, CheckCircle2, ChevronDown, Circle, ExternalLink,
+  Link2, ListChecks, Lock, MapPin, PlayCircle, ShieldCheck, Sparkles,
 } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
@@ -18,8 +18,8 @@ import { readRef, rememberRef } from "@/lib/plans";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { crossAppClick } from "@/lib/crossApp";
 import CourseCover from "@/components/course/CourseCover";
-import CourseCard from "@/components/course/CourseCard";
-import Stars, { RatingLine } from "@/components/course/Stars";
+import CourseCard, { ProviderLine } from "@/components/course/CourseCard";
+import Stars from "@/components/course/Stars";
 import useSaved from "@/components/course/useSaved";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
@@ -113,7 +113,6 @@ export default function CourseDetail() {
   const reviewedAll = modules.length > 0 && modules.every((m) => lessons[m.id]?.reviewed_at);
   const realExpert = course?.skillfirms_experts?.profile_id && course?.taught_by === "expert" ? course.skillfirms_experts : null;
   const paid = Number(course?.price_cents ?? 0) > 0;
-  const videoCount = modules.filter((m) => m.video_url).length;
   const locked = paid && !access;
 
   async function buy() {
@@ -175,124 +174,124 @@ export default function CourseDetail() {
         breadcrumb={[{ label: "Courses", path: "/courses" }, { label: course.title }]}
       />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-[#050b24] text-white">
-        <div aria-hidden className="absolute -left-40 -top-56 h-[32rem] w-[32rem] rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(59,108,230,0.42), transparent)" }} />
-        <div aria-hidden className="absolute -bottom-56 right-[-6rem] h-[30rem] w-[30rem] rounded-full blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(107,140,255,0.24), transparent)", animation: "tf-drift 22s ease-in-out infinite" }} />
-        <div aria-hidden className="absolute inset-0 opacity-70" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)", backgroundSize: "56px 56px", maskImage: "radial-gradient(ellipse 70% 80% at 30% 20%, black, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse 70% 80% at 30% 20%, black, transparent 80%)" }} />
-        <div className="relative mx-auto grid max-w-8xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-8 lg:py-14">
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
-            <p className="flex flex-wrap items-center gap-2 text-sm text-white/70">
-              <Link to="/courses" className="hover:text-white">Courses</Link><span>›</span>
-              <Link to={`/courses?category=${course.category?.id}`} className="font-medium text-[#9db7ff] hover:underline">{course.category?.label}</Link>
+      {/* Top: what it is, who teaches it, one big button. */}
+      <section className="border-b border-border bg-gradient-to-b from-[#eef1ff] to-background">
+        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:px-8 lg:py-12">
+          <div className="min-w-0">
+            <p className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+              <Link to="/courses" className="hover:text-foreground hover:underline">Courses</Link><span aria-hidden="true">›</span>
+              <Link to={`/courses?category=${course.category?.id}`} className="hover:text-foreground hover:underline">{course.category?.label}</Link>
             </p>
-            <h1 className="mt-4 max-w-3xl text-3xl font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-[2.6rem]">{course.title}</h1>
-            {course.description && <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/70">{course.description}</p>}
-            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-              {hiring.length > 0 && <a href="#hiring" className="rounded-md bg-warning px-2 py-0.5 text-xs font-bold text-black">Hiring now</a>}
-              {course.rating_count ? <RatingLine course={course} className="[&_.text-muted-foreground]:text-white/60" /> : <span className="rounded-md bg-mastery px-2 py-0.5 text-xs font-bold text-mastery-foreground">New course</span>}
-              {course.enrollment_count > 0 && <span className="inline-flex items-center gap-1.5 text-white/80"><Users className="h-4 w-4" />{course.enrollment_count.toLocaleString()} learner{course.enrollment_count === 1 ? "" : "s"}</span>}
-              <span className="inline-flex items-center gap-1.5 text-white/80"><Clock className="h-4 w-4" />{formatHours(course)}</span>
-              <span className="capitalize text-white/80">{course.level ?? "All levels"}</span>
-            </div>
+            <ProviderLine course={course} className="mt-5" />
+            <h1 className="mt-2 max-w-3xl text-3xl font-semibold leading-tight tracking-tight sm:text-[2.4rem]">{course.title}</h1>
+            {course.description && <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-foreground/75">{course.description}</p>}
             {realExpert ? (
-              <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-3 text-sm">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[hsl(var(--mastery))] font-display text-sm font-semibold text-black">{realExpert.display_name.slice(0, 1)}</span>
-                <span>Taught by <b>{realExpert.display_name}</b>{realExpert.headline ? <span className="text-white/70"> · {realExpert.headline}</span> : null}</span>
+              <p className="mt-4 flex items-center gap-2 text-sm">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1f4189] text-xs font-semibold text-white">{realExpert.display_name.slice(0, 1)}</span>
+                <span>Instructor: <b>{realExpert.display_name}</b>{realExpert.headline ? <span className="text-muted-foreground"> · {realExpert.headline}</span> : null}</span>
               </p>
             ) : (
-              <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-white/60">
-                <Bot className="h-3.5 w-3.5" />
-                {reviewedAll ? "AI-taught basics, reviewed by an expert" : "AI-taught basics: lessons drafted with AI and not yet reviewed by an expert (each lesson says so)."}
+              <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Bot className="h-4 w-4" />{reviewedAll ? "AI-taught basics, reviewed by an expert" : "AI-taught basics: lessons drafted with AI, not yet reviewed by an expert (each lesson says so)"}
               </p>
             )}
-            {course.skills.length > 0 && (
-              <div className="mt-5 flex flex-wrap gap-1.5">
-                {course.skills.map((s) => <span key={s.slug} className="rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-xs">{s.name}</span>)}
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <Button className="h-12 rounded-lg px-7 text-base" onClick={start} disabled={busy}>
+                {busy ? "Starting…" : cta}
+                {!enrollment && !locked && <span className="ml-1 hidden text-xs font-normal opacity-80 sm:inline">· starts today</span>}
+              </Button>
+              {toggle && (
+                <Button variant="outline" className="h-12 rounded-lg" onClick={() => toggle(course)} aria-pressed={isSaved}>
+                  {isSaved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}{isSaved ? "Saved" : "Save"}
+                </Button>
+              )}
+              <Button variant="ghost" className="h-12 rounded-lg" onClick={share}><Link2 className="h-4 w-4" />Share</Button>
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {paid ? `${priceLabel(course.price_cents)} once: every lesson, the graded checks and the certificate. Lesson 1 is a free preview.` : "Free: learning, graded checks and the certificate."}
+              {course.enrollment_count > 0 && <> · <b className="text-foreground">{course.enrollment_count.toLocaleString()}</b> already enrolled</>}
+            </p>
+            {locked && <Link to={`/courses/${slug}/lessons/1`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-[#1f4189] hover:underline"><PlayCircle className="h-4 w-4" />Try lesson 1 free</Link>}
+            {locked && purchase?.status === "waitlist" && <p className="mt-2 max-w-md rounded-lg bg-secondary p-2 text-xs">You're on the list. Nothing has been charged; we'll let you know when buying opens.</p>}
+            {enrollment && (
+              <div className="mt-4 max-w-md">
+                <div className="flex justify-between text-xs"><span className="font-medium">{passed} of {modules.length} lessons passed</span><span className="tabular-nums">{Math.round(enrollment.progress_percent)}%</span></div>
+                <Progress value={enrollment.progress_percent} className="mt-1.5 h-1.5" />
               </div>
             )}
-          </motion.div>
+            {credential && (
+              <Link to={`/credentials/${credential.credential_code}`} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm font-medium text-success hover:bg-success/15">
+                <Award className="h-4 w-4" />You've earned this certificate
+              </Link>
+            )}
+          </div>
+          <button type="button" onClick={start} className="group relative hidden self-start overflow-hidden rounded-xl border border-border shadow-[0_20px_50px_-25px_rgba(0,4,29,0.45)] lg:block" aria-label={cta}>
+            <CourseCover course={course} size="lg" className="aspect-[16/10] w-full" />
+            <span className="absolute inset-0 flex items-center justify-center bg-black/0 transition group-hover:bg-black/15">
+              <PlayCircle className="h-12 w-12 text-white opacity-90 drop-shadow-lg transition group-hover:scale-110" strokeWidth={1.25} />
+            </span>
+          </button>
+        </div>
+
+        {/* Key facts */}
+        <div className="mx-auto max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
+          <div className="grid divide-y divide-border rounded-xl border border-border bg-card shadow-sm sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
+            <Fact title={`${modules.length} lesson${modules.length === 1 ? "" : "s"}`} sub={`Each ends in a graded check · ${questions} questions in all`} />
+            <Fact title={course.rating_count ? <span className="inline-flex items-center gap-1.5">{Number(course.rating_avg).toFixed(1)} <Stars value={Number(course.rating_avg)} /></span> : "New course"}
+              sub={course.rating_count ? `${course.rating_count.toLocaleString()} review${course.rating_count === 1 ? "" : "s"} from learners who passed a lesson` : "No reviews yet; only learners who pass a lesson can review"} />
+            <Fact title={`${(course.level ?? "All levels").replace(/^./, (x) => x.toUpperCase())} level`} sub={course.level === "beginner" ? "No experience needed" : course.level === "advanced" ? "For people already working in the field" : "Some background helps"} />
+            <Fact title={`${formatHours(course)} to complete`} sub="Flexible schedule: learn at your own pace" />
+          </div>
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-8xl gap-10 px-4 pb-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-8">
-        {/* Sticky buy box (overlaps the hero on large screens) */}
-        <aside className="relative z-10 order-first -mt-2 lg:order-last lg:-mt-64">
-          <div className="lg:sticky lg:top-20">
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease, delay: 0.1 }}
-              className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_60px_-30px_hsl(var(--foreground)/0.45)]">
-              <button type="button" onClick={start} className="group relative block w-full" aria-label={`${course.category?.label ?? "Course"}: ${cta}`}>
-                <CourseCover course={course} size="lg" className="aspect-[16/9] w-full" />
-                <span className="absolute inset-0 flex items-center justify-center bg-black/0 transition group-hover:bg-black/20">
-                  <PlayCircle className="h-14 w-14 text-white opacity-90 drop-shadow-lg transition group-hover:scale-110" strokeWidth={1.25} />
-                </span>
-              </button>
-              <div className="p-5">
-                <p className="text-3xl font-extrabold tracking-[-0.03em]">{access && paid ? "You have access" : priceLabel(course.price_cents)}</p>
-                <p className="text-xs text-muted-foreground">{paid ? "One payment: every lesson, the graded checks and the certificate. Lesson 1 is a free preview." : "Learning, graded checks and the certificate are all free."}</p>
-                {locked && <Link to={`/courses/${slug}/lessons/1`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-mastery hover:underline"><PlayCircle className="h-4 w-4" />Watch lesson 1 free</Link>}
-                {locked && purchase?.status === "waitlist" && <p className="mt-2 rounded-lg bg-secondary p-2 text-xs">You're on the list. Nothing has been charged; we'll let you know when buying opens.</p>}
-                {enrollment && (
-                  <div className="mt-4">
-                    <div className="flex justify-between text-xs"><span className="font-medium">{passed} of {modules.length} lessons passed</span><span className="tabular-nums text-mastery">{Math.round(enrollment.progress_percent)}%</span></div>
-                    <Progress value={enrollment.progress_percent} className="mt-1.5 h-1.5" />
-                  </div>
-                )}
-                <Button className="mt-4 h-11 w-full text-base" onClick={start} disabled={busy}>{busy ? "Starting…" : cta}<ArrowRight className="h-4 w-4" /></Button>
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  {toggle && <Button variant="outline" size="sm" onClick={() => toggle(course)}>{isSaved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}{isSaved ? "Saved" : "Save"}</Button>}
-                  <Button variant="outline" size="sm" onClick={share} className={toggle ? "" : "col-span-2"}><Link2 className="h-4 w-4" />Share</Button>
-                </div>
-                {credential && (
-                  <Link to={`/credentials/${credential.credential_code}`} className="mt-4 flex items-center gap-2 rounded-xl bg-mastery/10 p-3 text-sm font-medium text-mastery hover:bg-mastery/15">
-                    <Award className="h-5 w-5" />You've earned this certificate
-                  </Link>
-                )}
-                <p className="mt-5 text-sm font-semibold">This course includes</p>
-                <ul className="mt-2 space-y-2 text-sm text-foreground/85">
-                  {realExpert ? (
-                    <>
-                      <li className="flex gap-2.5"><PlayCircle className="h-4 w-4 flex-none text-muted-foreground" /><span>{modules.length} lessons{videoCount ? `, ${videoCount} with video` : ""}, taught by {realExpert.display_name}</span></li>
-                      <li className="flex gap-2.5"><ListChecks className="h-4 w-4 flex-none text-muted-foreground" />A graded check in every lesson, written by the instructor</li>
-                    </>
-                  ) : (
-                    <>
-                      <li className="flex gap-2.5"><PlayCircle className="h-4 w-4 flex-none text-muted-foreground" />{modules.length} AI-drafted lessons with worked examples</li>
-                      <li className="flex gap-2.5"><ListChecks className="h-4 w-4 flex-none text-muted-foreground" />{questions} graded questions, 2 of 3 to pass each lesson</li>
-                      <li className="flex gap-2.5"><Target className="h-4 w-4 flex-none text-muted-foreground" />A hands-on exercise in every lesson</li>
-                    </>
-                  )}
-                  <li className="flex gap-2.5"><Sparkles className="h-4 w-4 flex-none text-muted-foreground" /><span>An AI tutor beside every lesson (<Link to="/pro" className="underline-offset-2 hover:underline">free daily questions</Link>)</span></li>
-                  <li className="flex gap-2.5"><Award className="h-4 w-4 flex-none text-muted-foreground" />Certificate anyone can verify online</li>
-                  {realExpert
-                    ? <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Verified on Talfirms, labelled taught by an expert</li>
-                    : <li className="flex gap-2.5"><ShieldCheck className="h-4 w-4 flex-none text-mastery" />Verified on Talfirms, labelled taught by AI</li>}
-                  <li className="flex gap-2.5"><Smartphone className="h-4 w-4 flex-none text-muted-foreground" />Learn on phone or computer, at your pace</li>
-                </ul>
-              </div>
-            </motion.div>
-          </div>
-        </aside>
+      {/* Section tabs */}
+      <nav aria-label="Course sections" className="sticky top-[57px] z-20 border-b border-border bg-background/95 backdrop-blur">
+        <div className="no-scrollbar mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
+          {[["about", "About"], ["outcomes", "Outcomes"], ["modules", "Lessons"], ["reviews", "Reviews"]].map(([id, label]) => (
+            <a key={id} href={`#${id}`} className="flex-none border-b-2 border-transparent px-3 py-3 text-sm font-medium text-muted-foreground hover:border-[#1f4189]/40 hover:text-foreground">{label}</a>
+          ))}
+        </div>
+      </nav>
 
-        <main className="min-w-0 pt-8 lg:pt-10">
-          <JobGoalBanner className="mb-6" />
-          <HiringBanner hiring={hiring} user={user} hasCertificate={Boolean(credential)} lessons={modules.length} onSent={() => loadCourseHiring(course.id).then(setHiring)} />
-          {learn.length > 0 && (
-            <section className="rounded-2xl border border-border p-5 sm:p-6">
-              <h2 className="text-2xl font-extrabold tracking-[-0.03em]">What you'll learn</h2>
-              <ul className="mt-4 grid gap-x-6 gap-y-3 sm:grid-cols-2">
-                {learn.map((p, i) => <li key={i} className="flex gap-2.5 text-sm"><Check className="mt-0.5 h-4 w-4 flex-none text-mastery" />{p}</li>)}
+      <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
+        <main className="min-w-0 pt-8">
+          <section id="about" className="scroll-mt-32">
+            <h2 className="text-xl font-semibold tracking-tight">What you'll learn</h2>
+            {learn.length > 0 ? (
+              <ul className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+                {learn.map((p, i) => <li key={i} className="flex gap-2.5 text-sm"><Check className="mt-0.5 h-4 w-4 flex-none text-[#1f4189]" />{p}</li>)}
               </ul>
-            </section>
-          )}
+            ) : <p className="mt-2 text-sm text-muted-foreground">{course.description}</p>}
+            {course.skills.length > 0 && (
+              <>
+                <h3 className="mt-8 text-base font-semibold">Skills you'll gain</h3>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {course.skills.map((s) => <Link key={s.slug} to={`/courses?skill=${s.slug}`} className="rounded-full bg-secondary px-3 py-1 text-xs font-medium hover:bg-secondary/70">{s.name}</Link>)}
+                </div>
+              </>
+            )}
+            <h3 className="mt-8 text-base font-semibold">Details to know</h3>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <Detail icon={Award} title="Shareable certificate" sub="Anyone can verify it online" />
+              <Detail icon={ListChecks} title="Graded checks" sub={realExpert ? "Written by the instructor" : `${questions} questions; 2 of 3 to pass a lesson`} />
+              <Detail icon={Sparkles} title="AI tutor in every lesson" sub={<Link to="/pro" className="hover:underline">Free daily questions</Link>} />
+              <Detail icon={ShieldCheck} title="Proof on Talfirms" sub={realExpert ? "Verified, taught by an expert" : "Verified, taught by AI"} />
+            </div>
+          </section>
+
+          <div className="mt-10"><JobGoalBanner className="mb-6" /></div>
+          <HiringBanner hiring={hiring} user={user} hasCertificate={Boolean(credential)} lessons={modules.length} onSent={() => loadCourseHiring(course.id).then(setHiring)} />
+
+          <div id="outcomes" className="scroll-mt-32">{jobs && <JobsUnlocked jobs={jobs} course={course} />}</div>
 
           {/* Curriculum */}
-          <section className="mt-10">
+          <section id="modules" className="mt-10 scroll-mt-32">
             <div className="flex flex-wrap items-end justify-between gap-2">
-              <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Course content</h2>
-              <p className="text-sm text-muted-foreground">{modules.length} lessons · {formatHours(course)} · {questions} graded questions</p>
+              <h2 className="text-xl font-semibold tracking-tight">There {modules.length === 1 ? "is 1 lesson" : `are ${modules.length} lessons`} in this course</h2>
+              <p className="text-sm text-muted-foreground">{formatHours(course)} · {questions} graded questions</p>
             </div>
-            <div className="mt-4 divide-y divide-border overflow-hidden rounded-2xl border border-border">
+            <div className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border">
               {modules.map((m, i) => {
                 const p = progressByModule[m.id];
                 const body = lessons[m.id]?.body;
@@ -342,21 +341,19 @@ export default function CourseDetail() {
               <motion.div key={s.t} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.4, ease }}
                 className="rounded-2xl border border-border bg-card p-5">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-mastery/10 text-mastery"><s.icon className="h-5 w-5" /></span>
-                <p className="mt-3 font-display text-lg font-semibold">{i + 1}. {s.t}</p>
+                <p className="mt-3 text-base font-semibold">{i + 1}. {s.t}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
               </motion.div>
             ))}
           </section>
 
-          {jobs && <JobsUnlocked jobs={jobs} course={course} />}
-
-          <Reviews course={course} reviews={reviews} onSaved={() => { loadReviews(course.id).then(setReviews); load(); }} />
+          <div id="reviews" className="scroll-mt-32"><Reviews course={course} reviews={reviews} onSaved={() => { loadReviews(course.id).then(setReviews); load(); }} /></div>
 
           {related.length > 0 && (
             <section className="mt-12">
-              <h2 className="text-2xl font-extrabold tracking-[-0.03em]">More in {course.category?.label}</h2>
-              <div className="mt-4 grid gap-5 sm:grid-cols-2">
-                {related.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} compact />)}
+              <h2 className="text-xl font-semibold tracking-tight">More in {course.category?.label}</h2>
+              <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} />)}
               </div>
             </section>
           )}
@@ -513,6 +510,25 @@ function DetailSkeleton() {
     <div>
       <div className="bg-[#050b24]"><div className="mx-auto max-w-8xl space-y-3 px-4 py-14 sm:px-6 lg:px-8"><Skeleton className="h-4 w-40 bg-white/10" /><Skeleton className="h-10 w-2/3 bg-white/10" /><Skeleton className="h-5 w-1/2 bg-white/10" /></div></div>
       <div className="mx-auto max-w-8xl space-y-3 px-4 py-10 sm:px-6 lg:px-8"><Skeleton className="h-40 w-full max-w-3xl" /><Skeleton className="h-64 w-full max-w-3xl" /></div>
+    </div>
+  );
+}
+
+function Fact({ title, sub }) {
+  return (
+    <div className="p-4">
+      <p className="text-base font-semibold">{title}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>
+    </div>
+  );
+}
+
+function Detail({ icon: Icon, title, sub }) {
+  return (
+    <div className="rounded-xl border border-border p-4">
+      <Icon className="h-5 w-5 text-[#1f4189]" aria-hidden="true" />
+      <p className="mt-2 text-sm font-semibold">{title}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>
     </div>
   );
 }
