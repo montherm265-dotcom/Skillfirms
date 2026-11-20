@@ -13,7 +13,7 @@ export default function PageHero({ eyebrow, icon: Icon, title, accent, sub, chip
       <div aria-hidden className="absolute inset-0 -z-10 opacity-70" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)", backgroundSize: "56px 56px", maskImage: "radial-gradient(ellipse 70% 80% at 30% 20%, black, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse 70% 80% at 30% 20%, black, transparent 80%)" }} />
       <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-[#6b8cff]/50 to-transparent" />
 
-      <div className={`mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8 ${aside ? "lg:grid-cols-[1.3fr_1fr]" : ""} ${center ? "text-center" : ""}`}>
+      <div className={`mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:px-6 sm:py-14 lg:px-8 ${aside ? "lg:grid-cols-[1.3fr_1fr]" : ""} ${center ? "text-center" : ""}`}>
         <div className="min-w-0">
           {eyebrow && (
             <motion.p initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}
@@ -22,12 +22,12 @@ export default function PageHero({ eyebrow, icon: Icon, title, accent, sub, chip
             </motion.p>
           )}
           <motion.h1 initial={{ opacity: 0, y: 24, filter: "blur(8px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.8, delay: 0.05, ease }}
-            className={`mt-5 text-[2.6rem] font-extrabold leading-[1.02] tracking-[-0.045em] sm:text-6xl ${center ? "mx-auto max-w-3xl" : "max-w-3xl"}`}>
+            className={`mt-4 text-[2.1rem] font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-5xl ${center ? "mx-auto max-w-3xl" : "max-w-3xl"}`}>
             {title}{accent && <> <span className="bg-gradient-to-r from-[#c9d7ff] via-[#9db7ff] to-[#5b8ef5] bg-clip-text text-transparent">{accent}</span></>}
           </motion.h1>
           {sub && (
             <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.2, ease }}
-              className={`mt-5 max-w-2xl text-lg leading-relaxed text-white/65 ${center ? "mx-auto" : ""}`}>{sub}</motion.p>
+              className={`mt-4 max-w-2xl text-base leading-relaxed text-white/65 ${center ? "mx-auto" : ""}`}>{sub}</motion.p>
           )}
           {chips?.length > 0 && (
             <motion.ul initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.35 }} className={`mt-7 flex flex-wrap gap-2 text-sm ${center ? "justify-center" : ""}`}>

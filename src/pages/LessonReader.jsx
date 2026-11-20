@@ -237,7 +237,7 @@ export default function LessonReader() {
         <article className="min-w-0 max-w-[46rem]">
           <Link to={`/courses/${slug}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground lg:hidden"><ArrowLeft className="h-4 w-4" />{course.title}</Link>
           <p className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#1f4189]/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#1f4189] lg:mt-0">Lesson {index + 1} of {modules.length}</p>
-          <h1 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-[-0.04em] sm:text-[3.2rem]">{mod.title}</h1>
+          <h1 className="mt-4 text-3xl font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-4xl">{mod.title}</h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{minutes ?? mod.duration_minutes} min read</span>
             {thisDone && <span className="inline-flex items-center gap-1 text-mastery"><Check className="h-3.5 w-3.5" />Passed</span>}

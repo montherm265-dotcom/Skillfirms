@@ -66,6 +66,10 @@
   }
 
   * { border-color: hsl(var(--border)); }
+  /* A calmer, denser scale: everything sized in rem comes out about 6%
+     smaller. Form fields stay 16px on phones so iOS doesn't zoom in on tap. */
+  html { font-size: 93.75%; }
+  @media (max-width: 639px) { input, select, textarea { font-size: 16px !important; } }
   body { @apply bg-background text-foreground font-body antialiased; }
   h1, h2, h3, h4 { @apply font-display; letter-spacing: -0.025em; }
 }

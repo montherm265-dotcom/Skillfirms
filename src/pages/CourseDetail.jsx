@@ -186,7 +186,7 @@ export default function CourseDetail() {
               <Link to="/courses" className="hover:text-white">Courses</Link><span>›</span>
               <Link to={`/courses?category=${course.category?.id}`} className="font-medium text-[#9db7ff] hover:underline">{course.category?.label}</Link>
             </p>
-            <h1 className="mt-4 max-w-3xl text-[2.3rem] font-extrabold leading-[1.04] tracking-[-0.04em] sm:text-[3.4rem]">{course.title}</h1>
+            <h1 className="mt-4 max-w-3xl text-3xl font-extrabold leading-[1.08] tracking-[-0.03em] sm:text-[2.6rem]">{course.title}</h1>
             {course.description && <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/70">{course.description}</p>}
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
               {hiring.length > 0 && <a href="#hiring" className="rounded-md bg-warning px-2 py-0.5 text-xs font-bold text-black">Hiring now</a>}
