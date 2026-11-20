@@ -36,7 +36,7 @@ export default function WeeklyGoal({ userId }) {
     return (
       <div className="rounded-2xl border border-border bg-gradient-to-br from-[#eef1ff] via-card to-card p-5">
         <p className="flex items-center gap-2 text-base font-semibold"><Target className="h-5 w-5 text-[#1f4189]" />{goal ? "Change your weekly goal" : "Set a weekly goal"}</p>
-        <p className="mt-1 text-sm text-muted-foreground">People who set a goal are far more likely to finish. How many days a week will you learn?</p>
+        <p className="mt-1 text-sm text-muted-foreground">A small, steady goal is easier to keep. How many days a week will you learn?</p>
         <div className="mt-4 flex flex-wrap gap-1.5">
           {[1, 2, 3, 4, 5, 6, 7].map((n) => (
             <button key={n} type="button" onClick={() => setGoal(n)}

@@ -124,7 +124,7 @@ export default function StudioEditor() {
               <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 text-sm font-medium sm:col-span-2">
                 <input type="checkbox" checked={firstDiscount} onChange={(e) => setFirstDiscount(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#1f4189]" />
                 <span>20% off for learners buying their first course
-                  <span className="mt-0.5 block text-xs font-normal text-muted-foreground">New learners see it on your course page. You keep your usual share of what they pay, and they're far more likely to buy, then come back for your next course at full price.</span>
+                  <span className="mt-0.5 block text-xs font-normal text-muted-foreground">New learners see it on your course page. You keep your usual share of what they pay; a lower first price can win learners who then buy your next course at full price.</span>
                 </span>
               </label>
               <label className="text-sm font-medium sm:col-span-2">Time limit for each lesson's check
