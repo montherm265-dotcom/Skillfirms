@@ -10,21 +10,26 @@ import Seo from "@/components/seo/Seo";
 
 const LEVEL = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
 
-// Fit today, as a ring.
-function FitRing({ score }) {
+// How much of the job you've PROVEN, as a ring. Claimed skills don't count.
+function ProofRing({ proven, total }) {
   const r = 26, c = 2 * Math.PI * r;
-  const pct = score ?? 0;
-  const color = pct >= 70 ? "#16a34a" : pct >= 40 ? "#1f4189" : "#94a3b8";
+  const pct = total ? proven / total : 0;
+  const color = pct >= 0.999 ? "#16a34a" : pct >= 0.5 ? "#1f4189" : "#94a3b8";
   return (
-    <div className="relative h-16 w-16 flex-none" aria-label={score == null ? "Fit not known yet" : `${score}% fit`}>
+    <div className="relative h-16 w-16 flex-none" aria-label={total ? `${proven} of ${total} skills proven` : "No skills listed"}>
       <svg viewBox="0 0 64 64" className="h-16 w-16 -rotate-90" aria-hidden="true">
         <circle cx="32" cy="32" r={r} fill="none" strokeWidth="6" className="stroke-secondary" />
-        {score != null && <circle cx="32" cy="32" r={r} fill="none" strokeWidth="6" strokeLinecap="round" stroke={color} strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)} />}
+        {total > 0 && proven > 0 && <circle cx="32" cy="32" r={r} fill="none" strokeWidth="6" strokeLinecap="round" stroke={color} strokeDasharray={c} strokeDashoffset={c * (1 - pct)} />}
       </svg>
-      <span className="absolute inset-0 flex items-center justify-center text-sm font-semibold tabular-nums">{score == null ? "–" : `${score}%`}</span>
+      <span className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+        <span className="text-sm font-semibold tabular-nums">{total ? `${proven}/${total}` : "–"}</span>
+        {total > 0 && <span className="mt-0.5 text-[9px] text-muted-foreground">proven</span>}
+      </span>
     </div>
   );
 }
+
+const TIER = { 1: "Course passed", 2: "Assessed", 3: "Real work" };
 
 function CourseRow({ course }) {
   const done = course.enrollment === "completed";
@@ -56,10 +61,12 @@ function CourseRow({ course }) {
 
 function TargetCard({ job, onRemove }) {
   const gaps = job.gaps ?? [];
+  const claimed = gaps.filter((g) => g.claimed).length;
+  const proven = job.proven ?? [];
   return (
     <article className="rounded-xl border border-border bg-card">
       <header className="flex items-start gap-4 border-b border-border p-5">
-        <FitRing score={job.score} />
+        <ProofRing proven={job.skills_proven ?? 0} total={job.skills_total ?? 0} />
         <div className="min-w-0 flex-1">
           <a href={`${TALFIRMS_URL}/opportunities/${job.id}`} onClick={crossAppClick(TALFIRMS_URL, `/opportunities/${job.id}`)}
             className="group inline-flex items-center gap-1 text-base font-semibold leading-snug hover:underline">
@@ -68,9 +75,9 @@ function TargetCard({ job, onRemove }) {
           <p className="mt-0.5 text-[13px] text-muted-foreground">{[job.company, job.city, job.remote_ok ? "Remote OK" : null].filter(Boolean).join(" · ")}</p>
           <p className="mt-2 text-[13px]">
             {!job.open ? <span className="text-muted-foreground">This job has closed. Its skills are still worth having.</span>
-              : job.score == null ? <span className="text-muted-foreground">Add your skills on Talfirms to see your fit.</span>
-              : gaps.length === 0 ? <span className="font-medium text-success">You have every skill this job lists.</span>
-              : <span>{gaps.length} skill{gaps.length === 1 ? "" : "s"} to close{job.projected ? <> · up to <b>{job.projected}%</b> fit once your listed skills are proven</> : ""}</span>}
+              : !job.skills_total ? <span className="text-muted-foreground">This job doesn't list skills yet.</span>
+              : gaps.length === 0 ? <span className="font-medium text-success">Every skill this job lists is proven on your profile.</span>
+              : <span><b>{gaps.length}</b> skill{gaps.length === 1 ? "" : "s"} still to prove{claimed > 0 ? <> ({claimed} you've listed but not proven yet)</> : null}. Pass a course and it counts.</span>}
           </p>
         </div>
         <button type="button" onClick={() => onRemove(job.id)} aria-label={`Remove ${job.title} from target jobs`} title="Remove"
@@ -78,6 +85,12 @@ function TargetCard({ job, onRemove }) {
           <X className="h-4 w-4" />
         </button>
       </header>
+      {proven.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 border-b border-border px-5 py-3 text-xs">
+          <span className="font-semibold text-success">Proven:</span>
+          {proven.map((p) => <span key={p.id} className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 font-medium text-success" title={TIER[p.tier] ?? "Proven"}><Check className="h-3 w-3" />{p.label}</span>)}
+        </div>
+      )}
       {job.company_note && (
         <p className="border-b border-border bg-[#1f4189]/[0.03] px-5 py-3 text-[13px] leading-5"><span className="font-semibold">{job.company}: </span><span className="text-foreground/80">{job.company_note}</span></p>
       )}
@@ -89,7 +102,7 @@ function TargetCard({ job, onRemove }) {
                 {g.label}
                 {g.required && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">Required</span>}
                 {g.also_wanted && <span className="rounded-full border border-[#1f4189]/25 bg-[#1f4189]/[0.06] px-2 py-0.5 text-[11px] font-semibold text-[#1f4189]" title={`${job.company} asks for this on top of the usual skills`}>{job.company}'s extra</span>}
-                {g.partial && <span className="text-[11px] font-normal text-muted-foreground">partly there</span>}
+                {g.claimed && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800" title="It's on your profile, but nothing proves it yet">Claimed, not proven</span>}
               </h3>
               {g.courses.length > 0 ? (
                 <ul className="divide-y divide-border/60">{g.courses.map((c) => <CourseRow key={c.id} course={c} />)}</ul>
@@ -144,7 +157,7 @@ export default function TargetJobs() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Target jobs</h1>
-          <p className="mt-1 max-w-xl text-sm text-muted-foreground">The jobs you saved on Talfirms. Pass a course and the skill shows on your Talfirms profile as proven, so your fit goes up.</p>
+          <p className="mt-1 max-w-xl text-sm text-muted-foreground">The jobs you saved on Talfirms. Only proven skills count here: skills you just typed onto your profile don't. Pass a course and the skill is proven on Talfirms.</p>
         </div>
         <Link to="/roles" className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"><MapIcon className="h-4 w-4" />Career paths</Link>
       </div>
