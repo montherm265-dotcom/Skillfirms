@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Award, BookOpen, Clock, Star, Users } from "lucide-react";
+import { ArrowUpRight, Award, BookOpen, Clapperboard, Clock, PenLine, Star, Users } from "lucide-react";
+import { crossAppClick } from "@/lib/crossApp";
+import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { supabase } from "@/lib/supabaseClient";
 import Seo from "@/components/seo/Seo";
 import CourseCover from "@/components/course/CourseCover";
@@ -22,7 +24,11 @@ function Stat({ icon: Icon, value, label }) {
 export default function Instructor() {
   const { id } = useParams();
   const [p, setP] = useState(undefined);
-  useEffect(() => { supabase.rpc("skillfirms_instructor", { p_expert_id: id }).then(({ data }) => setP(data ?? null)); }, [id]);
+  const [links, setLinks] = useState(null);
+  useEffect(() => {
+    supabase.rpc("skillfirms_instructor", { p_expert_id: id }).then(({ data }) => setP(data ?? null));
+    supabase.rpc("skillfirms_instructor_links", { p_expert_id: id }).then(({ data }) => setLinks(data ?? null));
+  }, [id]);
 
   if (p === undefined) return <div className="mx-auto max-w-5xl px-4 py-10"><Skeleton className="h-56 w-full rounded-2xl" /><Skeleton className="mt-6 h-40 w-full rounded-2xl" /></div>;
   if (!p) return (
@@ -87,6 +93,19 @@ export default function Instructor() {
               <p className="flex items-center gap-2 font-semibold"><Award className="h-4 w-4 text-[#1f4189]" />Experience</p>
               <ul className="mt-3 space-y-2 text-sm text-foreground/85">{creds.map((c, i) => <li key={i} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[#1f4189]" />{c}</li>)}</ul>
             </div>
+          )}
+          {links?.username && (
+            <a href={`${TALFIRMS_URL}/profile/${links.username}`} onClick={crossAppClick(TALFIRMS_URL, `/profile/${links.username}`)}
+              className="group block rounded-2xl border border-border bg-card p-5 transition-colors hover:border-[#1f4189]/40">
+              <p className="flex items-center gap-1.5 font-semibold">See {p.display_name.split(" ")[0]} on Talfirms<ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></p>
+              <p className="mt-1 text-sm text-muted-foreground">Their profile, proven skills and work history.</p>
+              {(links.clips > 0 || links.posts > 0) && (
+                <p className="mt-3 flex gap-4 text-sm">
+                  {links.clips > 0 && <span className="inline-flex items-center gap-1.5"><Clapperboard className="h-4 w-4 text-[#1f4189]" /><b>{links.clips}</b> clip{links.clips === 1 ? "" : "s"}</span>}
+                  {links.posts > 0 && <span className="inline-flex items-center gap-1.5"><PenLine className="h-4 w-4 text-[#1f4189]" /><b>{links.posts}</b> post{links.posts === 1 ? "" : "s"}</span>}
+                </p>
+              )}
+            </a>
           )}
           <div className="rounded-2xl border border-border bg-secondary/40 p-5 text-sm text-muted-foreground">
             Every Skillfirms instructor is checked by our team before they can teach. Teaching since {new Date(p.since).toLocaleDateString(undefined, { month: "long", year: "numeric" })}.

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BookOpen, Building2, Clock, Link2, Pencil, Plus, Wallet } from "lucide-react";
+import { ArrowUpRight, BookOpen, Building2, Clock, Link2, Megaphone, Pencil, Plus, Wallet } from "lucide-react";
+import { crossAppClick } from "@/lib/crossApp";
+import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { loadStudioCourses } from "@/lib/studio";
@@ -88,6 +90,13 @@ export default function Studio() {
             </motion.div>
           ))}
         </div>
+
+        <a href={`${TALFIRMS_URL}/clips/new`} onClick={crossAppClick(TALFIRMS_URL, "/clips/new")}
+          className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-gradient-to-r from-[#eef1ff] to-card p-4 text-sm transition-colors hover:border-[#1f4189]/40">
+          <Megaphone className="h-5 w-5 flex-none text-[#1f4189]" />
+          <span className="min-w-0 flex-1"><b>Promote on Talfirms.</b> Post a clip or blog post and attach your course: it shows as a card that goes through your own link, so those sales pay you {EXPERT_SHARE.expert_link}%. Your Talfirms profile also shows "Teaches on Skillfirms".</span>
+          <ArrowUpRight className="h-4 w-4 flex-none text-muted-foreground" />
+        </a>
 
         {error && <p className="mt-6 text-sm text-destructive">{error}</p>}
         {!courses ? <Skeleton className="mt-6 h-40 w-full" /> : courses.length === 0 ? (
