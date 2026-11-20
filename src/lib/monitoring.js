@@ -4,14 +4,28 @@
 // identifyUser/trackEvent/captureException buffer until init resolves.
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
-const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
+// The PostHog project key is public by design (it can only send events),
+// so it ships with the site; VITE_POSTHOG_KEY can override it.
+const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY || "phc_A5uNxcxc4xjPvmRgVtpcVaLjEFJjAxH7eorz7b9x8PvD";
 const POSTHOG_HOST = import.meta.env.VITE_POSTHOG_HOST || "https://eu.i.posthog.com";
 
 let sentry = null;
 let posthog = null;
 let pendingUserId; // undefined = not yet set; null = explicitly signed out
 
+// Start only after the page has loaded and the browser is idle, so neither
+// SDK competes with first paint.
 export function initMonitoring() {
+  if (typeof window === "undefined") return;
+  const go = () => (window.requestIdleCallback ? window.requestIdleCallback(startMonitoring, { timeout: 4000 }) : setTimeout(startMonitoring, 1500));
+  if (document.readyState === "complete") go();
+  else window.addEventListener("load", go, { once: true });
+}
+
+let started = false;
+function startMonitoring() {
+  if (started) return;
+  started = true;
   if (SENTRY_DSN) {
     import("@sentry/react").then((Sentry) => {
       Sentry.init({
@@ -45,10 +59,19 @@ export function initMonitoring() {
         autocapture: { dom_event_allowlist: ["click", "change"] },
         mask_all_text: true,
         disable_session_recording: true,
+        // No cookies: an anonymous id in this browser's storage only, and
+        // nothing at all for people who ask sites not to track them.
+        persistence: "localStorage",
+        respect_dnt: true,
+        // Only page views and our own events: no surveys or feature flags to load.
+        disable_surveys: true,
+        advanced_disable_flags: true,
+        advanced_disable_decide: true,
         capture_pageview: true,
         loaded: (loadedPh) => loadedPh.register({ product: "skillfirms" }),
       });
       posthog = ph;
+      queued.splice(0).forEach(([n, p]) => ph.capture(n, p));
       if (pendingUserId !== undefined) {
         if (pendingUserId) ph.identify(pendingUserId);
         else ph.reset();
@@ -66,8 +89,12 @@ export function identifyUser(userId) {
   }
 }
 
+// Events before PostHog has loaded wait in a short queue (never personal
+// details: ids, counts and yes/no only).
+const queued = [];
 export function trackEvent(name, props = {}) {
   if (posthog) posthog.capture(name, props);
+  else if (queued.length < 50) queued.push([name, props]);
 }
 
 export function captureException(error, context) {

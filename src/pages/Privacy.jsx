@@ -73,7 +73,8 @@ export default function Privacy() {
             <h2 className="font-display text-lg font-semibold">What we don't do</h2>
             <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
               <li>We don't run third-party advertising trackers, ad pixels, or sell your personal data to data brokers or advertisers.</li>
-              <li>We don't use cookies for cross-site ad tracking. The only external request made on page load is to Google Fonts, to load the typefaces used in the interface.</li>
+              <li>We don't use cookies for cross-site ad tracking. On page load we fetch the interface typefaces from Google Fonts.</li>
+              <li>After a page has loaded we count how the site is used with PostHog (hosted in the EU): which pages are visited and which steps people complete, such as signing up or passing a skill check. Text you type is masked and never sent, there's no session recording, it sets no cookies (an anonymous id is kept in your browser's storage), IP addresses are anonymised, and it doesn't run at all if your browser asks sites not to track you.</li>
               <li>We don't push your Skillfirms activity to Talfirms beyond the specific credential-sharing choice you make — a course enrollment or quiz attempt is never shown on Talfirms unless it results in a credential you've chosen to share.</li>
             </ul>
           </section>

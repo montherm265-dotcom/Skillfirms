@@ -1,3 +1,4 @@
+import { trackEvent } from "@/lib/monitoring";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
@@ -166,6 +167,7 @@ export default function LessonReader() {
     try {
       const score = await submitQuiz(mod.id, answers);
       setResult({ score, passed: score >= PASS });
+      trackEvent("lesson_check_finished", { passed: score >= PASS });
       await loadCourse();
     } catch (e) {
       const m = e.message ?? "";

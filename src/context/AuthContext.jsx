@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient';
-import { identifyUser } from '@/lib/monitoring';
+import { identifyUser, trackEvent } from '@/lib/monitoring';
 import { assertPasswordNotLeaked } from '@/lib/leakedPassword';
 
 const AuthContext = createContext(null);
@@ -79,6 +79,7 @@ export function AuthProvider({ children }) {
       },
     });
     if (error) throw error;
+    trackEvent("signed_up", { site: "skillfirms" });
     if (data.session) {
       setSession(data.session);
       await loadProfile(data.user?.id);

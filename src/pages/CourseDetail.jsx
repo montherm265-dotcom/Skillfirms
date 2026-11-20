@@ -1,3 +1,4 @@
+import { trackEvent } from "@/lib/monitoring";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -124,6 +125,7 @@ export default function CourseDetail() {
     try {
       const p = await buyCourse(course.id, readRef(slug));
       setPurchase(p);
+      trackEvent("course_buy_clicked", { discounted: p.discount_kind === "first_course", channel: p.channel });
       if (p.payment_status === "paid" || p.payment_status === "credit") { setAccess(true); toast.success("You're in."); }
       else toast.success("You're on the list. Nothing is charged; we'll let you know when buying opens.");
     } catch (e) { toast.error(e.message); } finally { setBusy(false); }
@@ -137,6 +139,7 @@ export default function CourseDetail() {
     try {
       const row = await enroll(course.id, user.id);
       setEnrollment(row);
+      trackEvent("course_enrolled", { paid });
       navigate(`/courses/${slug}/lessons/1`);
     } catch {
       toast.error("Couldn't enroll you. Try again.");
