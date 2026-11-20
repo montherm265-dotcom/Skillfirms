@@ -6,6 +6,7 @@ import { crossAppClick } from "@/lib/crossApp";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabaseClient";
 import { loadStudioCourses } from "@/lib/studio";
 import { EXPERT_SHARE, UDEMY_SHARE, loadMyRefCode, loadTeamMinutes, parsePrice, setCoursePrice } from "@/lib/plans";
 import Seo from "@/components/seo/Seo";
@@ -24,6 +25,8 @@ const money = (c) => (c ? `$${(c / 100).toFixed(c % 100 ? 2 : 0)}` : "Free");
 export default function Studio() {
   const { expertId } = useAuth();
   const [courses, setCourses] = useState(null);
+  const [foundingUntil, setFoundingUntil] = useState(null);
+  useEffect(() => { supabase.rpc("skillfirms_founding_tutors").then(({ data }) => setFoundingUntil(data?.mine_until ?? null)); }, []);
   const [error, setError] = useState(null);
 
   const [ref, setRef] = useState(null);
@@ -77,6 +80,11 @@ export default function Studio() {
           </div>
         </div>
 
+        {foundingUntil && (
+          <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-300 to-yellow-200 px-4 py-1.5 text-sm font-bold text-[#0b1640]">
+            Founding tutor: you keep 85% of marketplace sales until {new Date(foundingUntil).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })}
+          </p>
+        )}
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {[
             ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, UDEMY_SHARE.marketplace, "of each sale"],

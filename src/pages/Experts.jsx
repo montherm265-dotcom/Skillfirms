@@ -49,6 +49,8 @@ export default function Experts() {
   }
 
   const app = status?.application;
+  const [founding, setFounding] = useState(null);
+  useEffect(() => { supabase.rpc("skillfirms_founding_tutors").then(({ data }) => setFounding(data ?? null)); }, []);
   const ready = form.headline.trim().length >= 3 && form.experience.trim().length >= 50 && picked.length > 0;
 
   return (
@@ -73,6 +75,14 @@ export default function Experts() {
       </PageHero>
 
       <section className="mx-auto max-w-5xl px-4 pt-12 sm:px-6">
+        {founding?.spots_left > 0 && (
+          <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#0b1640] via-[#13286b] to-[#1f4189] p-6 text-white shadow-xl">
+            <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-300/20 blur-2xl" />
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-300 to-yellow-200 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-[#0b1640]">Founding tutors · {founding.spots_left} of 20 spots left</p>
+            <p className="mt-3 text-2xl font-extrabold tracking-tight">Keep 85% of every sale for your first 6 months</p>
+            <p className="mt-1 max-w-2xl text-sm text-white/80">The first 20 tutors we approve keep 85% (instead of 70%) when Skillfirms finds the learner, for 6 months from approval. Sales through your own link stay at 97%.</p>
+          </div>
+        )}
         <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Teach a course: you keep more than anywhere else</h2>
         <p className="mt-1 text-sm text-muted-foreground">You set your price ($9 to $199) and can change it any time. Expert courses are always paid; the free courses on Skillfirms are AI-taught basics. Skillfirms checks every course before it goes live.</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
