@@ -1,3 +1,4 @@
+import Seo from "@/components/seo/Seo";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Award } from "lucide-react";
@@ -63,7 +64,8 @@ export default function MyCredentials() {
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-extrabold tracking-[-0.03em]">Your credentials</h1>
+          <Seo title="Certificates" noindex />
+        <h1 className="text-2xl font-semibold tracking-tight">Your credentials</h1>
           <Link to="/settings" className="text-sm font-medium text-mastery hover:underline">Manage Talfirms sharing</Link>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">Every Skillfirms Verified credential you've earned, with a permanent record even if one is later superseded by a newer version.</p>

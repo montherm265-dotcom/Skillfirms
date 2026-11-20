@@ -1,5 +1,6 @@
 import YourData from "@/components/privacy/YourData";
 import { useEffect, useState } from "react";
+import Seo from "@/components/seo/Seo";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
@@ -25,7 +26,8 @@ export default function Settings() {
         // preference and could make someone who turned sharing ON think
         // it reset. Show the failure instead of guessing.
         if (error) { setLoadError(error.message); setLoading(false); return; }
-        setShareCredentials(data?.share_credentials_with_talfirms ?? false);
+        // No saved choice means on (Talfirms 0229: sharing is on unless turned off).
+        setShareCredentials(data?.share_credentials_with_talfirms ?? true);
         setLoading(false);
       });
   }, [user.id]);
@@ -51,14 +53,15 @@ export default function Settings() {
   return (
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-extrabold tracking-[-0.03em]">Settings</h1>
+        <Seo title="Settings" noindex />
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
 
         <div className="mt-6 card-soft p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="font-medium">Share verified credentials with Talfirms</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                When on, anyone viewing your Talfirms profile can see your currently active Skillfirms Verified credentials, each linking back to its own public verification page here. Off by default — this is a separate decision from anyone checking one credential code you've already handed them, which always works regardless of this setting.
+                When on, anyone viewing your Talfirms profile can see your currently active Skillfirms Verified credentials, each linking back to its own public verification page here. On by default, since it's one account. Anyone you hand a credential code to can always check it, whatever this setting says.
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
                 A credential that's later superseded or revoked stops showing on Talfirms immediately, even though nothing is ever deleted from your history on this page. Want to hide just one credential while keeping the rest visible? Use the per-credential toggle on <Link to="/credentials" className="underline hover:text-mastery">My Credentials</Link> instead of turning this off entirely.

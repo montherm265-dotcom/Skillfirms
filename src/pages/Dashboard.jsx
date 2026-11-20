@@ -1,3 +1,4 @@
+import Seo from "@/components/seo/Seo";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Target, ExternalLink } from "lucide-react";
@@ -69,7 +70,8 @@ export default function Dashboard() {
   return (
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-extrabold tracking-[-0.03em]">Welcome{profile?.display_name ? `, ${profile.display_name}` : ""}</h1>
+        <Seo title="My goal" noindex />
+        <h1 className="text-2xl font-semibold tracking-tight">Welcome{profile?.display_name ? `, ${profile.display_name}` : ""}</h1>
 
         {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
         <JobGoalBanner className="mt-6" />

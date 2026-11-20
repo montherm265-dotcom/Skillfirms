@@ -116,7 +116,7 @@ export default function MyLearning() {
         </section>
       )}
 
-      <div className="mt-10 flex gap-1 border-b border-border" role="tablist">
+      <div className="no-scrollbar mt-10 flex gap-1 overflow-x-auto border-b border-border" role="tablist">
         {TABS.filter((t) => t.id !== "saved" || toggle).map((t) => {
           const n = t.id === "progress" ? inProgress.length : t.id === "done" ? done.length : savedCourses.length;
           return (
@@ -126,6 +126,8 @@ export default function MyLearning() {
             </button>
           );
         })}
+        <Link to="/credentials" className="-mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground">Certificates</Link>
+        <Link to="/passport" className="-mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground">Skills</Link>
       </div>
 
       {!items ? (

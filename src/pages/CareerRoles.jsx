@@ -14,9 +14,21 @@ const iconFor = (industry) => ICON[String(industry ?? "").toLowerCase()] ?? Brie
 export default function CareerRoles() {
   const [roles, setRoles] = useState(null);
   const [sector, setSector] = useState("All");
+  const [courseCount, setCourseCount] = useState({});
 
   useEffect(() => {
     supabase.from("skillfirms_career_roles").select("*").order("title").then(({ data }) => setRoles(data ?? []));
+    // How many published courses each path has (skills -> courses covering them).
+    Promise.all([
+      supabase.from("skillfirms_role_skills").select("role_id, skill_id"),
+      supabase.from("skillfirms_course_skills").select("course_id, skill_id, coverage, skillfirms_courses!inner(status)").gte("coverage", 0.25).eq("skillfirms_courses.status", "published"),
+    ]).then(([{ data: rs }, { data: cs }]) => {
+      const bySkill = {};
+      for (const c of cs ?? []) (bySkill[c.skill_id] ??= new Set()).add(c.course_id);
+      const out = {};
+      for (const r of rs ?? []) { out[r.role_id] ??= new Set(); for (const id of bySkill[r.skill_id] ?? []) out[r.role_id].add(id); }
+      setCourseCount(Object.fromEntries(Object.entries(out).map(([k, v]) => [k, v.size])));
+    });
   }, []);
 
   const sectors = useMemo(() => ["All", ...new Set((roles ?? []).map((r) => r.industry).filter(Boolean))], [roles]);
@@ -24,9 +36,9 @@ export default function CareerRoles() {
 
   return (
     <div>
-      <Seo title="Career roles" description="Browse the real skill graph behind every Skillfirms diagnosis — what each career role actually requires." canonical="/roles" />
+      <Seo title="Career paths" description="A set of courses toward one job, in order, with your progress across all of them." canonical="/roles" />
       <PageHero eyebrow="Career paths" icon={Route} title="Pick the job." accent="We'll map the skills."
-        sub="Every role below is broken into the skills it really needs. Open one to see the shortest path of courses that gets you there." />
+        sub="Each path is the set of courses that covers what one job needs, in order. Your progress counts across all of them." />
 
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         {roles && sectors.length > 2 && (
@@ -49,7 +61,8 @@ export default function CareerRoles() {
                     <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.18em] text-[#1f4189]">{r.industry}</p>
                     <p className="mt-1 text-xl font-bold tracking-tight">{r.title}</p>
                     {r.description && <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{r.description}</p>}
-                    <p className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#1f4189]">See the skills<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></p>
+                    {courseCount[r.id] > 0 && <p className="mt-4 text-xs font-medium text-muted-foreground">{courseCount[r.id]} course{courseCount[r.id] === 1 ? "" : "s"} · certificate for each</p>}
+                    <p className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#1f4189]">See the path<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></p>
                   </Link>
                 </motion.div>
               );
