@@ -78,6 +78,9 @@ function TargetCard({ job, onRemove }) {
           <X className="h-4 w-4" />
         </button>
       </header>
+      {job.company_note && (
+        <p className="border-b border-border bg-[#1f4189]/[0.03] px-5 py-3 text-[13px] leading-5"><span className="font-semibold">{job.company}: </span><span className="text-foreground/80">{job.company_note}</span></p>
+      )}
       {gaps.length > 0 && (
         <div className="divide-y divide-border">
           {gaps.map((g) => (
@@ -85,6 +88,7 @@ function TargetCard({ job, onRemove }) {
               <h3 className="flex items-center gap-2 text-sm font-semibold">
                 {g.label}
                 {g.required && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">Required</span>}
+                {g.also_wanted && <span className="rounded-full border border-[#1f4189]/25 bg-[#1f4189]/[0.06] px-2 py-0.5 text-[11px] font-semibold text-[#1f4189]" title={`${job.company} asks for this on top of the usual skills`}>{job.company}'s extra</span>}
                 {g.partial && <span className="text-[11px] font-normal text-muted-foreground">partly there</span>}
               </h3>
               {g.courses.length > 0 ? (
