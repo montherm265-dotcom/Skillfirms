@@ -8,7 +8,7 @@ const COLS = [
   ["Learn", [["All courses", "/courses"], ["Learn a skill", "/learn"], ["Career paths", "/roles"], ["Pricing", "/pro"]]],
   ["Prove", [["My certificates", "/credentials"], ["Skill Passport", "/passport"], ["My learning", "/my-learning"]]],
   ["Work with us", [["Teach as an expert", "/experts"], ["Train your team", "/team"]]],
-  ["Skillfirms", [["Security", "/trust"], ["Privacy", "/privacy"], ["Terms", "/terms"]]],
+  ["Skillfirms", [["Security", "/trust"], ["Privacy", "/privacy"], ["Terms", "/terms"], ["Payments & refunds", "/terms/payments"]]],
 ];
 
 function Mark() {

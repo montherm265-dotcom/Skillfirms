@@ -65,6 +65,11 @@ export default function Terms() {
           </section>
 
           <section>
+            <h2 className="font-display text-lg font-semibold">Payments, refunds and instructors</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Course refunds, interviews and what instructors earn are covered in <a href="/terms/payments" className="text-primary hover:underline">Payments, refunds and tutor terms</a>.</p>
+          </section>
+
+          <section>
             <h2 className="font-display text-lg font-semibold">6. Acceptable use</h2>
             <ul className="mt-2 list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
               <li>No scraping, bulk data extraction, or automated access outside what the product's own features provide.</li>
