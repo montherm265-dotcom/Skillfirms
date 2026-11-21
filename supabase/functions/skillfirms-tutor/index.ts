@@ -3,7 +3,7 @@
 //   -> { result: { answer, followups } } | { error }
 //
 // Free answers each day (my_ai_allowance quick helps: Free 10 inside the free
-// $0.10 a month AI cap, Talfirms Pro 50, Ultra 120), then saved questions from
+// $0.10 a month AI cap, Talfirms Pro 50, Ultra no daily limit), then saved questions from
 // a bought pack (skillfirms_tutor_wallets), one per answer. Logged to
 // ai_usage_log as skillfirms_tutor or skillfirms_tutor_credit (tier 'simple');
 // paid answers never use up the free monthly allowance.
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
   ].filter(Boolean).join("\n\n");
 
   // Free tutor questions each day (your plan's quick AI helps: Free 10 inside
-  // the free $0.10 a month AI cap, Talfirms Pro 50, Ultra 120). After that,
+  // the free $0.10 a month AI cap, Talfirms Pro 50, Ultra no daily limit). After that,
   // saved questions from a pack you bought (migration 0032), one per answer.
   const { data: a } = await caller.rpc("my_ai_allowance");
   const allowance = (a ?? {}) as Record<string, unknown>;
@@ -107,7 +107,11 @@ Deno.serve(async (req) => {
   const cap = allowance.light_models === false ? null : Number(allowance.cost_cap_usd ?? 0.10);
   const spent = Number(allowance.cost_this_month_usd ?? 0) || 0;
   const worst = 2 * ((Math.ceil((SYSTEM.length + user.length) / 3) + 50) / 1e6 * IN_PRICE + (MAX_OUT + REASONING) / 1e6 * OUT_PRICE);
-  const freeLeft = today < perDay && !(cap != null && spent + worst > cap);
+  // Talfirms Ultra: no daily limit on tutor questions (fair use: a hard
+  // ceiling of 300 a day stops runaway scripts, never a real learner).
+  const { data: me } = await admin.from("profiles").select("plan, plan_expires_at").eq("id", u.user.id).maybeSingle();
+  const ultra = me?.plan === "ultra" && (!me.plan_expires_at || new Date(me.plan_expires_at) > new Date());
+  const freeLeft = ultra ? today < 300 : today < perDay && !(cap != null && spent + worst > cap);
   let useCredit = false;
   if (!freeLeft) {
     const { data: w } = await admin.from("skillfirms_tutor_wallets").select("balance").eq("user_id", u.user.id).maybeSingle();

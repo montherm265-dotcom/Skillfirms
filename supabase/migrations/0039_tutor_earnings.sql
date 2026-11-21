@@ -13,7 +13,7 @@ begin
     where c.expert_id = e.id and p.payment_status in ('paid', 'refunded') and p.paid_at is not null
     union all
     select 'interview', (select string_agg(k.label, ', ') from public.capabilities k where k.id = any (i.capability_ids)), i.completed_at, i.tutor_share_cents, i.payment_status = 'refunded'
-    from public.skill_interviews i where i.expert_id = e.id and i.status = 'completed' and i.payment_status in ('paid', 'refunded')
+    from public.skill_interviews i where i.expert_id = e.id and i.status = 'completed' and i.payment_status in ('paid', 'refunded', 'included')
     union all
     select 'review', 'Expert review', o.paid_at, o.expert_payout_cents, false
     from public.skillfirms_review_orders o where o.expert_id = e.id and o.status = 'reviewed' and o.expert_payout_cents is not null and o.paid_at is not null
