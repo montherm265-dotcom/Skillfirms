@@ -104,8 +104,8 @@ function TargetCard({ job, onRemove }) {
                 {g.also_wanted && <span className="rounded-full border border-[#1f4189]/25 bg-[#1f4189]/[0.06] px-2 py-0.5 text-[11px] font-semibold text-[#1f4189]" title={`${job.company} asks for this on top of the usual skills`}>{job.company}'s extra</span>}
                 {g.claimed && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800" title="It's on your profile, but nothing proves it yet">Claimed, not proven</span>}
                 {g.claimed && (
-                  <a href={`${TALFIRMS_URL}/skill-check/${g.id}`} onClick={crossAppClick(TALFIRMS_URL, `/skill-check/${g.id}`)}
-                    className="ml-auto inline-flex items-center gap-1 rounded-full bg-[#1f4189] px-2.5 py-0.5 text-[11px] font-semibold text-white hover:bg-[#00041d]">Prove it in 10 min<ArrowUpRight className="h-3 w-3" /></a>
+                  <a href={`${TALFIRMS_URL}/settings#certifications`} onClick={crossAppClick(TALFIRMS_URL, "/settings#certifications")}
+                    className="ml-auto text-[11px] font-semibold text-[#1f4189] hover:underline" title="Pass a course below, or add a certificate you already have and Talfirms will check it">Have a certificate?</a>
                 )}
               </h3>
               {g.courses.length > 0 ? (
