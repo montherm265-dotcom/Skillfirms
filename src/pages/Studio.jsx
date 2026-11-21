@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { loadStudioCourses } from "@/lib/studio";
 import { EXPERT_SHARE, UDEMY_SHARE, loadMyRefCode, loadTeamMinutes, parsePrice, setCoursePrice } from "@/lib/plans";
 import Seo from "@/components/seo/Seo";
+import EarningsCard from "@/components/EarningsCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -98,6 +99,8 @@ export default function Studio() {
             </motion.div>
           ))}
         </div>
+
+        <EarningsCard />
 
         <a href={`${TALFIRMS_URL}/clips/new`} onClick={crossAppClick(TALFIRMS_URL, "/clips/new")}
           className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-gradient-to-r from-[#eef1ff] to-card p-4 text-sm transition-colors hover:border-[#1f4189]/40">
