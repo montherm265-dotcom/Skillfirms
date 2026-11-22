@@ -270,7 +270,7 @@ export default function StudioEditor() {
               </span>
             </label>
             <Button className="w-full" onClick={() => save(true)} disabled={!!busy || !allReady || !pledge}><Send className="h-4 w-4" />{busy === "submit" ? "Sending…" : "Send for review"}</Button>
-            <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who meet your certificate rule earn a certificate that counts as verified proof on Talfirms. You keep 70% of sales Skillfirms brings and 97% through your own link.</p>
+            <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who meet your certificate rule earn a certificate that counts as verified proof on Talfirms. You keep 60% of sales Skillfirms brings and 97% through your own link.</p>
           </div>
         </aside>
       </div>

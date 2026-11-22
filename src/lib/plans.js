@@ -3,9 +3,9 @@ import { supabase } from "@/lib/supabaseClient";
 // Skillfirms money (0032/0033). AI-taught basics are free; expert courses are
 // paid at the expert's price. The AI tutor has free
 // questions each day, then question packs you buy once and keep (saved for
-// any course). Experts set their own prices and keep 70% of marketplace
+// any course). Experts set their own prices and keep 60% of marketplace
 // sales, 97% through their own link, and share 50% of team-training money.
-export const EXPERT_SHARE = { marketplace: 70, expert_link: 97, team_pool: 50 };
+export const EXPERT_SHARE = { marketplace: 60, expert_link: 97, team_pool: 50 };
 export const UDEMY_SHARE = { marketplace: 37, expert_link: 97, team_pool: 15 };
 
 export const dollars = (cents) => (cents == null ? "–" : `$${(cents / 100).toFixed(2).replace(/\.00$/, "")}`);

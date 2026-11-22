@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowUpRight, Award, BookOpen, Clapperboard, Clock, PenLine, Star, Users } from "lucide-react";
+import { ArrowUpRight, Award, BadgeCheck, BookOpen, Briefcase, Clapperboard, Clock, PenLine, ShieldCheck, Star, Users } from "lucide-react";
 import { crossAppClick } from "@/lib/crossApp";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { supabase } from "@/lib/supabaseClient";
@@ -26,7 +26,9 @@ export default function Instructor() {
   const { id } = useParams();
   const [p, setP] = useState(undefined);
   const [links, setLinks] = useState(null);
+  const [record, setRecord] = useState(null);
   useEffect(() => {
+    supabase.rpc("skillfirms_instructor_record", { p_expert_id: id }).then(({ data }) => setRecord(data ?? null));
     supabase.rpc("skillfirms_instructor", { p_expert_id: id }).then(({ data }) => setP(data ?? null));
     supabase.rpc("skillfirms_instructor_links", { p_expert_id: id }).then(({ data }) => setLinks(data ?? null));
   }, [id]);
@@ -57,6 +59,7 @@ export default function Instructor() {
               <Stat icon={Users} value={fmt(p.learners)} label="learners" />
               <Stat icon={BookOpen} value={p.courses.length} label={p.courses.length === 1 ? "course" : "courses"} />
               {p.rating ? <Stat icon={Star} value={p.rating} label={`${fmt(p.reviews)} review${p.reviews === 1 ? "" : "s"}`} /> : null}
+              {p.courses.length > 0 && (() => { const ps = p.courses.map((c) => c.price_cents ?? 0); const lo = Math.min(...ps), hi = Math.max(...ps); return <Stat icon={Award} value={lo === hi ? money(lo) : `${money(lo)}–${money(hi)}`} label="per course, paid once" />; })()}
             </div>
           </div>
         </div>
@@ -90,6 +93,7 @@ export default function Instructor() {
           )}
         </div>
         <aside className="space-y-4">
+          {record && <TalfirmsRecord record={record} name={p.display_name.split(" ")[0]} />}
           {creds.length > 0 && (
             <div className="rounded-2xl border border-border bg-card p-5">
               <p className="flex items-center gap-2 font-semibold"><Award className="h-4 w-4 text-[#1f4189]" />Experience</p>
@@ -114,6 +118,35 @@ export default function Instructor() {
           </div>
         </aside>
       </div>
+    </div>
+  );
+}
+
+const CONFIRMED = { company: "Confirmed by the company", "official record": "Official employment record", manager: "Confirmed by a past manager" };
+const yr = (d) => (d ? new Date(d).getFullYear() : null);
+
+// Their real work history from Talfirms, with how each job was confirmed.
+function TalfirmsRecord({ record, name }) {
+  const jobs = record.jobs ?? [];
+  if (!jobs.length && !record.licences?.length) return null;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <p className="flex items-center gap-2 font-semibold"><Briefcase className="h-4 w-4 text-[#1f4189]" />Work experience</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">From {name}'s Talfirms profile</p>
+      {record.practitioner && <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#1f4189]/10 px-2.5 py-1 text-xs font-semibold text-[#1f4189]"><ShieldCheck className="h-3.5 w-3.5" />Verified practitioner</p>}
+      <ul className="mt-3 space-y-3 text-sm">
+        {jobs.map((j, i) => (
+          <li key={i}>
+            <p className="font-medium leading-snug">{j.title}</p>
+            <p className="text-xs text-muted-foreground">{j.company} · {yr(j.start) ?? "?"}–{j.current ? "now" : yr(j.end) ?? "?"}</p>
+            {j.confirmed_by && <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-success"><BadgeCheck className="h-3.5 w-3.5" />{CONFIRMED[j.confirmed_by]}</p>}
+          </li>
+        ))}
+        {(record.licences ?? []).map((l, i) => (
+          <li key={`l${i}`} className="text-xs"><span className="inline-flex items-center gap-1 font-semibold text-success"><BadgeCheck className="h-3.5 w-3.5" />Licensed {l.profession}</span> <span className="text-muted-foreground">({l.country}, checked on the official register)</span></li>
+        ))}
+      </ul>
+      {record.trust?.level && record.trust.level !== "New" && <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">Talfirms Trust Score: <b className="text-foreground">{record.trust.score}</b> ({record.trust.level})</p>}
     </div>
   );
 }

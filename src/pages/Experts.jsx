@@ -55,7 +55,7 @@ export default function Experts() {
 
   return (
     <div>
-      <Seo title="Become a Skillfirms expert" description="Teach your own courses at your own price and keep 70% (97% through your own link)." canonical="/experts" />
+      <Seo title="Become a Skillfirms expert" description="Teach your own courses at your own price and keep 60% (97% through your own link)." canonical="/experts" />
       <PageHero eyebrow="Skillfirms experts" icon={GraduationCap} title="Know the work?" accent="Teach it and get paid."
         sub="Build your own courses, with video, at the price you choose, and change it whenever you like. People who pass your course get proof on Talfirms that says you taught them."
         aside={<HeroGlass className="mx-auto max-w-sm">
@@ -63,7 +63,7 @@ export default function Experts() {
           <p className="mt-2 text-lg font-bold">Risk-Based Change Control</p>
           <p className="text-xs text-white/55">Taught by an expert · 6 lessons · $49</p>
           <div className="mt-5 grid grid-cols-3 gap-2 text-center">
-            {[["70%", "found by us"], ["97%", "your link"], ["50%", "team pool"]].map(([v, l]) => <div key={l} className="rounded-xl bg-white/[0.06] p-2.5"><p className="text-xl font-extrabold">{v}</p><p className="text-[10px] text-white/55">{l}</p></div>)}
+            {[["60%", "found by us"], ["97%", "your link"], ["50%", "team pool"]].map(([v, l]) => <div key={l} className="rounded-xl bg-white/[0.06] p-2.5"><p className="text-xl font-extrabold">{v}</p><p className="text-[10px] text-white/55">{l}</p></div>)}
           </div>
           <p className="mt-4 text-xs text-white/55">The share you keep of each sale</p>
         </HeroGlass>}>
@@ -80,7 +80,7 @@ export default function Experts() {
             <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-amber-300/20 blur-2xl" />
             <p className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-300 to-yellow-200 px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-[#0b1640]">Founding tutors · {founding.spots_left} of 20 spots left</p>
             <p className="mt-3 text-2xl font-extrabold tracking-tight">Keep 85% of every sale for your first 6 months</p>
-            <p className="mt-1 max-w-2xl text-sm text-white/80">The first 20 tutors we approve keep 85% (instead of 70%) when Skillfirms finds the learner, for 6 months from approval. Sales through your own link stay at 97%.</p>
+            <p className="mt-1 max-w-2xl text-sm text-white/80">The first 20 tutors we approve keep 85% (instead of 60%) when Skillfirms finds the learner, for 6 months from approval. Sales through your own link stay at 97%.</p>
           </div>
         )}
         <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Teach a course: you keep more than anywhere else</h2>
@@ -110,7 +110,7 @@ export default function Experts() {
               { icon: PencilRuler, t: "Build it in the studio", d: "Write lessons and add your own videos. You decide how learners earn your certificate: checks you write for each lesson, a real project you set and review, or both." },
               { icon: BadgeCheck, t: "We check it, then it's live", d: "Skillfirms reviews every course before it goes live, so learners can trust it." },
               { icon: Video, t: "Lesson 1 is a free preview", d: "Learners try your teaching first, then buy the course at the price you set." },
-              { icon: Wallet, t: "Keep 70% to 97%", d: "70% when Skillfirms finds the learner, 97% through your own link, and a share of company team-training money." },
+              { icon: Wallet, t: "Keep 60% to 97%", d: "60% when Skillfirms finds the learner, 97% through your own link, and a share of company team-training money." },
               { icon: Laptop, t: "Proof with your name on it", d: "People who pass show it on Talfirms as \"taught by an expert\", with your name." },
             ].map((s) => (
               <li key={s.t} className="flex gap-3">

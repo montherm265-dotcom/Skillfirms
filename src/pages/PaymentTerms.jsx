@@ -54,7 +54,7 @@ export default function PaymentTerms() {
             <H>4. What instructors earn</H>
             <L items={[
               "Expert interviews: you keep 75% of the price (currently $9 of $12).",
-              "Courses: you keep 70% of each sale, or 97% when the buyer came through your own link. Founding instructors keep 85% for their first 6 months.",
+              "Courses: you keep 60% of each sale, or 97% when the buyer came through your own link. Founding instructors keep 85% for their first 6 months.",
               "Your share is worked out on what the buyer actually paid, after any discount.",
               "Earnings are held for 14 days (the refund window), then paid out to you through Stripe. You need a Stripe account in your name to be paid.",
               "If a sale is refunded or charged back, that amount comes off your balance.",

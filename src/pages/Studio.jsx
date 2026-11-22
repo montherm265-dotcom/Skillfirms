@@ -59,7 +59,7 @@ export default function Studio() {
     return (
       <div className="section-pad text-center">
         <p className="text-2xl font-extrabold tracking-[-0.03em]">Teach on Skillfirms</p>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Approved experts build their own courses, with video, set their own price, and keep 70% of every sale (97% through their own link). Apply first; we check every application by hand.</p>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Approved experts build their own courses, with video, set their own price, and keep 60% of every sale (97% through their own link). Apply first; we check every application by hand.</p>
         <Link to="/experts"><Button className="mt-4">Apply to become an expert</Button></Link>
       </div>
     );
