@@ -74,7 +74,7 @@ export default function EarningsCard() {
   );
 }
 
-const FEE = { web: "3% processing fee", app_store: "Apple's commission", play_store: "Google's commission" };
+const FEE = { web: "Processing fee (3% + $0.30)", app_store: "Apple's commission", play_store: "Google's commission" };
 
 // Every course sale, line by line: what the student paid, what came off and
 // why, the Net Revenue, and your share of it. Matches the payment terms.

@@ -101,7 +101,7 @@ export default function Pro() {
 
         <section className="mt-14 grid gap-5 md:grid-cols-3">
           {[
-            { icon: Sparkles, t: "Free every day", d: `${freeLimits?.free ?? 10} tutor questions a day on Free (within the free monthly AI allowance), ${freeLimits?.pro ?? 50} with Talfirms Pro and ${freeLimits?.ultra ?? 120} with Talfirms Ultra.`, to: null },
+            { icon: Sparkles, t: "Free tutor questions", d: `${freeLimits?.free ?? 10} a day on Free (within the free monthly AI allowance), 600 a month with Talfirms Pro and 1,500 a month with Talfirms Ultra.`, to: null },
             { icon: GraduationCap, t: "Expert courses", d: `Real experts set their own price, paid once. Lesson 1 is always a free preview. Experts keep ${EXPERT_SHARE.marketplace}% of the net revenue from every sale, so your money goes to the person teaching you. AI-taught basics are free.`, to: "/courses?by=expert", cta: "Browse expert courses" },
             { icon: Building2, t: "For companies", d: `Train your team: assign courses, track every graded check, export the record. Free for 3 people, then $${(seat / 100).toFixed(0)} a person a month.`, to: "/team", cta: "Team training" },
           ].map((c, i) => (

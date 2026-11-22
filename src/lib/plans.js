@@ -4,8 +4,8 @@ import { supabase } from "@/lib/supabaseClient";
 // paid at the expert's price. The AI tutor has free
 // questions each day, then question packs you buy once and keep (saved for
 // any course). Experts set their own prices and keep 60% of marketplace
-// sales, 100% through their own link (shares are of net revenue: after taxes, the 3% processing fee or app-store commission, and refunds), and share 50% of team-training money.
-export const EXPERT_SHARE = { marketplace: 60, expert_link: 100, team_pool: 50 };
+// sales, 95% through their own link (shares are of net revenue: after taxes, the processing fee (3% + $0.30) or app-store commission, and refunds), and share 50% of team-training money.
+export const EXPERT_SHARE = { marketplace: 60, expert_link: 95, team_pool: 50 };
 
 export const dollars = (cents) => (cents == null ? "–" : `$${(cents / 100).toFixed(2).replace(/\.00$/, "")}`);
 

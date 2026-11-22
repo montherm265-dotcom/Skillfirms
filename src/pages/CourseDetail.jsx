@@ -39,7 +39,7 @@ export default function CourseDetail() {
   const [params] = useSearchParams();
   const { user } = useAuth();
   useEffect(() => { rememberJobGoal(jobGoalFromParams(params)); }, [params]);
-  // Came through the expert's own link (?ref=CODE): the sale is theirs (100% of net revenue).
+  // Came through the expert's own link (?ref=CODE): the sale is theirs (95% of net revenue).
   useEffect(() => { rememberRef(slug, params.get("ref")); }, [slug, params]);
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
