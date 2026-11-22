@@ -63,8 +63,13 @@ export default function PaymentTerms() {
           </section>
 
           <section>
+            <span id="instructor-rules" />
             <H>5. Instructor rules</H>
             <L items={[
+              "Teach general industry skills and public tools. Never share your employer's (or anyone's) confidential information, trade secrets, internal tools or internal workflows.",
+              "Make sure your employment contract allows outside teaching and paid side work. If it needs your employer's permission, get it before you publish.",
+              "Don't present a course as made, approved or endorsed by your employer, or use its logo. Your verified job can be shown as your own experience only.",
+              "You confirm all three each time you send a course for review. If an employer shows a course breaks these rules, we take it down.",
               "Teach and test honestly. Passing someone who didn't show the skill, or passing for money or favours, ends your instructor account and removes every proof you signed.",
               "Show up for booked interviews. Repeated late cancellations or no-shows pause your interviews.",
               "Keep candidates' details private. Don't contact them outside Talfirms to sell something.",

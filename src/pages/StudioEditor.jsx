@@ -28,6 +28,7 @@ export default function StudioEditor() {
   const [skills, setSkills] = useState([]);
   const [open, setOpen] = useState(0);
   const [busy, setBusy] = useState(null);
+  const [pledge, setPledge] = useState(false);
   const [skillFilter, setSkillFilter] = useState("");
   const [checkMinutes, setCheckMinutesState] = useState("");
   const [firstDiscount, setFirstDiscount] = useState(true);
@@ -261,7 +262,14 @@ export default function StudioEditor() {
               {readiness.map(([label, ok]) => <li key={label} className="flex items-start gap-2">{ok ? <CheckCircle2 className="mt-0.5 h-4 w-4 flex-none text-mastery" /> : <Circle className="mt-0.5 h-4 w-4 flex-none text-muted-foreground" />}<span className={ok ? "" : "text-muted-foreground"}>{label}</span></li>)}
             </ul>
             <Button variant="outline" className="w-full" onClick={() => save(false)} disabled={!!busy}>{busy === "save" ? "Saving…" : "Save draft"}</Button>
-            <Button className="w-full" onClick={() => save(true)} disabled={!!busy || !allReady}><Send className="h-4 w-4" />{busy === "submit" ? "Sending…" : "Send for review"}</Button>
+            <label className="flex items-start gap-2 rounded-xl border border-border bg-secondary/40 p-3 text-xs leading-relaxed">
+              <input type="checkbox" className="mt-0.5" checked={pledge} onChange={(e) => setPledge(e.target.checked)} />
+              <span>
+                I confirm this course teaches <b>general industry skills and public tools</b>, not my employer's (or anyone's) confidential information or internal workflows; that <b>my employment contract allows</b> outside teaching; and that the course doesn't claim to be made or endorsed by my employer.{" "}
+                <a href="/terms/payments#instructor-rules" target="_blank" rel="noreferrer" className="font-semibold text-[#1f4189] hover:underline">Tutor rules</a>
+              </span>
+            </label>
+            <Button className="w-full" onClick={() => save(true)} disabled={!!busy || !allReady || !pledge}><Send className="h-4 w-4" />{busy === "submit" ? "Sending…" : "Send for review"}</Button>
             <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who meet your certificate rule earn a certificate that counts as verified proof on Talfirms. You keep 70% of sales Skillfirms brings and 97% through your own link.</p>
           </div>
         </aside>

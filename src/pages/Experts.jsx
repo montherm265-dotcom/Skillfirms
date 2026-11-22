@@ -167,6 +167,10 @@ export default function Experts() {
                 <label className="block text-sm font-medium">Links <span className="font-normal text-muted-foreground">(optional: Talfirms or LinkedIn profile)</span>
                   <input value={form.links} onChange={(e) => setForm({ ...form, links: e.target.value })} maxLength={500} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
                 </label>
+                <label className="flex items-start gap-2 rounded-xl border border-border bg-secondary/40 p-3 text-xs leading-relaxed">
+                  <input type="checkbox" required className="mt-0.5" />
+                  <span>I'll teach <b>general industry skills and public tools</b>, never my employer's confidential information or internal workflows; <b>my employment contract allows</b> outside teaching (or I'll get permission first); and I won't present a course as made or endorsed by my employer. <a href="/terms/payments#instructor-rules" target="_blank" rel="noreferrer" className="font-semibold text-[#1f4189] hover:underline">Tutor rules</a></span>
+                </label>
                 <Button type="submit" className="w-full" disabled={busy || (user && !ready)}>{!user ? "Sign in to apply" : busy ? "Sending…" : "Send application"}</Button>
               </form>
             )}

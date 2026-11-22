@@ -27,6 +27,10 @@ export async function saveStudioCourse(id, course) {
 }
 
 export async function submitStudioCourse(id) {
+  // The tutor's confirmation (TeachingPledge in StudioEditor), recorded on
+  // the course; the server refuses a course sent without it.
+  const pledge = await supabase.rpc("skillfirms_accept_teaching_pledge", { p_course_id: id });
+  if (pledge.error) throw friendly(pledge.error, "Couldn't send it for review.");
   const { error } = await supabase.rpc("skillfirms_studio_submit", { p_course_id: id });
   if (error) throw friendly(error, "Couldn't send it for review.");
 }
