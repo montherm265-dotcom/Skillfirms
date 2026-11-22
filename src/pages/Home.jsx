@@ -52,7 +52,7 @@ export default function Home() {
       <Seo
         canonical="/"
         title="Learn job skills, prove them, get hired"
-        description="Learn job skills from real experts, with free AI-taught basics. Every lesson ends in a graded check, and every certificate shows on Talfirms as verified, taught by an expert or by AI."
+        description="Learn job skills from real experts, with free AI-taught basics. Experts write the checks, and their certificates show on Talfirms as verified."
         jsonLd={{
           "@context": "https://schema.org",
           "@graph": [
@@ -198,7 +198,7 @@ function GoalBox({ user }) {
 const STEPS = [
   ["Pick", "the skill a job needs"],
   ["Learn", "with an AI tutor beside you"],
-  ["Pass", "a graded check every lesson"],
+  ["Pass", "the checks your tutor wrote"],
   ["Certify", "with a page anyone can check"],
   ["Get hired", "it shows on Talfirms as proof"],
 ];

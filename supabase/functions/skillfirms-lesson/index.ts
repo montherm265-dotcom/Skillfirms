@@ -7,9 +7,9 @@
 // The lesson is drafted by AI from the course outline (course, lesson
 // title/description, the other lessons, the skills the course teaches) and
 // stored with source = 'ai_drafted' until an expert reviews it; the app
-// says so on every lesson. A lesson with no knowledge check also gets 3
-// multiple-choice questions, graded by skillfirms_submit_quiz (the right
-// answers are never readable by the browser).
+// says so on every lesson. Skillfirms never writes quiz questions: graded
+// checks come only from the tutor or organisation that teaches a course
+// (Studio). These free basics are for learning and earn no certificate.
 //
 // Cost: one model call per lesson, ever (~2–3k output tokens), not per
 // learner. Each person can cause at most 100 new lessons a day; every lesson is written only once, so total cost is bounded by the catalogue.
@@ -30,7 +30,7 @@ const cors = {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
-const SYSTEM = `You write lessons for Skillfirms, a site where working professionals learn job skills and prove them.
+const SYSTEM = `You write lessons for Skillfirms, a site where working professionals learn how a job is really done.
 Write one lesson in plain, clear English for someone doing this job for real. Be practical: what to do, why, how it goes wrong, what good looks like.
 Accuracy rules:
 - Only state well-established practice. Never invent statistics, studies, quotes, dates or regulation clause numbers.
@@ -42,8 +42,7 @@ Return ONLY a JSON object with exactly these keys:
   "sections": [ { "heading": "...", "body": "..." } ],   // 3 to 5 sections, 700–1100 words in total
   "example": { "title": "...", "body": "..." },          // one worked, realistic example from the job
   "key_points": [ "..." ],                               // 3 to 5 short takeaways
-  "try_it": "...",                                        // one short exercise the reader can do in 10–15 minutes
-  "quiz": [ { "question": "...", "choices": ["...", "...", "...", "..."], "answer_index": 0 } ]  // exactly 3 questions, 4 choices each, one clearly correct answer that tests understanding, not trivia
+  "try_it": "..."                                         // one short task from the real job the reader can do in 10–15 minutes
 }
 In "body" texts: separate paragraphs with a blank line; a line starting with "- " is a bullet. No markdown headings, no HTML.`;
 
@@ -53,7 +52,6 @@ type Lesson = {
   example: { title: string; body: string };
   key_points: string[];
   try_it: string;
-  quiz: { question: string; choices: string[]; answer_index: number }[];
 };
 
 function valid(x: any): x is Lesson {
@@ -62,10 +60,7 @@ function valid(x: any): x is Lesson {
     && Array.isArray(x.sections) && x.sections.length >= 2 && x.sections.length <= 7 && x.sections.every((s: any) => str(s?.heading, 160) && str(s?.body))
     && x.example && str(x.example.title, 200) && str(x.example.body)
     && Array.isArray(x.key_points) && x.key_points.length >= 2 && x.key_points.length <= 7 && x.key_points.every((k: any) => str(k, 400))
-    && str(x.try_it, 1500)
-    && Array.isArray(x.quiz) && x.quiz.length === 3
-    && x.quiz.every((q: any) => str(q?.question, 400) && Array.isArray(q.choices) && q.choices.length === 4 && q.choices.every((c: any) => str(c, 300))
-      && Number.isInteger(q.answer_index) && q.answer_index >= 0 && q.answer_index < 4);
+    && str(x.try_it, 1500);
 }
 
 Deno.serve(async (req) => {
@@ -101,10 +96,9 @@ Deno.serve(async (req) => {
   }
 
   const course = (mod as any).skillfirms_courses;
-  const [{ data: siblings }, { data: skills }, { count: existingQuestions }] = await Promise.all([
+  const [{ data: siblings }, { data: skills }] = await Promise.all([
     admin.from("skillfirms_course_modules").select("order_index, title").eq("course_id", mod.course_id).order("order_index"),
     admin.from("skillfirms_course_skills").select("skillfirms_skills(name)").eq("course_id", mod.course_id),
-    admin.from("skillfirms_module_quiz_questions").select("id", { count: "exact", head: true }).eq("module_id", moduleId),
   ]);
   const outline = (siblings ?? []).map((s: any) => `${s.order_index + 1}. ${s.title}${s.order_index === mod.order_index ? "  <- THIS LESSON" : ""}`).join("\n");
   const userPrompt = [
@@ -143,13 +137,7 @@ Deno.serve(async (req) => {
     return json({ error: "could_not_write_lesson" }, 502);
   }
 
-  const { quiz, ...stored } = lesson;
-  if (!existingQuestions) {
-    await admin.from("skillfirms_module_quiz_questions").insert(
-      quiz.map((q, i) => ({ module_id: moduleId, order_index: i, question: q.question.trim(), choices: q.choices.map((c) => c.trim()), correct_index: q.answer_index })),
-    );
-    await admin.from("skillfirms_course_modules").update({ has_quiz: true }).eq("id", moduleId);
-  }
+  const stored = lesson;
   await admin.from("skillfirms_lessons").update({ status: "ready", body: stored, model: MODEL, source: "ai_drafted", generated_at: new Date().toISOString(), error: null }).eq("module_id", moduleId);
   return json({ status: "ready", lesson: { body: stored, source: "ai_drafted", generated_at: new Date().toISOString(), reviewed_at: null } });
 });

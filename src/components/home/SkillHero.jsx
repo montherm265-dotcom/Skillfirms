@@ -72,7 +72,7 @@ export default function SkillHero({ totals }) {
 
         <motion.p initial={instant ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.7, ease }}
           className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
-          Courses taught by people who do the job, plus free AI-taught basics. A graded check in every lesson, an AI tutor beside you, and a certificate employers can check.
+          The job, taught by people who do it: how to read the drawings, run the checks, handle the real situations. They write the checks, you earn a certificate employers can check. Plus free basics to get started.
         </motion.p>
 
         <motion.form initial={instant ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.85, ease }}

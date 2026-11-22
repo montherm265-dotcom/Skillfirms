@@ -19,7 +19,7 @@ const DURATIONS = [
   { id: "mid", label: "2 to 5 hours", test: (m) => m >= 120 && m <= 300 },
   { id: "long", label: "More than 5 hours", test: (m) => m > 300 },
 ];
-const TAUGHT = [{ id: "expert", label: "Taught by experts" }, { id: "ai", label: "AI-taught basics (free)" }];
+const TAUGHT = [{ id: "expert", label: "Taught by experts" }, { id: "ai", label: "Free basics (no certificate)" }];
 const LEVEL_OPTS = LEVELS.map((l) => ({ id: l, label: l[0].toUpperCase() + l.slice(1) }));
 
 // URL keeps every filter (shareable, back button works). Multi-select
@@ -134,7 +134,7 @@ export default function Courses() {
 
   return (
     <div className="mx-auto max-w-8xl px-4 py-6 sm:px-6 lg:px-8">
-      <Seo title={singleCat ? `${singleCat.label} courses` : "All courses"} description="Paid courses taught by real experts, plus free AI-taught basics. A graded check on every lesson and a certificate that shows on Talfirms as verified." canonical="/courses" />
+      <Seo title={singleCat ? `${singleCat.label} courses` : "All courses"} description="The job, taught by people who do it, with checks they write and a certificate anyone can verify. Plus free basics to get started." canonical="/courses" />
 
       <form onSubmit={(e) => { e.preventDefault(); set("q", text.trim()); }} className="flex max-w-3xl items-center gap-2 rounded-full border border-border bg-card p-1 pl-4 focus-within:ring-2 focus-within:ring-[#1f4189]/25">
         <Search className="h-4 w-4 flex-none text-muted-foreground" />

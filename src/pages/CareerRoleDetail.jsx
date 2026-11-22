@@ -209,7 +209,7 @@ export default function CareerRoleDetail() {
               <p className="mt-0.5 text-xs text-muted-foreground">Each course page shows the open Talfirms jobs that ask for its skills, and your fit for each.</p>
             </div>
             <ul className="space-y-2 text-sm">
-              {["Graded check in every lesson", "AI tutor beside every lesson", "Certificates anyone can verify"].map((t) => <li key={t} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 flex-none text-[#1f4189]" />{t}</li>)}
+              {["Taught by people who do the job", "AI tutor beside every lesson", "Expert courses: certificates anyone can verify"].map((t) => <li key={t} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 flex-none text-[#1f4189]" />{t}</li>)}
             </ul>
           </aside>
         </div>

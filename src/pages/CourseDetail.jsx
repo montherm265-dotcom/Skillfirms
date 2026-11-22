@@ -168,7 +168,7 @@ export default function CourseDetail() {
     <div>
       <Seo
         title={course.title}
-        description={course.description || `${course.title}: ${paid ? "an expert-taught" : "a free AI-taught"} Skillfirms course with a graded check on every lesson.`}
+        description={course.description || `${course.title}: ${paid ? "an expert-taught" : "a free"} Skillfirms course.`}
         canonical={`/courses/${slug}`}
         jsonLd={{
           "@context": "https://schema.org",
@@ -202,7 +202,7 @@ export default function CourseDetail() {
               </p>
             ) : (
               <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Bot className="h-4 w-4" />{reviewedAll ? "AI-taught basics, reviewed by an expert" : "AI-taught basics: lessons drafted with AI, not yet reviewed by an expert (each lesson says so)"}
+                <Bot className="h-4 w-4" />{reviewedAll ? "Free basics, reviewed by an expert. For learning: no graded check, no certificate." : "Free basics: lessons drafted with AI (each lesson says so). For learning: no graded check, no certificate."}
               </p>
             )}
             <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -220,7 +220,7 @@ export default function CourseDetail() {
             <p className="mt-3 text-sm text-muted-foreground">
               {paid ? (discounted && locked
                 ? <><s>{priceLabel(course.price_cents)}</s> <b className="text-foreground">{priceLabel(payPrice)}</b> once: every lesson, the graded checks and the certificate. Lesson 1 is a free preview.</>
-                : `${priceLabel(course.price_cents)} once: every lesson, the graded checks and the certificate. Lesson 1 is a free preview.`) : "Free: learning, graded checks and the certificate."}
+                : `${priceLabel(course.price_cents)} once: every lesson, the graded checks and the certificate. Lesson 1 is a free preview.`) : "Free to learn. Certificates come from courses taught by people who do the job."}
               {course.enrollment_count > 0 && <> · <b className="text-foreground">{course.enrollment_count.toLocaleString()}</b> already enrolled</>}
             </p>
             {locked && <Link to={`/courses/${slug}/lessons/1`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-[#1f4189] hover:underline"><PlayCircle className="h-4 w-4" />Try lesson 1 free</Link>}
@@ -234,7 +234,7 @@ export default function CourseDetail() {
             {locked && purchase?.status === "waitlist" && <p className="mt-2 max-w-md rounded-lg bg-secondary p-2 text-xs">You're on the list. Nothing has been charged; we'll let you know when buying opens.{held?.discount_kind === "first_course" ? " Your 20% first-course discount is saved." : ""}</p>}
             {enrollment && (
               <div className="mt-4 max-w-md">
-                <div className="flex justify-between text-xs"><span className="font-medium">{passed} of {modules.length} lessons passed</span><span className="tabular-nums">{Math.round(enrollment.progress_percent)}%</span></div>
+                <div className="flex justify-between text-xs"><span className="font-medium">{passed} of {modules.length} lessons {realExpert ? "passed" : "done"}</span><span className="tabular-nums">{Math.round(enrollment.progress_percent)}%</span></div>
                 <Progress value={enrollment.progress_percent} className="mt-1.5 h-1.5" />
               </div>
             )}
@@ -255,9 +255,9 @@ export default function CourseDetail() {
         {/* Key facts */}
         <div className="mx-auto max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
           <div className="grid divide-y divide-border rounded-xl border border-border bg-card shadow-sm sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
-            <Fact title={`${modules.length} lesson${modules.length === 1 ? "" : "s"}`} sub={`Each ends in a graded check · ${questions} questions in all`} />
+            <Fact title={`${modules.length} lesson${modules.length === 1 ? "" : "s"}`} sub={realExpert ? `Each ends in the instructor's check · ${questions} questions in all` : "Mark each one done as you go"} />
             <Fact title={course.rating_count ? <span className="inline-flex items-center gap-1.5">{Number(course.rating_avg).toFixed(1)} <Stars value={Number(course.rating_avg)} /></span> : "New course"}
-              sub={course.rating_count ? `${course.rating_count.toLocaleString()} review${course.rating_count === 1 ? "" : "s"} from learners who passed a lesson` : "No reviews yet; only learners who pass a lesson can review"} />
+              sub={course.rating_count ? `${course.rating_count.toLocaleString()} review${course.rating_count === 1 ? "" : "s"} from learners who finished a lesson` : "No reviews yet; only learners who finish a lesson can review"} />
             <Fact title={`${(course.level ?? "All levels").replace(/^./, (x) => x.toUpperCase())} level`} sub={course.level === "beginner" ? "No experience needed" : course.level === "advanced" ? "For people already working in the field" : "Some background helps"} />
             <Fact title={`${formatHours(course)} to complete`} sub="Flexible schedule: learn at your own pace" />
           </div>
@@ -292,10 +292,10 @@ export default function CourseDetail() {
             )}
             <h3 className="mt-8 text-base font-semibold">Details to know</h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Detail icon={Award} title="Shareable certificate" sub="Anyone can verify it online" />
-              <Detail icon={ListChecks} title="Graded checks" sub={realExpert ? "Written by the instructor" : `${questions} questions; 2 of 3 to pass a lesson`} />
+              <Detail icon={Award} title={realExpert ? "Shareable certificate" : "No certificate"} sub={realExpert ? "Anyone can verify it online" : "Free basics are for learning"} />
+              <Detail icon={ListChecks} title={realExpert ? "Graded checks" : "No graded check"} sub={realExpert ? "Written by the instructor" : "Checks come only from instructors"} />
               <Detail icon={Sparkles} title="AI tutor in every lesson" sub={<Link to="/pro" className="hover:underline">Free daily questions</Link>} />
-              <Detail icon={ShieldCheck} title="Proof on Talfirms" sub={realExpert ? "Verified, taught by an expert" : "Verified, taught by AI"} />
+              <Detail icon={ShieldCheck} title="Proof on Talfirms" sub={realExpert ? "Verified, taught by an expert" : "Not proof: learning only"} />
             </div>
           </section>
 
@@ -308,7 +308,7 @@ export default function CourseDetail() {
           <section id="modules" className="mt-10 scroll-mt-32">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <h2 className="text-xl font-semibold tracking-tight">There {modules.length === 1 ? "is 1 lesson" : `are ${modules.length} lessons`} in this course</h2>
-              <p className="text-sm text-muted-foreground">{formatHours(course)} · {questions} graded questions</p>
+              <p className="text-sm text-muted-foreground">{formatHours(course)}{realExpert ? ` · ${questions} graded questions` : ""}</p>
             </div>
             <div className="mt-4 divide-y divide-border overflow-hidden rounded-xl border border-border">
               {modules.map((m, i) => {
@@ -354,8 +354,8 @@ export default function CourseDetail() {
           <section className="mt-10 grid gap-3 sm:grid-cols-3">
             {[
               { icon: PlayCircle, t: "Learn", d: "Read each lesson, work through the example and the exercise." },
-              { icon: ListChecks, t: "Pass the checks", d: "Every lesson ends in a graded check. Pass them all to earn the certificate." },
-              { icon: ShieldCheck, t: "Show it on Talfirms", d: "Your certificate becomes verified skill proof on your Talfirms profile, which employers see." },
+              realExpert ? { icon: ListChecks, t: "Pass the checks", d: "Every lesson ends in a check your instructor wrote. Pass them all to earn the certificate." } : { icon: ListChecks, t: "Mark it done", d: "Free basics have no graded check. Finish each lesson at your own pace." },
+              realExpert ? { icon: ShieldCheck, t: "Show it on Talfirms", d: "Your certificate becomes verified skill proof on your Talfirms profile, which employers see." } : { icon: ShieldCheck, t: "Then go further", d: "For a certificate employers trust, take a course taught by someone who does the job." },
             ].map((s, i) => (
               <motion.div key={s.t} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.4, ease }}
                 className="rounded-2xl border border-border bg-card p-5">

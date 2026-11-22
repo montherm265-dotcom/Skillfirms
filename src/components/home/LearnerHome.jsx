@@ -123,7 +123,7 @@ export default function LearnerHome() {
       ) : (
         <section className="mt-6 rounded-xl border border-border bg-card p-6">
           <h2 className="text-lg font-semibold">Start your first course</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Pick a subject below, or search for the skill a job asks for. Every lesson ends in a graded check.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Pick a subject below, or search for the skill a job asks for. Expert courses end each lesson in a check the expert wrote.</p>
         </section>
       )}
       {mine != null && !lead && <div className="mt-4"><WeeklyGoal userId={user?.id} /></div>}

@@ -130,9 +130,11 @@ export default function LessonReader() {
   // On a timed check the server only shows them while your clock runs.
   const loadQuestions = useCallback(() => {
     if (!mod?.id) return Promise.resolve();
+    // Free AI basics have no graded check: checks come only from the tutor (0040).
+    if (course?.taught_by === "ai") { setQuestions([]); return Promise.resolve(); }
     return supabase.from("skillfirms_module_quiz_questions").select("id, order_index, question, choices").eq("module_id", mod.id).order("order_index")
       .then(({ data }) => setQuestions(data ?? []));
-  }, [mod?.id]);
+  }, [mod?.id, course?.taught_by]);
   useEffect(() => {
     if (!mod || !lesson) return;
     loadQuestions();
@@ -176,6 +178,17 @@ export default function LessonReader() {
       setBusy(false);
       if (checkMinutes) { setEndsAt(null); setAnswers({}); loadQuestions(); }
     }
+  }
+
+  async function finishLesson() {
+    if (!user) { navigate(`/auth?next=${encodeURIComponent(window.location.pathname)}`); return; }
+    setBusy(true);
+    const { error } = await supabase.rpc("skillfirms_finish_lesson", { p_module_id: mod.id });
+    setBusy(false);
+    if (error) { setResult({ error: error.message }); return; }
+    trackEvent("lesson_marked_done", {});
+    await loadCourse();
+    if (next) navigate(`/courses/${slug}/lessons/${index + 2}`);
   }
 
   async function begin() {
@@ -318,6 +331,19 @@ export default function LessonReader() {
                   </section>
                 )}
               </div>
+
+              {/* Free basics: no graded check, the learner marks it done */}
+              {course?.taught_by === "ai" && !locked && Boolean(body) && (
+                <section className="mt-10 rounded-2xl border border-border bg-card p-5 sm:p-6">
+                  <h2 className="font-display text-lg font-semibold">{thisDone ? "Done" : "Finished reading?"}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">Free basics help you learn; they don't give a certificate. Graded checks and certificates come from courses taught by people who do the job.</p>
+                  {result?.error && <p className="mt-3 text-sm text-destructive">{result.error}</p>}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {!thisDone && <Button onClick={finishLesson} disabled={busy}>{busy ? "Saving…" : !user ? "Sign in to save your progress" : next ? "Mark done and go on" : "Mark done"}</Button>}
+                    {thisDone && next && <Button variant="outline" onClick={() => navigate(`/courses/${slug}/lessons/${index + 2}`)}>Next lesson<ArrowRight className="h-4 w-4" /></Button>}
+                  </div>
+                </section>
+              )}
 
               {/* Knowledge check */}
               {checkMinutes && !endsAt && !locked && Boolean(body) && (
