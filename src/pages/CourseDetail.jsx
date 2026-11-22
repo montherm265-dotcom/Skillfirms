@@ -28,6 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import CourseProject from "@/components/course/CourseProject";
+import { CourseOutcomes, TutorBadge } from "@/components/course/TutorTrust";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -200,6 +201,7 @@ export default function CourseDetail() {
               <p className="mt-4 flex items-center gap-2 text-sm">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1f4189] text-xs font-semibold text-white">{realExpert.display_name.slice(0, 1)}</span>
                 <span>Instructor: <Link to={`/instructors/${realExpert.id}`} className="font-semibold text-[#1f4189] hover:underline">{realExpert.display_name}</Link>{realExpert.headline ? <span className="text-muted-foreground"> · {realExpert.headline}</span> : null}</span>
+                <TutorBadge expertId={realExpert.id} />
               </p>
             ) : (
               <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -224,6 +226,7 @@ export default function CourseDetail() {
                 : `${priceLabel(course.price_cents)} once: every lesson, the graded checks and the certificate. Lesson 1 is a free preview.`) : "Free to learn. Certificates come from courses taught by people who do the job."}
               {course.enrollment_count > 0 && <> · <b className="text-foreground">{course.enrollment_count.toLocaleString()}</b> already enrolled</>}
             </p>
+            {realExpert && <CourseOutcomes courseId={course.id} />}
             {locked && <Link to={`/courses/${slug}/lessons/1`} className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-[#1f4189] hover:underline"><PlayCircle className="h-4 w-4" />Try lesson 1 free</Link>}
             {locked && discounted && !held && (
               <div className="mt-3">

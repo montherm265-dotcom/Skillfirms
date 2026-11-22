@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabaseClient";
 import Seo from "@/components/seo/Seo";
 import CourseCover from "@/components/course/CourseCover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TutorBadge } from "@/components/course/TutorTrust";
 
 const money = (c) => (c > 0 ? `$${(c / 100).toFixed(c % 100 ? 2 : 0)}` : "Free");
 const fmt = (n) => (n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n ?? 0));
@@ -50,6 +51,7 @@ export default function Instructor() {
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/70">Instructor</p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">{p.display_name}</h1>
+            <TutorBadge expertId={id} className="mt-2" />
             {p.headline && <p className="mt-2 max-w-2xl text-white/85">{p.headline}</p>}
             <div className="mt-5 flex flex-wrap gap-x-8 gap-y-3">
               <Stat icon={Users} value={fmt(p.learners)} label="learners" />

@@ -101,6 +101,7 @@ export default function Studio() {
           ))}
         </div>
 
+        <PractitionerNotice />
         <ProjectReviews />
         <EarningsCard />
 
@@ -150,6 +151,23 @@ export default function Studio() {
           </ul>
         )}
       </div>
+    </div>
+  );
+}
+
+// Courses go live only from tutors whose own job experience is confirmed on
+// Talfirms (0042). Tell them how, before they build a whole course.
+function PractitionerNotice() {
+  const { user, profile } = useAuth();
+  const [ok, setOk] = useState(null);
+  const path = profile?.username ? `/profile/${profile.username}#background` : "/career";
+  useEffect(() => { if (user?.id) supabase.rpc("skillfirms_is_practitioner", { p_profile: user.id }).then(({ data }) => setOk(Boolean(data))); }, [user?.id]);
+  if (ok !== false) return null;
+  return (
+    <div className="mt-6 rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm">
+      <p className="font-semibold">Confirm your own experience before your course goes live</p>
+      <p className="mt-1 text-muted-foreground">Learners and employers trust courses from people who really do the job. On your Talfirms profile, press "Confirm this job" under one of your jobs: ask the company or upload an official employment record, or ask a past manager from a skill's proof menu. A checked licence also counts.</p>
+      <a href={`${TALFIRMS_URL}${path}`} onClick={crossAppClick(TALFIRMS_URL, path)} className="mt-2 inline-flex items-center gap-1 font-semibold text-[#1f4189] hover:underline">Confirm it on Talfirms<ArrowUpRight className="h-4 w-4" /></a>
     </div>
   );
 }
