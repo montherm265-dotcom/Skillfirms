@@ -10,6 +10,8 @@ export default defineConfig({
     },
   },
   build: {
+    // Read by scripts/inline-shell.mjs (route preloads), then deleted.
+    manifest: true,
     rollupOptions: {
       output: {
         manualChunks: {
