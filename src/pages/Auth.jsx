@@ -22,7 +22,7 @@ export default function Auth() {
   // ?next=/courses/x/lessons/2 (same-site paths only) or where RequireAuth sent you from.
   const nextParam = params.get("next");
   const from = (nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : null)
-    || location.state?.from?.pathname || "/dashboard";
+    || (location.state?.from?.pathname ? `${location.state.from.pathname}${location.state.from.search || ""}` : null) || "/dashboard";
 
   async function handleSubmit(e) {
     e.preventDefault();
