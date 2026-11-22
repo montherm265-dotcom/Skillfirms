@@ -11,7 +11,11 @@ const KIND = { course: "Course sale", interview: "Skill interview", review: "Exp
 // out, and what's waiting until card payments open. Read-only.
 export default function EarningsCard() {
   const [e, setE] = useState(undefined);
-  useEffect(() => { supabase.rpc("skillfirms_my_earnings").then(({ data, error }) => setE(error ? null : data)); }, []);
+  const [sales, setSales] = useState([]);
+  useEffect(() => {
+    supabase.rpc("skillfirms_my_earnings").then(({ data, error }) => setE(error ? null : data));
+    supabase.rpc("skillfirms_my_sales", { p_limit: 50 }).then(({ data }) => setSales((data ?? []).filter((x) => x.net_cents != null)));
+  }, []);
   if (e === undefined) return <div className="mt-6 h-36 animate-pulse rounded-2xl bg-secondary/60" />;
   if (!e) return null;
   const max = Math.max(1, ...e.by_month.map((m) => m.cents));
@@ -64,7 +68,36 @@ export default function EarningsCard() {
           ))}
         </ul>
       )}
+      {sales.length > 0 && <SalesMath sales={sales} />}
       <p className="mt-3 text-[11px] text-muted-foreground">How shares, holds and refunds work: <a href="/terms/payments" className="underline">Payments, refunds and tutor terms</a>.</p>
     </section>
+  );
+}
+
+const FEE = { web: "3% processing fee", app_store: "Apple's commission", play_store: "Google's commission" };
+
+// Every course sale, line by line: what the student paid, what came off and
+// why, the Net Revenue, and your share of it. Matches the payment terms.
+function SalesMath({ sales }) {
+  return (
+    <div className="mt-5">
+      <p className="text-xs font-semibold text-muted-foreground">Course sales: the math</p>
+      <ul className="mt-2 space-y-2">
+        {sales.map((x) => (
+          <li key={x.id} className={`rounded-xl border border-border p-3 text-sm ${x.refunded ? "opacity-70" : ""}`}>
+            <p className="flex items-center justify-between gap-2"><span className="truncate font-medium">{x.course}</span><span className="flex-none text-xs text-muted-foreground">{new Date(x.at).toLocaleDateString()}</span></p>
+            <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-4 gap-y-0.5 text-xs tabular-nums">
+              <dt className="text-muted-foreground">Student paid</dt><dd className="text-right">{usd(x.gross_cents)}</dd>
+              {x.tax_cents > 0 && <><dt className="text-muted-foreground">Taxes (VAT / sales tax)</dt><dd className="text-right">−{usd(x.tax_cents)}</dd></>}
+              <dt className="text-muted-foreground">{FEE[x.sale_channel] ?? "Fees"}</dt><dd className="text-right">−{usd(x.platform_fee_cents)}</dd>
+              {x.fx_fee_cents > 0 && <><dt className="text-muted-foreground">Currency conversion</dt><dd className="text-right">−{usd(x.fx_fee_cents)}</dd></>}
+              {x.refund_cents > 0 && <><dt className="text-muted-foreground">Refund / chargeback</dt><dd className="text-right">−{usd(x.refund_cents)}</dd></>}
+              <dt className="border-t border-border pt-0.5 font-semibold">Net Revenue</dt><dd className="border-t border-border pt-0.5 text-right font-semibold">{usd(x.net_cents)}</dd>
+              <dt className="text-muted-foreground">Your share ({Math.round(Number(x.share_pct) * 100)}%{x.channel === "expert_link" ? ", your own link" : ""})</dt><dd className="text-right font-bold text-mastery">{usd(x.payout_cents)}</dd>
+            </dl>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

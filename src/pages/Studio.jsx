@@ -53,14 +53,14 @@ export default function Studio() {
 
   function copyLink(c) {
     const url = `${window.location.origin}/courses/${c.slug}?ref=${ref}`;
-    navigator.clipboard?.writeText(url).then(() => toast.success("Your link is copied. Sales through it pay you 97%."), () => window.prompt("Your link:", url));
+    navigator.clipboard?.writeText(url).then(() => toast.success("Your link is copied. Sales through it pay you 100% of net revenue."), () => window.prompt("Your link:", url));
   }
 
   if (!expertId) {
     return (
       <div className="section-pad text-center">
         <p className="text-2xl font-extrabold tracking-[-0.03em]">Teach on Skillfirms</p>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Approved experts build their own courses, with video, set their own price, and keep 60% of every sale (97% through their own link). Apply first; we check every application by hand.</p>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Approved experts build their own courses, with video, set their own price, and keep 60% of the net revenue from every sale (100% through their own link). Apply first; we check every application by hand.</p>
         <Link to="/experts"><Button className="mt-4">Apply to become an expert</Button></Link>
       </div>
     );
@@ -90,8 +90,8 @@ export default function Studio() {
         )}
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {[
-            ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, UDEMY_SHARE.marketplace, "of each sale"],
-            ["Through your own link", EXPERT_SHARE.expert_link, UDEMY_SHARE.expert_link, "of each sale (3% covers card fees)"],
+            ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, UDEMY_SHARE.marketplace, "of net revenue"],
+            ["Through your own link", EXPERT_SHARE.expert_link, UDEMY_SHARE.expert_link, "of net revenue (we keep only the 3% fee)"],
             ["Company team training", EXPERT_SHARE.team_pool, UDEMY_SHARE.team_pool, "of team money, shared by learning minutes"],
           ].map(([label, ours, udemy, note], i) => (
             <motion.div key={label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="rounded-2xl border border-border bg-card p-4">
@@ -110,7 +110,7 @@ export default function Studio() {
         <a href={`${TALFIRMS_URL}/clips/new`} onClick={crossAppClick(TALFIRMS_URL, "/clips/new")}
           className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-gradient-to-r from-[#eef1ff] to-card p-4 text-sm transition-colors hover:border-[#1f4189]/40">
           <Megaphone className="h-5 w-5 flex-none text-[#1f4189]" />
-          <span className="min-w-0 flex-1"><b>Promote on Talfirms.</b> Post a clip or blog post and attach your course: it shows as a card that goes through your own link, so those sales pay you {EXPERT_SHARE.expert_link}%. Your Talfirms profile also shows "Teaches on Skillfirms".</span>
+          <span className="min-w-0 flex-1"><b>Promote on Talfirms.</b> Post a clip or blog post and attach your course: it shows as a card that goes through your own link, so those sales pay you {EXPERT_SHARE.expert_link}% of net revenue. Your Talfirms profile also shows "Teaches on Skillfirms".</span>
           <ArrowUpRight className="h-4 w-4 flex-none text-muted-foreground" />
         </a>
 
@@ -145,7 +145,7 @@ export default function Studio() {
                       ? <Link to={`/courses/${c.slug}`}><Button size="sm" variant="outline">View live course</Button></Link>
                       : <Link to={`/teach/${c.id}`}><Button size="sm"><Pencil className="h-4 w-4" />Edit</Button></Link>}
                     <Button size="sm" variant="outline" onClick={() => changePrice(c)}>Change price</Button>
-                    {c.status === "published" && ref && Number(c.price_cents) > 0 && <Button size="sm" variant="outline" onClick={() => copyLink(c)}><Link2 className="h-4 w-4" />Copy my 97% link</Button>}
+                    {c.status === "published" && ref && Number(c.price_cents) > 0 && <Button size="sm" variant="outline" onClick={() => copyLink(c)}><Link2 className="h-4 w-4" />Copy my 100% link</Button>}
                   </div>
                 </motion.li>
               );

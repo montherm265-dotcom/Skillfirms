@@ -123,7 +123,7 @@ export default function StudioEditor() {
                 {(() => {
                   const c = parsePrice(priceText ?? String((course.price_cents ?? 0) / 100));
                   if (c == null) return <span className="mt-1 block text-xs font-normal text-destructive">Expert courses are paid: $9 to $199. You can change it any time.</span>;
-                  return <span className="mt-1 block text-xs font-normal text-muted-foreground">You keep {dollars(Math.round(c * EXPERT_SHARE.marketplace / 100))} ({EXPERT_SHARE.marketplace}%) when Skillfirms finds the learner, {dollars(Math.round(c * EXPERT_SHARE.expert_link / 100))} ({EXPERT_SHARE.expert_link}%) through your own link.</span>;
+                  return <span className="mt-1 block text-xs font-normal text-muted-foreground">Before taxes, you keep about {dollars(Math.round(c * 0.97 * EXPERT_SHARE.marketplace / 100))} ({EXPERT_SHARE.marketplace}% of net) when Skillfirms finds the learner on the web, {dollars(Math.round(c * 0.97))} (100% of net) through your own link. Net = price − taxes − 3% fee (or the app store's cut) − refunds.</span>;
                 })()}
               </label>
               <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 text-sm font-medium sm:col-span-2">
@@ -275,7 +275,7 @@ export default function StudioEditor() {
               </span>
             </label>
             <Button className="w-full" onClick={() => save(true)} disabled={!!busy || !allReady || !pledge}><Send className="h-4 w-4" />{busy === "submit" ? "Sending…" : "Send for review"}</Button>
-            <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who meet your certificate rule earn a certificate that counts as verified proof on Talfirms. You keep 60% of sales Skillfirms brings and 97% through your own link.</p>
+            <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who meet your certificate rule earn a certificate that counts as verified proof on Talfirms. You keep 60% of the net revenue from sales Skillfirms brings and 100% through your own link; every sale shows the math.</p>
           </div>
         </aside>
       </div>

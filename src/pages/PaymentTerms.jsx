@@ -54,7 +54,10 @@ export default function PaymentTerms() {
             <H>4. What instructors earn</H>
             <L items={[
               "Expert interviews: you keep 75% of the price (currently $9 of $12).",
-              "Courses: you keep 60% of each sale, or 97% when the buyer came through your own link. Founding instructors keep 85% for their first 6 months.",
+              "Courses: your share is a percentage of Net Revenue. You keep 60% of the Net Revenue from each sale (Skillfirms keeps 40%), or 100% of it when the buyer came through your own link. Founding instructors keep 85% for their first 6 months.",
+              "Net Revenue means the gross amount the student paid, minus: applicable taxes (such as VAT or sales tax); app store commissions (Apple or Google) when the course is bought inside a phone app; payment processing, which for web sales is a flat 3% administrative and processing fee; currency conversion fees; and any refunds or chargebacks.",
+              "Example: a $49 course bought on the web in a country with 15% VAT. The student pays $56.35. Minus $7.35 VAT = $49.00. Minus the 3% fee ($1.47) = $47.53 Net Revenue. Your 60% = $28.52.",
+              "Every sale is listed in your Studio with each of these lines: gross price, taxes, fees, refunds, Net Revenue and your payout, so you can check the math.",
               "Your share is worked out on what the buyer actually paid, after any discount.",
               "Earnings are held for 14 days (the refund window), then paid out to you through Stripe. You need a Stripe account in your name to be paid.",
               "If a sale is refunded or charged back, that amount comes off your balance.",
