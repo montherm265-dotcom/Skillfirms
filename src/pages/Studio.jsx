@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { loadStudioCourses } from "@/lib/studio";
-import { EXPERT_SHARE, UDEMY_SHARE, loadMyRefCode, loadTeamMinutes, parsePrice, setCoursePrice } from "@/lib/plans";
+import { EXPERT_SHARE, loadMyRefCode, loadTeamMinutes, parsePrice, setCoursePrice } from "@/lib/plans";
 import Seo from "@/components/seo/Seo";
 import EarningsCard from "@/components/EarningsCard";
 import ExamMarking from "@/components/course/ExamMarking";
@@ -90,14 +90,14 @@ export default function Studio() {
         )}
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {[
-            ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, UDEMY_SHARE.marketplace, "of net revenue"],
-            ["Through your own link", EXPERT_SHARE.expert_link, UDEMY_SHARE.expert_link, "of net revenue (we keep only the 3% fee)"],
-            ["Company team training", EXPERT_SHARE.team_pool, UDEMY_SHARE.team_pool, "of team money, shared by learning minutes"],
-          ].map(([label, ours, udemy, note], i) => (
+            ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, "of net revenue"],
+            ["Through your own link", EXPERT_SHARE.expert_link, "of net revenue (we keep only the 3% fee)"],
+            ["Company team training", EXPERT_SHARE.team_pool, "of team money, shared by learning minutes"],
+          ].map(([label, ours, note], i) => (
             <motion.div key={label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="rounded-2xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{label}</p>
               <p className="mt-1 text-3xl font-extrabold tracking-[-0.03em] text-mastery">{ours}%</p>
-              <p className="text-xs text-muted-foreground">you keep {note}. Udemy: {udemy}%</p>
+              <p className="text-xs text-muted-foreground">you keep {note}</p>
             </motion.div>
           ))}
         </div>

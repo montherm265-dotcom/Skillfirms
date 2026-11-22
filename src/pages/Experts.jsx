@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { applyAsExpert, loadExpertStatus } from "@/lib/missions";
 import PageHero, { HeroGlass } from "@/components/page/PageHero";
 import Seo from "@/components/seo/Seo";
-import { EXPERT_SHARE, UDEMY_SHARE } from "@/lib/plans";
+import { EXPERT_SHARE } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -83,19 +83,18 @@ export default function Experts() {
             <p className="mt-1 max-w-2xl text-sm text-white/80">The first 20 tutors we approve keep 85% (instead of 60%) when Skillfirms finds the learner, for 6 months from approval. Sales through your own link stay at 100%. All shares are of net revenue.</p>
           </div>
         )}
-        <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Teach a course: you keep more than anywhere else</h2>
+        <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Teach a course: most of what it earns is yours</h2>
         <p className="mt-1 text-sm text-muted-foreground">You set your price ($9 to $199) and can change it any time. Expert courses are always paid; the free courses on Skillfirms are AI-taught basics. Skillfirms checks every course before it goes live.</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
-            ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, UDEMY_SHARE.marketplace, "Someone finds your course by browsing or searching Skillfirms."],
-            ["You bring the learner", EXPERT_SHARE.expert_link, UDEMY_SHARE.expert_link, "They buy through your own link. You keep all the net revenue; we keep only the 3% processing fee."],
-            ["Companies train their teams", EXPERT_SHARE.team_pool, UDEMY_SHARE.team_pool, "Half of what companies pay for team training goes to experts, shared by how many minutes of your lessons their staff complete."],
-          ].map(([t, ours, udemy, d], i) => (
+            ["Skillfirms finds the learner", EXPERT_SHARE.marketplace, "Someone finds your course by browsing or searching Skillfirms."],
+            ["You bring the learner", EXPERT_SHARE.expert_link, "They buy through your own link. You keep all the net revenue; we keep only the 3% processing fee."],
+            ["Companies train their teams", EXPERT_SHARE.team_pool, "Half of what companies pay for team training goes to experts, shared by how many minutes of your lessons their staff complete."],
+          ].map(([t, ours, d], i) => (
             <motion.div key={t} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.45, ease }}
               whileHover={{ y: -3 }} className="rounded-2xl border border-border bg-card p-5">
               <p className="text-sm font-semibold">{t}</p>
               <p className="mt-2 flex items-baseline gap-2"><span className="font-display text-4xl font-semibold text-mastery">{ours}%</span><span className="text-sm text-muted-foreground">yours</span></p>
-              <p className="text-xs text-muted-foreground">Udemy pays {udemy}%{t === "Companies train their teams" ? " of its subscription pool" : ""}.</p>
               <p className="mt-2 text-sm text-muted-foreground">{d}</p>
             </motion.div>
           ))}
