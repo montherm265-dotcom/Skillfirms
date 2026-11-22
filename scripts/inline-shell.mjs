@@ -29,7 +29,7 @@ const shell = html.slice(start, end);
 const tmp = mkdtempSync(join(tmpdir(), "shell-"));
 writeFileSync(join(tmp, "shell.html"), shell);
 writeFileSync(join(tmp, "tailwind.shell.config.js"),
-  `const base = require(${JSON.stringify(join(process.cwd(), "tailwind.config.js"))});\nmodule.exports = { ...base, content: [${JSON.stringify(join(tmp, "shell.html"))}] };\n`);
+  `const base = require(${JSON.stringify(join(process.cwd(), "tailwind.config.js"))});\nmodule.exports = { ...base, content: [${JSON.stringify(join(tmp, "shell.html"))}, ${JSON.stringify(join(process.cwd(), "scripts/shell-courses.src.js"))}] };\n`);
 execFileSync("npx", ["tailwindcss", "-c", join(tmp, "tailwind.shell.config.js"), "-i", "src/index.css", "-o", join(tmp, "shell.css"), "--minify"], { stdio: ["ignore", "ignore", "inherit"] });
 const critical = readFileSync(join(tmp, "shell.css"), "utf8").trim();
 
@@ -59,10 +59,42 @@ html = html.replace(/(<div id="shell"[\s\S]*?)(?=<div id="root">)/, (shellHtml) 
   }));
 
 // 3. boot.js inline, allowed by hash.
-const boot = readFileSync(join(dist, "boot.js"), "utf8").replace(/^\s*\/\/.*$/gm, "").replace(/\s*\n\s*/g, "").trim();
+const bootRaw = readFileSync(join(dist, "boot.js"), "utf8").replace(/^\s*\/\/.*$/gm, "").replace(/\s*\n\s*/g, "").trim();
+// The Courses page asks for its courses from boot.js: fill in the public
+// Supabase address and key (the same ones the app ships with) and the
+// catalog's columns. Taken from the build environment, or else from the
+// built app itself.
+function supabasePublic() {
+  let url = process.env.VITE_SUPABASE_URL || "", key = process.env.VITE_SUPABASE_ANON_KEY || "";
+  if (!url || !key) {
+    for (const f of readdirSync(join(dist, "assets")).filter((n) => n.endsWith(".js"))) {
+      const src = readFileSync(join(dist, "assets", f), "utf8");
+      url ||= (src.match(/https:\/\/[a-z0-9]{20}\.supabase\.co/) || [""])[0];
+      if (!key) {
+        for (const jwt of src.match(/eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g) || []) {
+          try { if (JSON.parse(Buffer.from(jwt.split(".")[1], "base64url").toString()).role === "anon") { key = jwt; break; } } catch { /* not ours */ }
+        }
+      }
+      if (url && key) break;
+    }
+  }
+  if (!url || !key) console.warn("inline-shell: Supabase address not found; the Courses page will wait for the app");
+  return { url: url.replace(/\/+$/, ""), key };
+}
+const pub = supabasePublic();
+const { CATALOG_SELECT } = await import(join(process.cwd(), "src/lib/catalog-core.js"));
+const boot = bootRaw.replace("%%SUPABASE_URL%%", pub.url).replace("%%SUPABASE_ANON_KEY%%", pub.key).replace("%%CATALOG_SELECT%%", CATALOG_SELECT.replace(/\s+/g, ""));
 if (!html.includes('<script src="/boot.js"></script>')) throw new Error("inline-shell: boot.js tag not found");
 html = html.replace('<script src="/boot.js"></script>', `<link rel="preload" href="/assets/${fontFile}" as="font" type="font/woff2" crossorigin>\n    <style>${fontFace}${critical}</style>\n    <script>${boot}</script>`);
 const hash = createHash("sha256").update(boot).digest("base64");
+
+// 3b. The Courses page's instant list (scripts/shell-courses.src.js),
+// bundled with the shared catalog logic and inlined, allowed by hash.
+const { buildSync } = await import("esbuild");
+const coursesJs = buildSync({ entryPoints: ["scripts/shell-courses.src.js"], bundle: true, minify: true, format: "iife", write: false, target: "es2019" }).outputFiles[0].text.trim();
+if (!html.includes('<script src="/shell-courses.js"></script>')) throw new Error("inline-shell: shell-courses.js tag not found");
+html = html.replace('<script src="/shell-courses.js"></script>', () => `<script>${coursesJs}</script>`);
+const coursesHash = createHash("sha256").update(coursesJs).digest("base64");
 
 // 4. Start the app only after the shell has been painted. Its files are
 // requested one frame later, all together (no waterfall), so the first view
@@ -106,14 +138,14 @@ if (existsSync(manifestPath)) {
 }
 const routeJs = routeMap.length ? `var rm=${JSON.stringify(routeMap)},lp=location.pathname;for(var i=0;i<rm.length;i++){if(new RegExp(rm[i][0]).test(lp)){rm[i][1].forEach(function(h){var l=document.createElement("link");l.rel="modulepreload";l.crossOrigin="";l.href=h;add(l)});break}}` : "";
 
-const starter = `(function(){function add(t){document.head.appendChild(t)}function go(){var p=document.createElement("link");p.rel="preload";p.as="style";p.crossOrigin="";p.setAttribute("fetchpriority","high");p.href="${cssHref}";add(p);var c=document.createElement("link");c.rel="stylesheet";c.crossOrigin="";c.media="print";c.id="app-css";c.href="${cssHref}";add(c);var s=document.createElement("script");s.type="module";s.crossOrigin="";s.src="${entry[1]}";add(s);${JSON.stringify(chunks)}.forEach(function(h){var l=document.createElement("link");l.rel="modulepreload";l.crossOrigin="";l.href=h;add(l)});setTimeout(function(){${routeJs}},0)}function ready(){if(document.documentElement.classList.contains("shell"))requestAnimationFrame(function(){setTimeout(go,0)});else go()}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready()})();`;
+const starter = `(function(){function add(t){document.head.appendChild(t)}function go(){var p=document.createElement("link");p.rel="preload";p.as="style";p.crossOrigin="";p.setAttribute("fetchpriority","high");p.href="${cssHref}";add(p);var c=document.createElement("link");c.rel="stylesheet";c.crossOrigin="";c.media="print";c.id="app-css";c.href="${cssHref}";add(c);var s=document.createElement("script");s.type="module";s.crossOrigin="";s.src="${entry[1]}";add(s);${JSON.stringify(chunks)}.forEach(function(h){var l=document.createElement("link");l.rel="modulepreload";l.crossOrigin="";l.href=h;add(l)});setTimeout(function(){${routeJs}},0)}function ready(){if(document.documentElement.classList.contains("shell"))(window.__coursesShellDone||Promise.resolve()).then(function(){requestAnimationFrame(function(){setTimeout(go,0)})});else go()}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",ready);else ready()})();`;
 html = html.replace(entryRe, `\n    <script>${starter}</script>`);
 const starterHash = createHash("sha256").update(starter).digest("base64");
 
 const headersPath = join(dist, "_headers");
 let headers = readFileSync(headersPath, "utf8");
 if (!headers.includes("script-src 'self'")) throw new Error("inline-shell: CSP script-src not found in _headers");
-headers = headers.replace("script-src 'self'", `script-src 'self' 'sha256-${hash}' 'sha256-${starterHash}'`);
+headers = headers.replace("script-src 'self'", `script-src 'self' 'sha256-${hash}' 'sha256-${starterHash}' 'sha256-${coursesHash}'`);
 writeFileSync(headersPath, headers);
 writeFileSync(join(dist, "index.html"), html);
 console.log(`inline-shell: critical CSS ${(critical.length / 1024).toFixed(1)} kB, boot script hash sha256-${hash}`);

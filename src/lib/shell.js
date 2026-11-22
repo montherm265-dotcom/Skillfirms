@@ -4,7 +4,7 @@ export const shellShown = () => typeof document !== "undefined" && document.docu
 
 export function dropShell() {
   if (typeof document === "undefined") return;
-  document.documentElement.classList.remove("shell");
+  document.documentElement.classList.remove("shell", "shell-home", "shell-courses");
   document.getElementById("shell")?.remove();
 }
 

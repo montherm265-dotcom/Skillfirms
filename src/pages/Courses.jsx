@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
+import { dropShellAfterPaint, shellShown } from "@/lib/shell";
 import { CATEGORIES, LEVELS, loadCatalog, searchCourses, teacherOf, totalMinutes } from "@/lib/catalog";
 import CourseCard from "@/components/course/CourseCard";
 import useSaved from "@/components/course/useSaved";
@@ -66,6 +67,9 @@ export default function Courses() {
   const hiring = useHiring();
 
   useEffect(() => { setText(q); }, [q]);
+  // index.html drew this list already (shell-courses); hand over once the
+  // same courses are here.
+  useLayoutEffect(() => { if (courses && shellShown()) dropShellAfterPaint(); }, [courses]);
   useEffect(() => {
     loadCatalog().then(setCourses).catch(() => setError("Couldn't load courses. Try again in a moment."));
   }, []);
