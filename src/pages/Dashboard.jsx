@@ -9,6 +9,7 @@ import { TALFIRMS_URL } from "@/lib/externalLinks";
 import { signedLinkClick } from "@/lib/crossApp";
 import DiagnosisResult from "@/components/DiagnosisResult";
 import JobGoalBanner from "@/components/course/JobGoalBanner";
+import PeerProjectReviews from "@/components/course/PeerProjectReviews";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -100,6 +101,7 @@ export default function Dashboard() {
             <Link to="/"><Button size="sm" className="mt-3">Build my path</Button></Link>
           </div>
         )}
+        <PeerProjectReviews />
       </div>
     </div>
   );

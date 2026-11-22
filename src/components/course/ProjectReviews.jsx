@@ -30,6 +30,12 @@ export default function ProjectReviews() {
             <p><b>{r.learner}</b> · <Link to={`/courses/${r.course.slug}`} className="hover:underline">{r.course.title}</Link> · sent {new Date(r.submitted_at).toLocaleDateString()}</p>
             {safe(r.work_url) && <a href={safe(r.work_url)} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 font-semibold text-[#1f4189] hover:underline">Open their work<ExternalLink className="h-3.5 w-3.5" /></a>}
             {r.notes && <p className="mt-1 text-muted-foreground">"{r.notes}"</p>}
+            {r.peer_reviews?.length > 0 && (
+              <div className="mt-2 rounded-lg bg-secondary/50 p-2 text-xs">
+                <p className="font-semibold">{r.peer_reviews.length === 2 ? "Certified learners disagreed, so it's your call:" : "One certified learner reviewed it so far:"}</p>
+                {r.peer_reviews.map((p, i) => <p key={i} className="mt-1"><b className={p.pass ? "text-mastery" : "text-destructive"}>{p.pass ? "Pass" : "Needs work"}:</b> {p.note}</p>)}
+              </div>
+            )}
             <textarea rows={2} value={notes[r.id] ?? ""} onChange={(e) => setNotes({ ...notes, [r.id]: e.target.value })} placeholder="What you saw: what's right, what to fix"
               className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
             <div className="mt-2 flex gap-2">

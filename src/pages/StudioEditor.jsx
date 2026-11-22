@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { loadStudioCourse, saveStudioCourse, submitStudioCourse, uploadCourseVideo, videoEmbed } from "@/lib/studio";
 import { EXPERT_SHARE, dollars, parsePrice, setCheckMinutes } from "@/lib/plans";
 import VideoPlayer from "@/components/course/VideoPlayer";
+import ExamBuilder from "@/components/course/ExamBuilder";
 import Seo from "@/components/seo/Seo";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,12 +34,13 @@ export default function StudioEditor() {
   const [checkMinutes, setCheckMinutesState] = useState("");
   const [firstDiscount, setFirstDiscount] = useState(true);
   const [priceText, setPriceText] = useState(null);
+  const [examSize, setExamSize] = useState(null);
 
   useEffect(() => {
     supabase.from("skillfirms_skills").select("id, name").order("name").then(({ data }) => setSkills(data ?? []));
     if (!isNew) loadStudioCourse(id).then((c) => setCourse({ ...c, lessons: c.lessons.length ? c.lessons.map((l) => ({ ...l, video_url: l.video_url ?? "", key_points: l.key_points.length ? l.key_points : [""], sections: l.sections.length ? l.sections : [{ heading: "", body: "" }] })) : [blankLesson()] })).catch((e) => { toast.error(e.message); navigate("/teach"); });
-    if (!isNew) supabase.from("skillfirms_courses").select("check_minutes, first_course_discount").eq("id", id).maybeSingle()
-      .then(({ data, error }) => { if (!error) { setCheckMinutesState(data?.check_minutes ? String(data.check_minutes) : ""); setFirstDiscount(data?.first_course_discount !== false); } });
+    if (!isNew) supabase.from("skillfirms_courses").select("check_minutes, first_course_discount, exam_size").eq("id", id).maybeSingle()
+      .then(({ data, error }) => { if (!error) { setCheckMinutesState(data?.check_minutes ? String(data.check_minutes) : ""); setFirstDiscount(data?.first_course_discount !== false); setExamSize(data?.exam_size ?? null); } });
   }, [id, isNew, navigate]);
 
   const set = (patch) => setCourse((c) => ({ ...c, ...patch }));
@@ -53,10 +55,11 @@ export default function StudioEditor() {
       ["At least 2 lessons", ls.length >= 2],
       ["Skills this course teaches", course.skill_ids.length > 0],
       ["A video or 300+ characters in every lesson", ls.every((l) => l.video_url.trim() || l.sections.map((s) => s.body).join(" ").length >= 300)],
-      ...((course.certificate_rule ?? "checks") !== "project" ? [["3+ graded questions in every lesson", ls.every((l) => l.questions.filter((q) => q.question.trim() && q.choices.filter((c) => c.trim()).length >= 2).length >= 3)]] : []),
+      ...((course.certificate_rule ?? "checks") !== "project" && examSize ? [["A final-exam bank at least twice the exam size (below)", true]] : []),
+      ...((course.certificate_rule ?? "checks") !== "project" && !examSize ? [["3+ graded questions in every lesson (or a final exam, below)", ls.every((l) => l.questions.filter((q) => q.question.trim() && q.choices.filter((c) => c.trim()).length >= 2).length >= 3)]] : []),
       ...((course.certificate_rule ?? "checks") !== "checks" ? [["A project brief (40+ characters) and a number of days", (course.project_brief ?? "").trim().length >= 40 && Number(course.project_days) >= 1]] : []),
     ];
-  }, [course]);
+  }, [course, examSize]);
 
   function payload() {
     return {
@@ -253,6 +256,8 @@ export default function StudioEditor() {
             })}
             {course.lessons.length < 40 && <Button variant="outline" onClick={() => { setCourse((c) => ({ ...c, lessons: [...c.lessons, blankLesson()] })); setOpen(course.lessons.length); }}><Plus className="h-4 w-4" />Add a lesson</Button>}
           </section>
+          {isNew ? <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">Save the draft once to set up the final exam, project reviews and the yearly check.</p>
+            : <ExamBuilder courseId={id} onSize={setExamSize} />}
         </div>
 
         <aside>

@@ -11,6 +11,7 @@ import { loadStudioCourses } from "@/lib/studio";
 import { EXPERT_SHARE, UDEMY_SHARE, loadMyRefCode, loadTeamMinutes, parsePrice, setCoursePrice } from "@/lib/plans";
 import Seo from "@/components/seo/Seo";
 import EarningsCard from "@/components/EarningsCard";
+import ExamMarking from "@/components/course/ExamMarking";
 import ProjectReviews from "@/components/course/ProjectReviews";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -102,6 +103,7 @@ export default function Studio() {
         </div>
 
         <PractitionerNotice />
+        <ExamMarking />
         <ProjectReviews />
         <EarningsCard />
 

@@ -28,6 +28,8 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import CourseProject from "@/components/course/CourseProject";
+import ExamCard from "@/components/course/ExamCard";
+import { monthYear } from "@/lib/exams";
 import { CourseOutcomes, TutorBadge } from "@/components/course/TutorTrust";
 
 const ease = [0.22, 1, 0.36, 1];
@@ -259,11 +261,11 @@ export default function CourseDetail() {
         {/* Key facts */}
         <div className="mx-auto max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
           <div className="grid divide-y divide-border rounded-xl border border-border bg-card shadow-sm sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4 lg:divide-x">
-            <Fact title={`${modules.length} lesson${modules.length === 1 ? "" : "s"}`} sub={realExpert ? `Each ends in the instructor's check · ${questions} questions in all` : "Mark each one done as you go"} />
+            <Fact title={`${modules.length} lesson${modules.length === 1 ? "" : "s"}`} sub={realExpert ? (course.exam_size ? `Then a ${course.exam_size}-question final exam (${course.exam_minutes} min)` : `Each ends in the instructor's check · ${questions} questions in all`) : "Mark each one done as you go"} />
             <Fact title={course.rating_count ? <span className="inline-flex items-center gap-1.5">{Number(course.rating_avg).toFixed(1)} <Stars value={Number(course.rating_avg)} /></span> : "New course"}
               sub={course.rating_count ? `${course.rating_count.toLocaleString()} review${course.rating_count === 1 ? "" : "s"} from learners who finished a lesson` : "No reviews yet; only learners who finish a lesson can review"} />
             <Fact title={`${(course.level ?? "All levels").replace(/^./, (x) => x.toUpperCase())} level`} sub={course.level === "beginner" ? "No experience needed" : course.level === "advanced" ? "For people already working in the field" : "Some background helps"} />
-            <Fact title={`${formatHours(course)} to complete`} sub="Flexible schedule: learn at your own pace" />
+            <Fact title={`${formatHours(course)} to complete`} sub={realExpert && course.last_reviewed_at ? `Last reviewed by the instructor: ${monthYear(course.last_reviewed_at)}` : "Flexible schedule: learn at your own pace"} />
           </div>
         </div>
       </section>
@@ -355,12 +357,13 @@ export default function CourseDetail() {
           </section>
 
           {/* How proof works */}
+          {realExpert && course.exam_size && course.certificate_rule !== "project" && <ExamCard course={course} enrolled={Boolean(enrollment)} canOpen={!locked} />}
           {realExpert && course.certificate_rule !== "checks" && <CourseProject courseId={course.id} enrolled={Boolean(enrollment)} canOpen={!locked} />}
 
           <section className="mt-10 grid gap-3 sm:grid-cols-3">
             {[
               { icon: PlayCircle, t: "Learn", d: "Read each lesson, work through the example and the exercise." },
-              realExpert ? { icon: ListChecks, t: course.certificate_rule === "project" ? "Do the project" : course.certificate_rule === "both" ? "Checks and project" : "Pass the checks", d: course.certificate_rule === "project" ? `A real task your instructor set, in ${course.project_days} days. They review it and award the certificate.` : course.certificate_rule === "both" ? "Pass every lesson's check and the project your instructor reviews to earn the certificate." : "Every lesson ends in a check your instructor wrote. Pass them all to earn the certificate." } : { icon: ListChecks, t: "Mark it done", d: "Free basics have no graded check. Finish each lesson at your own pace." },
+              realExpert ? { icon: ListChecks, t: course.certificate_rule === "project" ? "Do the project" : course.certificate_rule === "both" ? "Checks and project" : "Pass the checks", d: course.certificate_rule === "project" ? `A real task your instructor set, in ${course.project_days} days. They review it and award the certificate.` : course.certificate_rule === "both" ? (course.exam_size ? "Pass the final exam and the project your instructor reviews to earn the certificate." : "Pass every lesson's check and the project your instructor reviews to earn the certificate.") : course.exam_size ? `A ${course.exam_size}-question final exam from your instructor's question bank. Pass it to earn the certificate.` : "Every lesson ends in a check your instructor wrote. Pass them all to earn the certificate." } : { icon: ListChecks, t: "Mark it done", d: "Free basics have no graded check. Finish each lesson at your own pace." },
               realExpert ? { icon: ShieldCheck, t: "Show it on Talfirms", d: "Your certificate becomes verified skill proof on your Talfirms profile, which employers see." } : { icon: ShieldCheck, t: "Then go further", d: "For a certificate employers trust, take a course taught by someone who does the job." },
             ].map((s, i) => (
               <motion.div key={s.t} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08, duration: 0.4, ease }}
