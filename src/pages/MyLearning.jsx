@@ -151,7 +151,7 @@ export default function MyLearning() {
 }
 
 function Grid({ children }) {
-  return <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{children}</div>;
+  return <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2 xl:grid-cols-3">{children}</div>;
 }
 
 function Empty({ text }) {

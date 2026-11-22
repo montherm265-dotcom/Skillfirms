@@ -27,8 +27,8 @@ export default function CourseCover({ course, className = "", size = "md" }) {
         {lines.map((y, i) => <line key={i} x1="0" x2="320" y1={y} y2={y + 40 - i * 20} stroke="white" strokeOpacity="0.08" strokeWidth="1" />)}
       </svg>
       <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-      <Icon className={`absolute text-white/90 drop-shadow ${size === "lg" ? "bottom-5 right-5 h-14 w-14" : "bottom-3 right-3 h-9 w-9"}`} strokeWidth={1.5} />
-      <span className={`absolute left-3 top-3 rounded-full bg-black/25 px-2 py-0.5 font-medium text-white backdrop-blur ${size === "lg" ? "text-xs" : "text-[10px]"}`}>{cat?.label}</span>
+      <Icon className={`absolute text-white/90 drop-shadow ${size === "lg" ? "bottom-5 right-5 h-14 w-14" : size === "sm" ? "left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2" : "bottom-3 right-3 h-9 w-9"}`} strokeWidth={1.5} />
+      {size !== "sm" && <span className={`absolute left-3 top-3 rounded-full bg-black/25 px-2 py-0.5 font-medium text-white backdrop-blur ${size === "lg" ? "text-xs" : "text-[10px]"}`}>{cat?.label}</span>}
     </div>
   );
 }

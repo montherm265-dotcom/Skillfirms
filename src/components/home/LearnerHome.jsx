@@ -63,7 +63,7 @@ export default function LearnerHome() {
     return { recommended: recommended.slice(0, 10), popular: popular.slice(0, 10), fresh: fresh.slice(0, 10) };
   }, [courses, mine, targets]);
 
-  const card = (c) => <div key={c.id} className="w-[17rem] flex-none snap-start"><CourseCard course={c} saved={saved.has(c.id)} onToggleSave={toggle} hiring={hiring[c.id]} /></div>;
+  const card = (c) => <div key={c.id} className="w-[21rem] flex-none snap-start"><CourseCard course={c} saved={saved.has(c.id)} onToggleSave={toggle} hiring={hiring[c.id]} /></div>;
   const lead = inProgress[0];
 
   return (
@@ -138,7 +138,7 @@ export default function LearnerHome() {
       )}
 
       {courses == null ? (
-        <div className="mt-10 flex gap-4 overflow-hidden">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-72 w-[17rem] flex-none rounded-xl" />)}</div>
+        <div className="mt-10 flex gap-4 overflow-hidden">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-[110px] w-[21rem] flex-none rounded-xl" />)}</div>
       ) : (
         <>
           {rows.recommended.length > 0 && <Row title="Recommended for you" sub="Based on your courses and the jobs you saved" to="/courses">{rows.recommended.map(card)}</Row>}

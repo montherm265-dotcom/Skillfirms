@@ -1,6 +1,5 @@
-import { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import {
   ArrowRight, BarChart3, BrainCircuit, Briefcase, Cog, Compass, FlaskConical, KanbanSquare,
   ListChecks, ShieldCheck, Sparkles,
@@ -20,10 +19,8 @@ import SkillHero from "@/components/home/SkillHero";
 import LearnerHome from "@/components/home/LearnerHome";
 
 // Below the first screen: loads on its own.
-const LearnStory = lazy(() => import("@/components/home/LearnStory"));
 
 const ICONS = { FlaskConical, Cog, KanbanSquare, BarChart3, BrainCircuit, Compass };
-const ease = [0.22, 1, 0.36, 1];
 const EXAMPLE = "I'm a mechanical engineer with 1 year of experience and I want to work in pharmaceutical CQV within 12 months.";
 
 export default function Home() {
@@ -66,7 +63,7 @@ export default function Home() {
       />
 
       <SkillHero totals={courses ? totals : null} />
-      <Suspense fallback={<div className="min-h-screen" />}><LearnStory /></Suspense>
+      <HowItWorks />
 
       {/* Continue learning */}
       {mine.length > 0 && (
@@ -91,23 +88,17 @@ export default function Home() {
       )}
 
       {/* Categories */}
-      <section className="mx-auto max-w-8xl px-4 pt-14 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Explore by career</h2>
-        <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {CATEGORIES.map((c, i) => {
+      <section className="mx-auto max-w-8xl px-4 pt-12 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-extrabold tracking-[-0.03em]">Explore by career</h2>
+        <div className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+          {CATEGORIES.map((c) => {
             const Icon = ICONS[c.icon];
             const n = (courses ?? []).filter((x) => x.category?.id === c.id).length;
             return (
-              <motion.div key={c.id} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.05, duration: 0.45, ease }}>
-                <Link to={`/courses?category=${c.id}`} className="hover-lift group flex items-center gap-4 rounded-2xl border border-border bg-card p-4">
-                  <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl text-white" style={{ background: `linear-gradient(135deg, hsl(${c.hue} 70% 28%), hsl(${c.hue} 75% 48%))` }}><Icon className="h-6 w-6" strokeWidth={1.75} /></span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-display text-lg font-semibold">{c.label}</span>
-                    <span className="block truncate text-xs text-muted-foreground">{c.blurb}</span>
-                  </span>
-                  <span className="flex-none text-xs text-muted-foreground">{courses ? `${n} course${n === 1 ? "" : "s"}` : ""}</span>
-                </Link>
-              </motion.div>
+              <Link key={c.id} to={`/courses?category=${c.id}`} className="group inline-flex flex-none items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-3.5 text-sm font-medium transition-colors hover:border-[#1f4189]/50">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full text-white" style={{ background: `linear-gradient(135deg, hsl(${c.hue} 70% 28%), hsl(${c.hue} 75% 48%))` }}><Icon className="h-3.5 w-3.5" strokeWidth={2} /></span>
+                {c.label}{courses ? <span className="text-xs text-muted-foreground">{n}</span> : null}
+              </Link>
             );
           })}
         </div>
@@ -115,13 +106,13 @@ export default function Home() {
 
       {/* Course rows */}
       {rows.map(({ cat, list }) => (
-        <section key={cat.id} className="mx-auto max-w-8xl px-4 pt-14 sm:px-6 lg:px-8">
+        <section key={cat.id} className="mx-auto max-w-8xl px-4 pt-10 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4">
-            <h2 className="text-2xl font-extrabold tracking-[-0.03em]">{cat.label}</h2>
+            <h2 className="text-xl font-bold tracking-[-0.02em]">{cat.label}</h2>
             <Link to={`/courses?category=${cat.id}`} className="group inline-flex flex-none items-center gap-1.5 text-sm font-semibold">See all<ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" /></Link>
           </div>
-          <div className="no-scrollbar -mx-4 mt-4 flex snap-x gap-5 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
-            {list.map((c) => <div key={c.id} className="w-72 flex-none snap-start"><CourseCard course={c} saved={saved.has(c.id)} onToggleSave={toggle} hiring={hiring[c.id]} /></div>)}
+          <div className="no-scrollbar -mx-4 mt-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+            {list.map((c) => <div key={c.id} className="w-[21rem] flex-none snap-start"><CourseCard course={c} saved={saved.has(c.id)} onToggleSave={toggle} hiring={hiring[c.id]} /></div>)}
           </div>
         </section>
       ))}
@@ -199,6 +190,29 @@ function GoalBox({ user }) {
       </form>
       {result && <div className="mx-auto mt-8 max-w-xl"><DiagnosisResult result={result} /></div>}
       </div>
+    </section>
+  );
+}
+
+// The whole idea in one line of five steps (replaces the long scrolling story).
+const STEPS = [
+  ["Pick", "the skill a job needs"],
+  ["Learn", "with an AI tutor beside you"],
+  ["Pass", "a graded check every lesson"],
+  ["Certify", "with a page anyone can check"],
+  ["Get hired", "it shows on Talfirms as proof"],
+];
+function HowItWorks() {
+  return (
+    <section className="mx-auto max-w-8xl px-4 pt-10 sm:px-6 lg:px-8">
+      <ol className="grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-5">
+        {STEPS.map(([k, t], i) => (
+          <li key={k} className="flex items-center gap-3 bg-card px-4 py-3.5 sm:block">
+            <span className="text-xs font-bold tabular-nums text-[#1f4189]">{String(i + 1).padStart(2, "0")}</span>
+            <p className="text-sm sm:mt-1"><span className="font-semibold">{k}</span> <span className="text-muted-foreground">{t}</span></p>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }

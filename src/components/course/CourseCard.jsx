@@ -35,49 +35,43 @@ function Rating({ course }) {
   );
 }
 
+// A compact tile: a small cover square beside the title, then the facts
+// that decide a click (level, hours, price, rating). No big image block.
 export default function CourseCard({ course, saved, onToggleSave, progress, hiring }) {
   const skills = course.skills ?? [];
   const isExpert = teacherOf(course).kind === "expert";
   return (
-    <div className="group relative h-full">
-      <Link to={`/courses/${course.slug}`} className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow duration-200 hover:shadow-[0_10px_30px_-12px_rgba(0,4,29,0.25)]">
-        <div className="relative overflow-hidden">
-          <CourseCover course={course} className="aspect-[16/9] w-full transition-transform duration-500 group-hover:scale-[1.03]" />
-          {hiring?.length > 0 && <span className="absolute bottom-2 left-2 rounded-md bg-warning px-2 py-0.5 text-[11px] font-bold text-black shadow">Hiring: {hiring.slice(0, 2).join(", ")}</span>}
-        </div>
-        <div className="flex flex-1 flex-col p-4">
-          <ProviderLine course={course} />
-          <h3 className="mt-2 line-clamp-2 text-[15px] font-semibold leading-snug group-hover:underline">{course.title}</h3>
-          {skills.length > 0 && (
-            <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted-foreground">
-              <span className="font-semibold text-foreground/80">Skills you'll gain: </span>{skills.slice(0, 4).map((s) => s.name).join(", ")}
-            </p>
-          )}
-          <div className="mt-auto pt-3">
-            {progress != null ? (
-              <>
-                <p className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">{progress >= 100 ? "Completed" : `${Math.round(progress)}% complete`}</span>
-                  {progress >= 100 && <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />}
-                </p>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-[#1f4189]" style={{ width: `${Math.max(3, Math.min(100, progress))}%` }} /></div>
-              </>
-            ) : (
-              <>
+    <div className="group relative h-full min-w-0">
+      <Link to={`/courses/${course.slug}`} className="flex h-full min-w-0 gap-3.5 rounded-xl border border-border bg-card p-3 transition-colors duration-200 hover:border-[#1f4189]/40 hover:bg-[#1f4189]/[0.02]">
+        <CourseCover course={course} size="sm" className="h-[84px] w-[84px] flex-none rounded-lg" />
+        <div className="flex min-w-0 flex-1 flex-col pr-7">
+          <ProviderLine course={course} className="!text-[11px]" />
+          <h3 className="mt-1 line-clamp-2 text-[14px] font-semibold leading-snug group-hover:text-[#1f4189]">{course.title}</h3>
+          {progress != null ? (
+            <div className="mt-auto pt-2">
+              <p className="flex items-center justify-between text-[11px]">
+                <span className="text-muted-foreground">{progress >= 100 ? "Completed" : `${Math.round(progress)}% complete`}</span>
+                {progress >= 100 && <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />}
+              </p>
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-[#1f4189]" style={{ width: `${Math.max(3, Math.min(100, progress))}%` }} /></div>
+            </div>
+          ) : (
+            <>
+              {skills.length > 0 && <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{skills.slice(0, 3).map((s) => s.name).join(" · ")}</p>}
+              <div className="mt-auto flex flex-wrap items-center gap-x-2 gap-y-0.5 pt-1.5 text-[11px] text-muted-foreground">
                 <Rating course={course} />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {[LEVEL[course.level] ?? "All levels", "Course", formatHours(course), isExpert ? priceLabel(course.price_cents) : "Free"].join(" · ")}
-                </p>
-              </>
-            )}
-          </div>
+                <span>{[LEVEL[course.level] ?? "All levels", formatHours(course), isExpert ? priceLabel(course.price_cents) : "Free"].join(" · ")}</span>
+              </div>
+              {hiring?.length > 0 && <p className="mt-1 truncate text-[11px] font-semibold text-[#8a5a00]">Hiring: {hiring.slice(0, 2).join(", ")}</p>}
+            </>
+          )}
         </div>
       </Link>
       {onToggleSave && (
         <button type="button" onClick={(e) => { e.preventDefault(); onToggleSave(course); }}
           aria-label={saved ? "Remove from saved" : "Save for later"} aria-pressed={saved}
-          className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-[#00041d] shadow-sm transition hover:bg-white">
-          {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
+          className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-[#00041d]">
+          {saved ? <BookmarkCheck className="h-4 w-4 text-[#1f4189]" /> : <Bookmark className="h-4 w-4" />}
         </button>
       )}
     </div>

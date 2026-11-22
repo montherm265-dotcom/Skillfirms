@@ -30,7 +30,7 @@ function FilterGroup({ title, options, selected, onToggle, counts, max = 6 }) {
   const [more, setMore] = useState(false);
   const shownOpts = more ? options : options.slice(0, max);
   return (
-    <fieldset className="border-b border-border py-4">
+    <fieldset className="min-w-0 border-b border-border py-4">
       <legend className="text-sm font-semibold">{title}</legend>
       <div className="mt-2 space-y-1.5">
         {shownOpts.map((o) => (
@@ -38,7 +38,7 @@ function FilterGroup({ title, options, selected, onToggle, counts, max = 6 }) {
             <input type="checkbox" checked={selected.includes(o.id)} onChange={() => onToggle(o.id)}
               className="h-4 w-4 flex-none rounded border-border accent-[#1f4189]" />
             <span className="min-w-0 flex-1 truncate">{o.label}</span>
-            {counts && <span className="text-xs text-muted-foreground">{counts[o.id] ?? 0}</span>}
+            {counts && <span className="flex-none text-xs text-muted-foreground">{counts[o.id] ?? 0}</span>}
           </label>
         ))}
       </div>
@@ -182,8 +182,8 @@ export default function Courses() {
           {error ? (
             <p className="mt-10 text-center text-sm text-destructive">{error}</p>
           ) : !courses ? (
-            <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }, (_, i) => <div key={i} className="overflow-hidden rounded-xl border border-border"><Skeleton className="aspect-[16/9] w-full rounded-none" /><div className="space-y-2 p-4"><Skeleton className="h-3 w-1/3" /><Skeleton className="h-4 w-4/5" /><Skeleton className="h-3 w-2/3" /></div></div>)}
+            <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
+              {Array.from({ length: 8 }, (_, i) => <div key={i} className="flex gap-3.5 rounded-xl border border-border p-3"><Skeleton className="h-[84px] w-[84px] flex-none rounded-lg" /><div className="flex-1 space-y-2 py-1"><Skeleton className="h-3 w-1/3" /><Skeleton className="h-4 w-4/5" /><Skeleton className="h-3 w-2/3" /></div></div>)}
             </div>
           ) : shown.length === 0 ? (
             <div className="mt-12 text-center">
@@ -192,7 +192,7 @@ export default function Courses() {
               <button type="button" onClick={() => setParams({}, { replace: true })} className="mt-4 text-sm font-semibold text-[#1f4189] hover:underline">Show all courses</button>
             </div>
           ) : (
-            <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-2">
               {shown.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} hiring={hiring[c.id]} />)}
             </div>
           )}

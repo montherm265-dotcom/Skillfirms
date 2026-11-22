@@ -371,7 +371,7 @@ export default function CourseDetail() {
           {related.length > 0 && (
             <section className="mt-12">
               <h2 className="text-xl font-semibold tracking-tight">More in {course.category?.label}</h2>
-              <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
                 {related.map((c) => <CourseCard key={c.id} course={c} saved={saved.has(c.id)} onToggleSave={toggle} />)}
               </div>
             </section>
