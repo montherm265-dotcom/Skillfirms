@@ -52,7 +52,8 @@ export default function StudioEditor() {
       ["At least 2 lessons", ls.length >= 2],
       ["Skills this course teaches", course.skill_ids.length > 0],
       ["A video or 300+ characters in every lesson", ls.every((l) => l.video_url.trim() || l.sections.map((s) => s.body).join(" ").length >= 300)],
-      ["3+ graded questions in every lesson", ls.every((l) => l.questions.filter((q) => q.question.trim() && q.choices.filter((c) => c.trim()).length >= 2).length >= 3)],
+      ...((course.certificate_rule ?? "checks") !== "project" ? [["3+ graded questions in every lesson", ls.every((l) => l.questions.filter((q) => q.question.trim() && q.choices.filter((c) => c.trim()).length >= 2).length >= 3)]] : []),
+      ...((course.certificate_rule ?? "checks") !== "checks" ? [["A project brief (40+ characters) and a number of days", (course.project_brief ?? "").trim().length >= 40 && Number(course.project_days) >= 1]] : []),
     ];
   }, [course]);
 
@@ -127,6 +128,29 @@ export default function StudioEditor() {
                   <span className="mt-0.5 block text-xs font-normal text-muted-foreground">New learners see it on your course page. You keep your usual share of what they pay; a lower first price can win learners who then buy your next course at full price.</span>
                 </span>
               </label>
+              <div className="sm:col-span-2">
+                <p className="text-sm font-medium">How learners earn your certificate</p>
+                <div className="mt-1 grid gap-2 sm:grid-cols-3">
+                  {[["checks", "Pass the checks", "The questions you write for each lesson"], ["project", "Do a project", "A real task you set; you review it"], ["both", "Both", "Pass the checks and the project"]].map(([v, t, d]) => (
+                    <button key={v} type="button" aria-pressed={(course.certificate_rule ?? "checks") === v} onClick={() => set({ certificate_rule: v })}
+                      className={`rounded-lg border p-3 text-left text-sm ${(course.certificate_rule ?? "checks") === v ? "border-[#1f4189] bg-[#1f4189]/5" : "border-border"}`}>
+                      <span className="block font-semibold">{t}</span><span className="block text-xs text-muted-foreground">{d}</span>
+                    </button>
+                  ))}
+                </div>
+                {(course.certificate_rule ?? "checks") !== "checks" && (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_10rem]">
+                    <label className="text-sm font-medium">The project
+                      <textarea value={course.project_brief ?? ""} onChange={(e) => set({ project_brief: e.target.value })} maxLength={6000} rows={4}
+                        placeholder="A real task from the job, e.g. Mark up the attached P&ID: find every control loop and list its instruments. Say what you'll check." className={`mt-1 ${input}`} />
+                    </label>
+                    <label className="text-sm font-medium">Days to finish
+                      <input type="number" min={1} max={90} value={course.project_days ?? ""} onChange={(e) => set({ project_days: e.target.value })} placeholder="e.g. 7" className={`mt-1 ${input}`} />
+                      <span className="mt-1 block text-xs font-normal text-muted-foreground">The clock starts when they press Start. You review what they send.</span>
+                    </label>
+                  </div>
+                )}
+              </div>
               <label className="text-sm font-medium sm:col-span-2">Time limit for each lesson's check
                 <select value={checkMinutes} onChange={(e) => setCheckMinutesState(e.target.value)} className={`mt-1 ${input}`}>
                   <option value="">No time limit</option>
@@ -200,7 +224,7 @@ export default function StudioEditor() {
                             {l.key_points.length < 6 && <button type="button" onClick={() => setLesson(i, { key_points: [...l.key_points, ""] })} className="mt-1 text-sm font-medium text-mastery hover:underline">+ Add a key point</button>}
                           </div>
                           <div>
-                            <p className="text-sm font-medium">Graded questions <span className="font-normal text-muted-foreground">(3-5; tap the circle to mark the right answer)</span></p>
+                            <p className="text-sm font-medium">Graded questions <span className="font-normal text-muted-foreground">({(course.certificate_rule ?? "checks") === "project" ? "optional for a project-only course" : "3-5"}; tap the circle to mark the right answer)</span></p>
                             {l.questions.map((q, k) => (
                               <div key={k} className="mt-2 space-y-2 rounded-xl border border-border p-3">
                                 <div className="flex gap-2">
@@ -238,7 +262,7 @@ export default function StudioEditor() {
             </ul>
             <Button variant="outline" className="w-full" onClick={() => save(false)} disabled={!!busy}>{busy === "save" ? "Saving…" : "Save draft"}</Button>
             <Button className="w-full" onClick={() => save(true)} disabled={!!busy || !allReady}><Send className="h-4 w-4" />{busy === "submit" ? "Sending…" : "Send for review"}</Button>
-            <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who pass every check earn a certificate that counts as verified proof on Talfirms. You keep 70% of sales Skillfirms brings and 97% through your own link.</p>
+            <p className="text-xs text-muted-foreground">Skillfirms checks every course before it goes live. Once live, learners who meet your certificate rule earn a certificate that counts as verified proof on Talfirms. You keep 70% of sales Skillfirms brings and 97% through your own link.</p>
           </div>
         </aside>
       </div>

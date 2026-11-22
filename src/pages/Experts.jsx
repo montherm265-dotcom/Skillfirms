@@ -107,7 +107,7 @@ export default function Experts() {
           <h2 className="text-2xl font-extrabold tracking-[-0.03em]">How teaching works</h2>
           <ol className="mt-4 space-y-4">
             {[
-              { icon: PencilRuler, t: "Build it in the studio", d: "Write lessons, add your own videos, and write at least 3 graded questions per lesson. You can put a time limit on each check." },
+              { icon: PencilRuler, t: "Build it in the studio", d: "Write lessons and add your own videos. You decide how learners earn your certificate: checks you write for each lesson, a real project you set and review, or both." },
               { icon: BadgeCheck, t: "We check it, then it's live", d: "Skillfirms reviews every course before it goes live, so learners can trust it." },
               { icon: Video, t: "Lesson 1 is a free preview", d: "Learners try your teaching first, then buy the course at the price you set." },
               { icon: Wallet, t: "Keep 70% to 97%", d: "70% when Skillfirms finds the learner, 97% through your own link, and a share of company team-training money." },

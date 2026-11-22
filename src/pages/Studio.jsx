@@ -11,6 +11,7 @@ import { loadStudioCourses } from "@/lib/studio";
 import { EXPERT_SHARE, UDEMY_SHARE, loadMyRefCode, loadTeamMinutes, parsePrice, setCoursePrice } from "@/lib/plans";
 import Seo from "@/components/seo/Seo";
 import EarningsCard from "@/components/EarningsCard";
+import ProjectReviews from "@/components/course/ProjectReviews";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -100,6 +101,7 @@ export default function Studio() {
           ))}
         </div>
 
+        <ProjectReviews />
         <EarningsCard />
 
         <a href={`${TALFIRMS_URL}/clips/new`} onClick={crossAppClick(TALFIRMS_URL, "/clips/new")}

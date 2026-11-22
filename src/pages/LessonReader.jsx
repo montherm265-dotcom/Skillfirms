@@ -77,7 +77,7 @@ export default function LessonReader() {
     supabase.from("skillfirms_courses").select("check_minutes").eq("id", c.id).maybeSingle()
       .then(({ data, error }) => setCheckMinutes(error ? null : data?.check_minutes ?? null));
     setCourse(c);
-    const { data: mods } = await supabase.from("skillfirms_course_modules").select("id, title, description, order_index, duration_minutes").eq("course_id", c.id).order("order_index");
+    const { data: mods } = await supabase.from("skillfirms_course_modules").select("id, title, description, order_index, duration_minutes, has_quiz").eq("course_id", c.id).order("order_index");
     setModules(mods ?? []);
     if (user) {
       let { data: e } = await supabase.from("skillfirms_enrollments").select("*").eq("user_id", user.id).eq("course_id", c.id).maybeSingle();
@@ -333,10 +333,10 @@ export default function LessonReader() {
               </div>
 
               {/* Free basics: no graded check, the learner marks it done */}
-              {course?.taught_by === "ai" && !locked && Boolean(body) && (
+              {(course?.taught_by === "ai" || mod?.has_quiz === false) && !locked && Boolean(body) && (
                 <section className="mt-10 rounded-2xl border border-border bg-card p-5 sm:p-6">
                   <h2 className="font-display text-lg font-semibold">{thisDone ? "Done" : "Finished reading?"}</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">Free basics help you learn; they don't give a certificate. Graded checks and certificates come from courses taught by people who do the job.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{course?.taught_by === "ai" ? "Free basics help you learn; they don't give a certificate. Graded checks and certificates come from courses taught by people who do the job." : "This lesson has no check. Mark it done; your certificate comes from the course project."}</p>
                   {result?.error && <p className="mt-3 text-sm text-destructive">{result.error}</p>}
                   <div className="mt-4 flex flex-wrap gap-2">
                     {!thisDone && <Button onClick={finishLesson} disabled={busy}>{busy ? "Saving…" : !user ? "Sign in to save your progress" : next ? "Mark done and go on" : "Mark done"}</Button>}
