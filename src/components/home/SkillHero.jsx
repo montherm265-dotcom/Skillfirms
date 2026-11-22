@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import { Award, Briefcase, CheckCircle2, ChevronRight, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
+import { crossAppClick } from "@/lib/crossApp";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -52,7 +53,7 @@ export default function SkillHero({ totals }) {
 
       <motion.div style={{ opacity: fade, scale }} className="mx-auto max-w-5xl px-4 pt-14 text-center sm:pt-20">
         <motion.div initial={instant ? false : { opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }}>
-          <a href={TALFIRMS_URL} className="group inline-flex items-center gap-2 rounded-full border border-[#1f4189]/15 bg-white/80 py-1 pl-1 pr-3 text-sm shadow-sm backdrop-blur">
+          <a href={TALFIRMS_URL} onClick={crossAppClick(TALFIRMS_URL, "/", { newTab: false })} className="group inline-flex items-center gap-2 rounded-full border border-[#1f4189]/15 bg-white/80 py-1 pl-1 pr-3 text-sm shadow-sm backdrop-blur">
             <span className="rounded-full bg-[#1f4189] px-2 py-0.5 text-xs font-semibold text-white">Talfirms</span>
             <span className="text-foreground/80"><span className="sm:hidden">Certificates show on Talfirms</span><span className="hidden sm:inline">Every certificate shows on your Talfirms profile</span></span>
             <ChevronRight className="h-4 w-4 text-[#1f4189] transition-transform group-hover:translate-x-0.5" />

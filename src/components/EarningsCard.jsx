@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Wallet } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { TALFIRMS_URL } from "@/lib/externalLinks";
+import { crossAppClick } from "@/lib/crossApp";
 
 const usd = (c) => `$${((c ?? 0) / 100).toLocaleString(undefined, { minimumFractionDigits: (c ?? 0) % 100 ? 2 : 0, maximumFractionDigits: 2 })}`;
 const KIND = { course: "Course sale", interview: "Skill interview", review: "Expert review" };
@@ -37,7 +38,7 @@ export default function EarningsCard() {
       {(e.waiting_buyers > 0 || e.interviews_waiting > 0) && (
         <p className="mt-3 rounded-xl bg-mastery/10 p-3 text-sm">
           {e.waiting_buyers > 0 && <><b>{e.waiting_buyers}</b> {e.waiting_buyers === 1 ? "person is" : "people are"} waiting to buy your courses: about <b>{usd(e.waiting_cents)}</b> for you when payments open. </>}
-          {e.interviews_waiting > 0 && <><b>{e.interviews_waiting}</b> skill interview{e.interviews_waiting === 1 ? "" : "s"} waiting. <a href={`${TALFIRMS_URL}/interviews`} className="font-semibold underline">Open interviews</a></>}
+          {e.interviews_waiting > 0 && <><b>{e.interviews_waiting}</b> skill interview{e.interviews_waiting === 1 ? "" : "s"} waiting. <a href={`${TALFIRMS_URL}/interviews`} onClick={crossAppClick(TALFIRMS_URL, "/interviews", { newTab: false })} className="font-semibold underline">Open interviews</a></>}
         </p>
       )}
       {e.by_month.length > 0 && (
