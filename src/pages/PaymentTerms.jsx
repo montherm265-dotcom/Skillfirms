@@ -53,7 +53,7 @@ export default function PaymentTerms() {
           <section>
             <H>4. What instructors earn</H>
             <L items={[
-              "Expert interviews: you keep 75% of the price (currently $9 of $12).",
+              "Expert interviews: you keep 75% of the Net Revenue (Net Revenue is defined below). For a $12 interview paid on the web with no VAT: $12 minus the 3% fee ($0.36) = $11.64 Net Revenue; your 75% = $8.73. An interview included with Ultra is paid by Talfirms at the list price, worked out the same way.",
               "Courses: your share is a percentage of Net Revenue. You keep 60% of the Net Revenue from each sale (Skillfirms keeps 40%), or 100% of it when the buyer came through your own link. Founding instructors keep 85% for their first 6 months.",
               "Net Revenue means the gross amount the student paid, minus: applicable taxes (such as VAT or sales tax); app store commissions (Apple or Google) when the course is bought inside a phone app; payment processing, which for web sales is a flat 3% administrative and processing fee; currency conversion fees; and any refunds or chargebacks.",
               "Example: a $49 course bought on the web in a country with 15% VAT. The student pays $56.35. Minus $7.35 VAT = $49.00. Minus the 3% fee ($1.47) = $47.53 Net Revenue. Your 60% = $28.52.",

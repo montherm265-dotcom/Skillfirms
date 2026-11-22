@@ -81,19 +81,19 @@ const FEE = { web: "3% processing fee", app_store: "Apple's commission", play_st
 function SalesMath({ sales }) {
   return (
     <div className="mt-5">
-      <p className="text-xs font-semibold text-muted-foreground">Course sales: the math</p>
+      <p className="text-xs font-semibold text-muted-foreground">Sales: the math</p>
       <ul className="mt-2 space-y-2">
         {sales.map((x) => (
           <li key={x.id} className={`rounded-xl border border-border p-3 text-sm ${x.refunded ? "opacity-70" : ""}`}>
             <p className="flex items-center justify-between gap-2"><span className="truncate font-medium">{x.course}</span><span className="flex-none text-xs text-muted-foreground">{new Date(x.at).toLocaleDateString()}</span></p>
             <dl className="mt-2 grid grid-cols-[1fr_auto] gap-x-4 gap-y-0.5 text-xs tabular-nums">
-              <dt className="text-muted-foreground">Student paid</dt><dd className="text-right">{usd(x.gross_cents)}</dd>
+              <dt className="text-muted-foreground">{x.included ? "Paid by Talfirms (included with Ultra)" : x.kind === "interview" ? "Candidate paid" : "Student paid"}</dt><dd className="text-right">{usd(x.gross_cents)}</dd>
               {x.tax_cents > 0 && <><dt className="text-muted-foreground">Taxes (VAT / sales tax)</dt><dd className="text-right">−{usd(x.tax_cents)}</dd></>}
               <dt className="text-muted-foreground">{FEE[x.sale_channel] ?? "Fees"}</dt><dd className="text-right">−{usd(x.platform_fee_cents)}</dd>
               {x.fx_fee_cents > 0 && <><dt className="text-muted-foreground">Currency conversion</dt><dd className="text-right">−{usd(x.fx_fee_cents)}</dd></>}
               {x.refund_cents > 0 && <><dt className="text-muted-foreground">Refund / chargeback</dt><dd className="text-right">−{usd(x.refund_cents)}</dd></>}
               <dt className="border-t border-border pt-0.5 font-semibold">Net Revenue</dt><dd className="border-t border-border pt-0.5 text-right font-semibold">{usd(x.net_cents)}</dd>
-              <dt className="text-muted-foreground">Your share ({Math.round(Number(x.share_pct) * 100)}%{x.channel === "expert_link" ? ", your own link" : ""})</dt><dd className="text-right font-bold text-mastery">{usd(x.payout_cents)}</dd>
+              <dt className="text-muted-foreground">Your share ({Math.round(Number(x.share_pct) * 100)}%{x.channel === "expert_link" ? ", your own link" : x.kind === "interview" ? ", interview" : ""})</dt><dd className="text-right font-bold text-mastery">{usd(x.payout_cents)}</dd>
             </dl>
           </li>
         ))}
