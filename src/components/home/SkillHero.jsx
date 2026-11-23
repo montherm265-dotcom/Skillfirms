@@ -1,3 +1,4 @@
+import { useT } from "@/lib/i18n";
 import { useLayoutEffect, useRef, useState } from "react";
 import { dropShellAfterPaint, shellShown } from "@/lib/shell";
 import { Link, useNavigate } from "react-router-dom";
@@ -26,6 +27,7 @@ function Float({ children, className, depth = 1, scrollY, px, py, delay }) {
 // Skillfirms' first screen: one big sentence, a search for any skill, and a
 // real graded lesson with the moments that matter floating around it.
 export default function SkillHero({ totals }) {
+  const tr = useT();
   const ref = useRef(null);
   // When index.html already showed this top section, take over without
   // replaying the entrance animation, then remove the built-in copy.
@@ -61,13 +63,13 @@ export default function SkillHero({ totals }) {
         </motion.div>
 
         <h1 className="mx-auto mt-7 max-w-4xl text-[2.9rem] font-extrabold leading-[1.02] tracking-[-0.045em] text-[#00041d] sm:text-7xl lg:text-[5.4rem] dark:text-white">
-          {["Learn", "the", "job."].map((w, i) => (
+          {tr("Learn the job.").split(" ").map((w, i) => (
             <motion.span key={i} className="inline-block pr-[0.22em]" initial={instant ? false : { opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.8, delay: 0.1 + i * 0.07, ease }}>{w}</motion.span>
           ))}
           <motion.span className="mark inline-block pr-[0.22em]" initial={instant ? false : { opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.9, delay: 0.35, ease }}>Prove it.</motion.span>
           <br />
-          {["Get", "hired."].map((w, i) => (
-            <motion.span key={w} className="inline-block pr-[0.22em]" initial={instant ? false : { opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.8, delay: 0.5 + i * 0.07, ease }}>{w}</motion.span>
+          {tr("Get hired.").split(" ").map((w, i) => (
+            <motion.span key={i} className="inline-block pr-[0.22em]" initial={instant ? false : { opacity: 0, y: 30, filter: "blur(10px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.8, delay: 0.5 + i * 0.07, ease }}>{w}</motion.span>
           ))}
         </h1>
 
