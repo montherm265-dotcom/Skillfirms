@@ -6,6 +6,10 @@ import App from './App.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { initMonitoring } from './lib/monitoring.js';
 import './index.css';
+import { startI18n } from './lib/i18n.js';
+
+// Spanish, French or Arabic: translate the page as it appears (English loads nothing).
+startI18n();
 
 // Sentry + PostHog together pull in ~580KB of JS (confirmed via a bundle
 // analysis: @sentry/* in one chunk, posthog-js in another). initMonitoring()

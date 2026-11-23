@@ -1,3 +1,19 @@
+// Language (src/lib/i18n.js): for Spanish, French or Arabic, set the
+// direction now and start fetching the translations while the app loads.
+(function () {
+  try {
+    var l = null;
+    try { l = localStorage.getItem("lang"); } catch (e) {}
+    if (!l) { var n = ((navigator.languages && navigator.languages[0]) || navigator.language || "en").slice(0, 2).toLowerCase(); if (["es", "fr", "ar"].indexOf(n) >= 0) l = n; }
+    if (l && ["es", "fr", "ar"].indexOf(l) >= 0) {
+      document.documentElement.lang = l;
+      if (l === "ar") document.documentElement.dir = "rtl";
+      window.__i18n = fetch("/i18n/" + l + ".json").then(function (r) { return r.json(); });
+      window.__i18n.catch(function () {});
+    }
+  } catch (e) {}
+})();
+
 // Runs before anything else. For someone not signed in, the homepage and the
 // Courses page show their built-in version at once (#shell in index.html);
 // the app swaps it for the live version as soon as it has loaded. The

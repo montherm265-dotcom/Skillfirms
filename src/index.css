@@ -109,3 +109,11 @@
 
 @keyframes tf-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes tf-drift { 0% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(2%, -3%, 0) scale(1.05); } 100% { transform: translate3d(0, 0, 0) scale(1); } }
+
+/* Arabic (right to left, src/lib/i18n.js): arrows point the reading way,
+   and Arabic letters get a font made for them. */
+[dir="rtl"] .lucide-arrow-right, [dir="rtl"] .lucide-arrow-left,
+[dir="rtl"] .lucide-chevron-right, [dir="rtl"] .lucide-chevron-left,
+[dir="rtl"] .lucide-arrow-up-right, [dir="rtl"] .lucide-external-link { scale: -1 1; }
+[dir="rtl"] .truncate, [dir="rtl"] .line-clamp-1, [dir="rtl"] .line-clamp-2 { unicode-bidi: plaintext; }
+[lang="ar"] body { font-family: "Inter Variable", "Segoe UI", Tahoma, "Noto Sans Arabic", "Geeza Pro", system-ui, sans-serif; }

@@ -1,3 +1,4 @@
+import LanguagePicker from "@/components/LanguagePicker";
 import { Link } from "react-router-dom";
 import { SF_MARK_PATH, SF_MARK_VIEWBOX } from "@/components/brand/sfMark";
 import { ArrowUpRight } from "lucide-react";
@@ -47,6 +48,7 @@ export default function SiteFooter() {
         </div>
         <div className="mt-14 flex flex-col gap-2 border-t border-white/10 py-6 text-xs text-white/60 sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} Skillfirms · part of Talfirms</p>
+          <LanguagePicker />
           <p>Every certificate has its own page anyone can check.</p>
         </div>
       </div>
