@@ -10,7 +10,7 @@ import {
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { enroll } from "@/lib/courses";
-import { formatHours, loadCatalog, loadCourseHiring, loadCourseJobs, loadReviews, priceLabel, saveReview, shapeCourse } from "@/lib/catalog";
+import { formatHours, loadCatalog, loadCourseHiring, loadCourseJobs, loadReviews, priceLabel, saveReview, shapeCourse, teacherOf } from "@/lib/catalog";
 import { buyCourse, loadMyPurchase } from "@/lib/studio";
 import HiringBanner from "@/components/course/HiringBanner";
 import JobGoalBanner from "@/components/course/JobGoalBanner";
@@ -183,6 +183,9 @@ export default function CourseDetail() {
           isAccessibleForFree: !paid,
           educationalLevel: course.level || undefined,
           timeRequired: `PT${course.total_minutes}M`,
+          offers: [{ "@type": "Offer", category: paid ? "Paid" : "Free", price: (Number(course.price_cents ?? 0) / 100).toFixed(2), priceCurrency: "USD" }],
+          hasCourseInstance: [{ "@type": "CourseInstance", courseMode: "Online", courseWorkload: `PT${course.total_minutes}M`,
+            ...(teacherOf(course).kind === "expert" ? { instructor: [{ "@type": "Person", name: teacherOf(course).name }] } : {}) }],
           ...(course.rating_count ? { aggregateRating: { "@type": "AggregateRating", ratingValue: course.rating_avg, ratingCount: course.rating_count } } : {}),
         }}
         breadcrumb={[{ label: "Courses", path: "/courses" }, { label: course.title }]}
