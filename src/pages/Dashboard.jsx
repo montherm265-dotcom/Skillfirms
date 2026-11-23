@@ -1,3 +1,4 @@
+import MyCourseUpdates from "@/components/course/MyCourseUpdates";
 import Seo from "@/components/seo/Seo";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -101,6 +102,7 @@ export default function Dashboard() {
             <Link to="/"><Button size="sm" className="mt-3">Build my path</Button></Link>
           </div>
         )}
+        <MyCourseUpdates />
         <PeerProjectReviews />
       </div>
     </div>

@@ -1,3 +1,4 @@
+import CourseLive from "@/components/course/CourseLive";
 import { trackEvent } from "@/lib/monitoring";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -361,6 +362,7 @@ export default function CourseDetail() {
 
           {/* How proof works */}
           {realExpert && course.exam_size && course.certificate_rule !== "project" && <ExamCard course={course} enrolled={Boolean(enrollment)} canOpen={!locked} />}
+          {realExpert && <CourseLive courseId={course.id} courseTitle={course.title} />}
           {realExpert && course.certificate_rule !== "checks" && <CourseProject courseId={course.id} enrolled={Boolean(enrollment)} canOpen={!locked} />}
 
           <section className="mt-10 grid gap-3 sm:grid-cols-3">

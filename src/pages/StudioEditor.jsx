@@ -1,3 +1,4 @@
+import TutorTools from "@/components/course/TutorTools";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -258,6 +259,7 @@ export default function StudioEditor() {
           </section>
           {isNew ? <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">Save the draft once to set up the final exam, project reviews and the yearly check.</p>
             : <ExamBuilder courseId={id} onSize={setExamSize} />}
+          {!isNew && <TutorTools courseId={id} />}
         </div>
 
         <aside>
