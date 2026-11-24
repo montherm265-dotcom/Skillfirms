@@ -44,7 +44,7 @@ export default function Layout() {
   ];
   const accountLinks = [
     { to: "/dashboard", label: "My goal & path" },
-    { to: "/passport", label: "Skill Passport" },
+    { to: "/passport", label: "Skill progress" },
     { to: "/credentials", label: "Certificates" },
     { to: "/team", label: "Team training" },
     ...(expertId ? [{ to: "/teach", label: "Teach: my courses" }] : []),

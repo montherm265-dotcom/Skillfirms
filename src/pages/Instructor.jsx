@@ -146,7 +146,7 @@ function TalfirmsRecord({ record, name }) {
           <li key={`l${i}`} className="text-xs"><span className="inline-flex items-center gap-1 font-semibold text-success"><BadgeCheck className="h-3.5 w-3.5" />Licensed {l.profession}</span> <span className="text-muted-foreground">({l.country}, checked on the official register)</span></li>
         ))}
       </ul>
-      {record.trust?.level && record.trust.level !== "New" && <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">Talfirms Trust Score: <b className="text-foreground">{record.trust.score}</b> ({record.trust.level})</p>}
+      {(record.trust?.tier1 || record.trust?.tier2 || record.trust?.tier3) > 0 && <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">Proven on Talfirms: {[["real work", record.trust.tier3], ["confirmed", record.trust.tier2], ["trained", record.trust.tier1]].filter(([, n]) => n > 0).map(([l, n]) => `${n} ${l}`).join(" · ")}</p>}
     </div>
   );
 }

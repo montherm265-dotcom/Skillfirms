@@ -1,3 +1,4 @@
+import { TALFIRMS_URL } from "@/lib/externalLinks";
 import Seo from "@/components/seo/Seo";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -40,9 +41,9 @@ export default function SkillPassport() {
   return (
     <div className="section-pad">
       <div className="mx-auto max-w-2xl">
-        <Seo title="Skill Passport" noindex />
-        <h1 className="text-2xl font-semibold tracking-tight">Skill Passport</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Every skill, with where the number actually came from — never one opaque score.</p>
+        <Seo title="Skill progress" noindex />
+        <h1 className="text-2xl font-semibold tracking-tight">Skill progress</h1>
+        <p className="mt-1 text-sm text-muted-foreground">How far you've come in each skill while learning, and where each number came from. This is learning progress, not proof: <a href={`${TALFIRMS_URL}/career`} className="font-semibold text-primary hover:underline">your proof lives on Talfirms</a>, where finishing a course counts as Level 1 (Trained).</p>
 
         {categories.length === 0 ? (
           <EmptyState icon={Sparkles} title="No skills recorded yet" description="Build a career path from the homepage to get your first diagnosis." />
