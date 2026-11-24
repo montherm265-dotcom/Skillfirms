@@ -130,7 +130,7 @@ export default function SkillHero({ totals }) {
         <Float scrollY={scrollY} px={px} py={py} depth={0.9} delay={1.35} className="hidden sm:block sm:right-[3%] sm:top-[56%]">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-[#00041d]"><ShieldCheck className="h-4 w-4 text-[#1f4189]" />Verified on Talfirms</p>
           <div className="mt-1.5 flex gap-1">{[1, 2, 3].map((k) => <span key={k} className={`h-1.5 w-7 rounded-full ${k === 1 ? "bg-[#1f4189]" : "bg-[#1f4189]/15"}`} />)}</div>
-          <p className="mt-1 text-[11px] text-muted-foreground">Tier 1 · job fit 64% → 82%</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">Level 1 · job fit 64% → 82%</p>
         </Float>
       </div>
       <p className="pb-2 text-center text-[11px] text-muted-foreground">Example</p>
