@@ -11,6 +11,7 @@ import { loadStudioCourses } from "@/lib/studio";
 import { EXPERT_SHARE, loadMyRefCode, loadTeamMinutes, parsePrice, setCoursePrice } from "@/lib/plans";
 import Seo from "@/components/seo/Seo";
 import EarningsCard from "@/components/EarningsCard";
+import HireBonuses from "@/components/HireBonuses";
 import ExamMarking from "@/components/course/ExamMarking";
 import ProjectReviews from "@/components/course/ProjectReviews";
 import { Button } from "@/components/ui/button";
@@ -60,7 +61,7 @@ export default function Studio() {
     return (
       <div className="section-pad text-center">
         <p className="text-2xl font-extrabold tracking-[-0.03em]">Teach on Skillfirms</p>
-        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Approved experts build their own courses, with video, set their own price, and keep 60% of the net revenue from every sale (95% through their own link). Apply first; we check every application by hand.</p>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Approved experts build their own courses, with video, set their own price, and keep 60% of the net revenue from every sale (95% through their own link), plus a $30 hire bonus when a learner who proved a skill with their course is hired through Talfirms. Apply first; we check every application by hand.</p>
         <Link to="/experts"><Button className="mt-4">Apply to become an expert</Button></Link>
       </div>
     );
@@ -106,6 +107,7 @@ export default function Studio() {
         <ExamMarking />
         <ProjectReviews />
         <EarningsCard />
+        <HireBonuses />
 
         <a href={`${TALFIRMS_URL}/clips/new`} onClick={crossAppClick(TALFIRMS_URL, "/clips/new")}
           className="mt-4 flex items-center gap-3 rounded-2xl border border-border bg-gradient-to-r from-[#eef1ff] to-card p-4 text-sm transition-colors hover:border-[#1f4189]/40">

@@ -59,6 +59,7 @@ export default function PaymentTerms() {
               "Example: a $49 course bought on the web in a country with 15% VAT. The student pays $56.35. Minus $7.35 VAT = $49.00. Minus the processing fee of 3% + $0.30 ($1.77) = $47.23 Net Revenue. Your 60% = $28.34.",
               "Every sale is listed in your Studio with each of these lines: gross price, taxes, fees, refunds, Net Revenue and your payout, so you can check the math.",
               "Your share is worked out on what the buyer actually paid, after any discount.",
+              "Hire bonus: when someone is hired through Talfirms for a job whose must-have skill they proved with your course, you earn $30 (split equally if up to 3 instructors' courses counted). It's paid 90 days after the hire is confirmed, and cancelled if the hire is withdrawn or found false. Talfirms pays it; the student and company pay nothing extra.",
               "Earnings are held for 14 days (the refund window), then paid out to you through Stripe. You need a Stripe account in your name to be paid.",
               "If a sale is refunded or charged back, that amount comes off your balance.",
               "You're responsible for your own taxes. Stripe may ask for tax details before paying you.",
