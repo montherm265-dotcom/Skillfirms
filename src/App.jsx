@@ -38,6 +38,7 @@ const VerifyCredential = lazy(() => import('@/pages/VerifyCredential'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
 const Trust = lazy(() => import('@/pages/Trust'));
+const Feedback = lazy(() => import('@/pages/Feedback'));
 const Terms = lazy(() => import('@/pages/Terms'));
 const PaymentTerms = lazy(() => import('@/pages/PaymentTerms'));
 const PageNotFound = lazy(() => import('@/pages/PageNotFound'));
@@ -89,6 +90,7 @@ export default function App() {
                 <Route path="/expert" element={<Navigate to="/teach" replace />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/trust" element={<Trust />} />
+                <Route path="/feedback" element={<Feedback />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/terms/payments" element={<PaymentTerms />} />
                 <Route path="*" element={<PageNotFound />} />
